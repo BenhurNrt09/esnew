@@ -64,6 +64,10 @@ export default function NewProfilePage() {
                 parent,
                 subs: allCats.filter(c => c.parent_id === parent.id)
             })).filter(g => g.subs.length > 0);
+
+            // "Hizmetler" kategorisi özeldir, onu özellikler listesinde göstermek yerine yukarıda combobox olarak gösteriyoruz
+            // Ama details içinde de seçilebilir. İhtiyaca göre filtreleyebiliriz.
+            // Şimdilik hepsini gösteriyoruz.
             setFeatureGroups(groups);
         }
     }
@@ -77,31 +81,52 @@ export default function NewProfilePage() {
         try {
             const supabase = createBrowserClient();
 
+            // GELİŞMİŞ VE PROJEYE ÖZEL KATEGORİ SETİ
             const seedData = [
                 {
                     name: 'Saç Rengi',
                     slug: 'sac-rengi',
-                    subs: ['Sarı', 'Esmer', 'Kumral', 'Kızıl', 'Siyah', 'Boyalı']
+                    subs: ['Sarı', 'Esmer', 'Kumral', 'Kızıl', 'Siyah', 'Boyalı / Renkli']
                 },
                 {
                     name: 'Göz Rengi',
                     slug: 'goz-rengi',
-                    subs: ['Mavi', 'Yeşil', 'Kahverengi', 'Ela', 'Siyah']
+                    subs: ['Mavi', 'Yeşil', 'Kahverengi', 'Ela', 'Siyah', 'Lens']
                 },
                 {
                     name: 'Vücut Tipi',
                     slug: 'vucut-tipi',
-                    subs: ['Zayıf', 'Fit / Sportif', 'Balık Etli', 'Dolgun', 'Büyük Beden']
+                    subs: ['Zayıf', 'Fit / Sportif', 'Balık Etli', 'Dolgun', 'Büyük Beden', 'Minyon']
                 },
                 {
                     name: 'Uyruk / Köken',
                     slug: 'uyruk',
-                    subs: ['Türk', 'Rus', 'Ukrayna', 'Azerbaycan', 'Latin', 'Avrupa', 'Asya', 'Afro', 'Arap']
+                    subs: ['Türk', 'Rus', 'Ukrayna', 'Azerbaycan', 'Latin', 'Avrupa', 'Asya', 'Afro', 'Arap', 'Moldova', 'Özbek', 'İran']
                 },
                 {
                     name: 'Hizmetler',
                     slug: 'hizmetler',
-                    subs: ['Eskort', 'Masaj', 'Dans / Show', 'Partner']
+                    subs: ['Eskort', 'Masaj', 'Dans / Show', 'Partner', 'VIP Eşlik', 'Seyahat Arkadaşlığı']
+                },
+                {
+                    name: 'Bildiği Diller',
+                    slug: 'diller',
+                    subs: ['Türkçe', 'İngilizce', 'Rusça', 'Arapça', 'Almanca', 'Fransızca']
+                },
+                {
+                    name: 'Mekan Tercihi',
+                    slug: 'mekan',
+                    subs: ['Kendi Yerim Var', 'Otele Giderim', 'Eve Giderim', 'Ofise Giderim']
+                },
+                {
+                    name: 'Seyahat Durumu',
+                    slug: 'seyahat',
+                    subs: ['Seyahat Edebilirim', 'Şehir Dışına Çıkarım', 'Yurt Dışına Çıkarım', 'Sadece Şehir İçi']
+                },
+                {
+                    name: 'Sigara Kullanımı',
+                    slug: 'sigara',
+                    subs: ['Kullanıyorum', 'Kullanmıyorum', 'Sosyal İçici']
                 }
             ];
 
@@ -128,14 +153,14 @@ export default function NewProfilePage() {
                             slug: subSlug,
                             parent_id: parentId,
                             is_active: true
-                        }, { onConflict: 'slug' });
+                        }, { onConflict: 'slug' }); // Use slug as constraint if unique, otherwise duplicate inputs might occur but upsert helps
                     }
                 }
             }
 
             // Reload
             await loadData();
-            alert('Özellik kategorileri başarıyla yüklendi!');
+            alert('Tüm özellik kategorileri (Diller, Mekan vb. dahil) başarıyla yüklendi!');
 
         } catch (err: any) {
             console.error(err);
@@ -265,19 +290,18 @@ export default function NewProfilePage() {
                     <h1 className="text-3xl font-black text-red-950 tracking-tight">Yeni Profil Oluştur</h1>
                     <p className="text-muted-foreground mt-1">Platforma detaylı bir profesyonel profil ekleyin</p>
                 </div>
-                {featureGroups.length === 0 && (
-                    <Button
-                        onClick={handleInitialize}
-                        disabled={seeding}
-                        className="bg-amber-100 text-amber-900 border border-amber-200 hover:bg-amber-200"
-                    >
-                        {seeding ? (
-                            <><RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Yükleniyor...</>
-                        ) : (
-                            <><Database className="mr-2 h-4 w-4" /> Özellikleri Otomatik Yükle</>
-                        )}
-                    </Button>
-                )}
+                <Button
+                    onClick={handleInitialize}
+                    disabled={seeding}
+                    variant="outline"
+                    className="border-amber-200 text-amber-800 hover:bg-amber-50"
+                >
+                    {seeding ? (
+                        <><RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Yükleniyor...</>
+                    ) : (
+                        <><Database className="mr-2 h-4 w-4" /> Eksik Özellikleri Yükle</>
+                    )}
+                </Button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -406,29 +430,26 @@ export default function NewProfilePage() {
                             </div>
 
                             {/* Dinamik Combobox'lar */}
-                            {featureGroups.length > 0 ? featureGroups.map(group => (
-                                <div key={group.parent.id} className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700">{group.parent.name}</label>
-                                    <Combobox
-                                        options={group.subs.map(sub => ({ value: sub.name, label: sub.name }))}
-                                        value={formData.details[group.parent.name] || ''}
-                                        onChange={(val) => handleFeatureChange(group.parent.name, val)}
-                                        placeholder={`${group.parent.name} Seçiniz...`}
-                                        searchPlaceholder="Ara..."
-                                    />
-                                </div>
-                            )) : (
+                            {featureGroups.length > 0 ? featureGroups.map(group => {
+                                // Hizmetler ve Hizmet Kategorisi karışıklığını önlemek için 
+                                // eğer ana formda kategori seçtiysek ve bu grup o değilse göster.
+                                return (
+                                    <div key={group.parent.id} className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-700">{group.parent.name}</label>
+                                        <Combobox
+                                            options={group.subs.map(sub => ({ value: sub.name, label: sub.name }))}
+                                            value={formData.details[group.parent.name] || ''}
+                                            onChange={(val) => handleFeatureChange(group.parent.name, val)}
+                                            placeholder={`${group.parent.name} Seçiniz...`}
+                                            searchPlaceholder="Ara..."
+                                        />
+                                    </div>
+                                );
+                            }) : (
                                 <div className="col-span-full py-8 text-center bg-amber-50 rounded-xl border border-dashed border-amber-200 text-amber-800">
                                     <Info className="h-8 w-8 mx-auto mb-2 text-amber-500" />
-                                    <p className="font-bold">Özellik kategorileri henüz yüklenmemiş.</p>
-                                    <p className="text-sm mb-4">Profil özelliklerini (Saç, Göz, vb.) seçebilmek için veri tabanı kurulumunu yapmanız gerekiyor.</p>
-                                    <Button
-                                        onClick={handleInitialize}
-                                        disabled={seeding}
-                                        className="bg-amber-600 hover:bg-amber-700 text-white"
-                                    >
-                                        {seeding ? 'Yükleniyor...' : 'Özellikleri Şimdi Yükle'}
-                                    </Button>
+                                    <p className="font-bold">Özellik kategorileri henüz yüklenmemiş olabilir.</p>
+                                    <p className="text-sm mb-4">Eksik kategorileri yüklemek için yukarıdaki 'Eksik Özellikleri Yükle' butonunu kullanın.</p>
                                 </div>
                             )}
                         </div>
