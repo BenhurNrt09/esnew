@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createBrowserClient } from '@repo/lib';
+import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent } from '@repo/ui';
 import { useRouter } from 'next/navigation';
 
@@ -18,7 +18,7 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const supabase = createBrowserClient();
+            const supabase = createClient();
 
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
