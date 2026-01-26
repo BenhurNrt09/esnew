@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { ListingActions } from './ListingActions';
 import type { Listing, City, Category } from '@repo/types';
-import { Input } from '@repo/ui';
-import { Search, Filter, X, SlidersHorizontal } from 'lucide-react';
+import { Input, Button } from '@repo/ui';
+import { Search, Filter, X, SlidersHorizontal, Image as ImageIcon } from 'lucide-react';
+import { Combobox } from '../../components/Combobox';
 
 interface ListingTableProps {
     listings: (Listing & { city?: City; category?: Category })[];
@@ -35,167 +36,171 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
     const hasFilters = searchTerm || categoryFilter || cityFilter;
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
             {/* Modern Filters Bar */}
-            <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md">
-                <div className="flex items-center gap-2 mb-4 text-gray-800 font-bold text-sm uppercase tracking-wider">
+            <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-xl shadow-red-100/20">
+                <div className="flex items-center gap-2 mb-6 text-red-900 font-bold text-sm uppercase tracking-wider">
                     <SlidersHorizontal className="h-4 w-4 text-red-500" />
-                    Filtreleme Seçenekleri
+                    Hızlı Filtreleme
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                     {/* Search */}
                     <div className="md:col-span-4 relative group">
                         <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400 group-focus-within:text-red-500 transition-colors" />
-                        <input
+                        <Input
                             type="text"
-                            placeholder="İsim, açıklama veya ID ara..."
+                            placeholder="İsim, Açıklama veya ID ara..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-11 pl-10 pr-4 rounded-lg border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all"
+                            className="w-full h-11 pl-10 border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:border-red-500 shadow-sm"
                         />
                     </div>
 
                     {/* Category Filter */}
                     <div className="md:col-span-3">
-                        <div className="relative">
-                            <select
-                                className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all appearance-none cursor-pointer"
-                                value={categoryFilter}
-                                onChange={(e) => setCategoryFilter(e.target.value)}
-                            >
-                                <option value="">Tüm Kategoriler</option>
-                                {categories.map((c) => (
-                                    <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
-                            </select>
-                            <Filter className="absolute right-3.5 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
-                        </div>
+                        <Combobox
+                            options={[{ value: '', label: 'Tüm Kategoriler' }, ...categories.map(c => ({ value: c.id, label: c.name }))]}
+                            value={categoryFilter}
+                            onChange={(val) => setCategoryFilter(val)}
+                            placeholder="Tüm Kategoriler"
+                            searchPlaceholder="Kategori ara..."
+                            className="w-full"
+                        />
                     </div>
 
                     {/* City Filter */}
                     <div className="md:col-span-3">
-                        <div className="relative">
-                            <select
-                                className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition-all appearance-none cursor-pointer"
-                                value={cityFilter}
-                                onChange={(e) => setCityFilter(e.target.value)}
-                            >
-                                <option value="">Tüm Şehirler</option>
-                                {cities.map((c) => (
-                                    <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
-                            </select>
-                            <Filter className="absolute right-3.5 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
-                        </div>
+                        <Combobox
+                            options={[{ value: '', label: 'Tüm Şehirler' }, ...cities.map(c => ({ value: c.id, label: c.name }))]}
+                            value={cityFilter}
+                            onChange={(val) => setCityFilter(val)}
+                            placeholder="Tüm Şehirler"
+                            searchPlaceholder="Şehir ara..."
+                            className="w-full"
+                        />
                     </div>
 
                     {/* Clear Button */}
                     <div className="md:col-span-2">
-                        <button
+                        <Button
                             onClick={clearFilters}
                             disabled={!hasFilters}
-                            className={`w-full h-11 rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition-all ${hasFilters
-                                    ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700'
-                                    : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                            variant="outline"
+                            className={`w-full h-11 rounded-lg border-dashed ${hasFilters
+                                ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
+                                : 'border-gray-200 text-gray-300 cursor-not-allowed'
                                 }`}
                         >
-                            <X className="h-4 w-4" /> Temizle
-                        </button>
+                            <X className="h-4 w-4 mr-2" /> Temizle
+                        </Button>
                     </div>
                 </div>
             </div>
 
             {/* Stats Bar */}
-            <div className="flex items-center justify-between text-xs text-gray-500 px-1">
+            <div className="flex items-center justify-between text-xs text-gray-500 px-2 font-medium">
                 <div>
-                    <span className="font-bold text-gray-900">{filteredListings.length}</span> sonuç bulundu
+                    Toplam <span className="font-bold text-gray-900 text-sm">{filteredListings.length}</span> profil listeleniyor
                 </div>
                 {hasFilters && (
-                    <div className="text-red-500 font-medium">
-                        * Filtrelenmiş sonuçlar gösteriliyor
+                    <div className="text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100 flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                        Filtrelenmiş sonuçlar
                     </div>
                 )}
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-gray-50/50 text-xs uppercase border-b border-gray-100">
+                        <thead className="bg-gray-50/80 text-xs uppercase border-b border-gray-100 backdrop-blur-sm">
                             <tr>
-                                <th className="text-left py-4 px-6 font-bold text-gray-500 tracking-wider">Profil</th>
-                                <th className="text-left py-4 px-6 font-bold text-gray-500 tracking-wider">Konum</th>
-                                <th className="text-left py-4 px-6 font-bold text-gray-500 tracking-wider">Kategori</th>
-                                <th className="text-left py-4 px-6 font-bold text-gray-500 tracking-wider">Fiyat</th>
-                                <th className="text-left py-4 px-6 font-bold text-gray-500 tracking-wider">Durum</th>
-                                <th className="text-right py-4 px-6 font-bold text-gray-500 tracking-wider">İşlemler</th>
+                                <th className="text-left py-5 px-6 font-bold text-gray-400 tracking-wider w-[300px]">Profil Detayı</th>
+                                <th className="text-left py-5 px-6 font-bold text-gray-400 tracking-wider">İl / Kategori</th>
+                                <th className="text-left py-5 px-6 font-bold text-gray-400 tracking-wider">Saatlik Ücret</th>
+                                <th className="text-left py-5 px-6 font-bold text-gray-400 tracking-wider">Durum</th>
+                                <th className="text-right py-5 px-6 font-bold text-gray-400 tracking-wider">Yönetim</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {filteredListings.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="text-center py-16">
+                                    <td colSpan={5} className="text-center py-20">
                                         <div className="flex flex-col items-center justify-center text-gray-400">
-                                            <Search className="h-10 w-10 mb-3 opacity-20" />
-                                            <p className="font-medium">Sonuç bulunamadı</p>
-                                            <p className="text-xs mt-1">Filtrelerinizi değiştirmeyi deneyin.</p>
+                                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                                <Search className="h-8 w-8 text-gray-300" />
+                                            </div>
+                                            <p className="font-bold text-gray-600 text-lg">Sonuç bulunamadı</p>
+                                            <p className="text-sm mt-1 text-gray-400">Arama kriterlerinizi değiştirerek tekrar deneyin.</p>
                                         </div>
                                     </td>
                                 </tr>
                             ) : (
                                 filteredListings.map((listing) => (
-                                    <tr key={listing.id} className="hover:bg-red-50/30 transition-colors group">
-                                        <td className="py-4 px-6">
+                                    <tr key={listing.id} className="hover:bg-red-50/10 transition-colors group">
+                                        <td className="py-5 px-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-red-50 to-white flex items-center justify-center text-red-600 font-black text-lg shadow-sm border border-red-100 group-hover:border-red-200 transition-colors">
-                                                    {listing.title.charAt(0).toUpperCase()}
+                                                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border overflow-hidden relative ${listing.cover_image ? 'border-gray-100' : 'bg-gradient-to-br from-red-50 to-white border-red-100'
+                                                    }`}>
+                                                    {listing.cover_image ? (
+                                                        <img src={listing.cover_image} alt="" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                                                    ) : (
+                                                        <ImageIcon className="h-6 w-6 text-red-200" />
+                                                    )}
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-sm text-gray-900 group-hover:text-red-700 transition-colors">{listing.title}</p>
-                                                    <p className="text-[10px] text-gray-400 font-mono mt-0.5 max-w-[120px] truncate">{listing.slug}</p>
+                                                    <p className="font-extrabold text-base text-gray-900 group-hover:text-red-700 transition-colors">{listing.title}</p>
+                                                    <p className="text-[11px] text-gray-400 font-mono mt-1 flex items-center gap-1">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                                                        {listing.slug}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="py-4 px-6 text-sm">
-                                            <div className="flex items-center gap-1.5 text-gray-600">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-                                                {listing.city?.name || '-'}
+                                        <td className="py-5 px-6">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                                                    <span className="text-red-500">•</span>
+                                                    {listing.city?.name || 'Şehir Yok'}
+                                                </div>
+                                                <div className="text-xs text-gray-400 bg-gray-50 inline-block px-2 py-0.5 rounded border border-gray-100 w-fit">
+                                                    {listing.category?.name || 'Kategori Yok'}
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="py-4 px-6 text-sm">
-                                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
-                                                {listing.category?.name || '-'}
-                                            </span>
-                                        </td>
-                                        <td className="py-4 px-6 text-sm font-bold text-gray-700 font-mono">
+                                        <td className="py-5 px-6">
                                             {listing.price ? (
-                                                new Intl.NumberFormat('tr-TR', {
-                                                    style: 'currency',
-                                                    currency: 'TRY',
-                                                }).format(listing.price)
-                                            ) : <span className="text-gray-400 font-normal italic text-xs">Belirtilmedi</span>}
+                                                <span className="text-sm font-bold text-gray-900 font-mono bg-green-50 text-green-700 px-2 py-1 rounded-md border border-green-100">
+                                                    {new Intl.NumberFormat('tr-TR', {
+                                                        style: 'currency',
+                                                        currency: 'TRY',
+                                                        minimumFractionDigits: 0
+                                                    }).format(listing.price)}
+                                                </span>
+                                            ) : <span className="text-gray-400 text-xs italic">Fiyat Yok</span>}
                                         </td>
-                                        <td className="py-4 px-6">
+                                        <td className="py-5 px-6">
                                             <div className="flex flex-col gap-1.5 items-start">
                                                 {listing.is_active ? (
-                                                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 text-[10px] font-bold uppercase tracking-wide">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Yayında
+                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-bold uppercase tracking-wide">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Yayında
                                                     </span>
                                                 ) : (
-                                                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200 text-[10px] font-bold uppercase tracking-wide">
+                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200 text-[10px] font-bold uppercase tracking-wide">
                                                         Pasif
                                                     </span>
                                                 )}
 
                                                 {listing.is_featured && (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-bold uppercase tracking-wide ml-1">
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-bold uppercase tracking-wide">
                                                         ★ Vitrin
                                                     </span>
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="py-4 px-6 text-right">
+                                        <td className="py-5 px-6 text-right">
                                             <ListingActions
                                                 id={listing.id}
                                                 slug={listing.slug}

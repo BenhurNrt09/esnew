@@ -3,7 +3,7 @@ import type { Listing, City, Category } from '@repo/types';
 import { Button } from '@repo/ui';
 import Link from 'next/link';
 import { ListingTable } from './ListingTable';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Users } from 'lucide-react';
 
 export const revalidate = 0;
 
@@ -52,18 +52,20 @@ export default async function ListingsPage() {
     const active = listings.filter(l => l.is_active).length;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="container mx-auto px-4 py-8 animate-in fade-in duration-500">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-black text-red-950">İlan Yönetimi</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Toplam <span className="font-bold text-red-600">{total}</span> ilan,
+                    <h1 className="text-3xl font-black text-red-950 tracking-tight flex items-center gap-3">
+                        <Users className="h-8 w-8 text-red-600" /> Profil Yönetimi
+                    </h1>
+                    <p className="text-muted-foreground mt-1 text-lg">
+                        Toplam <span className="font-bold text-red-600">{total}</span> profil,
                         <span className="font-bold text-green-600 ml-1">{active}</span> aktif yayında
                     </p>
                 </div>
-                <Button asChild className="gap-2 bg-red-600 hover:bg-red-700 text-white rounded-full px-6 shadow-red-200 shadow-lg">
+                <Button asChild className="h-12 gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl px-8 shadow-lg shadow-red-200 transition-all hover:scale-105 active:scale-95">
                     <Link href="/dashboard/listings/new">
-                        <UserPlus className="h-4 w-4" /> Yeni İlan Ekle
+                        <UserPlus className="h-5 w-5" /> Yeni Profil Oluştur
                     </Link>
                 </Button>
             </div>
