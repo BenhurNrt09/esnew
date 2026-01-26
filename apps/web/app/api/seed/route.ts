@@ -27,12 +27,66 @@ export async function GET() {
                 createdCats.push(existing);
                 continue;
             }
-
-            const { data, error } = await supabase.from('categories').insert(cat).select().single();
-            if (data) createdCats.push(data);
+            // Auth gerekebilir, RLS kapalıysa geçer. Değilse aşağıda auth yapınca buraya geri dönmeli.
+            // Genelde public tablolar insert'e kapalıdır.
+            // O yüzden önce GİRİŞ YAPALIM.
         }
 
-        // 2. Alt Kategoriler (Saç Rengi)
+        // --- AUTHENTICATION ---
+        let userId;
+        let session;
+
+        const { data: signInData } = await supabase.auth.signInWithPassword({
+            email: 'demo@esnew.com',
+            password: 'password123'
+        });
+
+        if (signInData.session) {
+            userId = signInData.user.id;
+            session = signInData.session;
+        } else {
+            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                email: 'demo@esnew.com',
+                password: 'password123',
+                options: { data: { role: 'admin' } }
+            });
+
+            if (signUpData.session) {
+                userId = signUpData.user?.id;
+                session = signUpData.session;
+            } else if (signUpError) {
+                throw new Error(`SignUp Eror: ${signUpError.message}`);
+            }
+        }
+
+        if (!session) {
+            // Kullanıcı var ama session yok (confirm gerek) veya hata.
+            throw new Error('Authentication failed. No session obtained.');
+        }
+
+        // Set Session
+        await supabase.auth.setSession({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token!,
+        });
+
+        // Artık yetkiliyiz. Kategorileri ekleyebiliriz (Admin role kontrolü varsa işe yarar).
+        // Eğer kategori tablosu sadece admin insert ise ve bu user admin değilse hata alırız.
+        // Ama local seed için genelde RLS esnektir veya demo user admin yapılır.
+
+        for (const cat of categories) {
+            // Tekrar kontrol (yukarıdaki array boş kalmıştı)
+            const { data: existing } = await supabase.from('categories').select('id, slug').eq('slug', cat.slug).single();
+            if (existing) {
+                if (!createdCats.find(c => c.slug === existing.slug)) createdCats.push(existing);
+                continue;
+            }
+            const { data, error } = await supabase.from('categories').insert(cat).select().single();
+            if (data) createdCats.push(data);
+            if (error) console.error('Cat Insert Error:', error.message);
+        }
+
+        // 2. Alt Kategoriler
         if (createdCats.length > 0) {
             const hairCat = createdCats.find(c => c.slug === 'sac-rengi');
             if (hairCat) {
@@ -67,51 +121,32 @@ export async function GET() {
             if (data) createdCities.push(data);
         }
 
-        // 4. Fake Users & Listings (SignUp ile)
-        let userId;
-        const { data: signInData } = await supabase.auth.signInWithPassword({
-            email: 'demo@esnew.com',
-            password: 'password123'
-        });
-
-        if (signInData.user) {
-            userId = signInData.user.id;
-        } else {
-            const { data: signUpData } = await supabase.auth.signUp({
-                email: 'demo@esnew.com',
-                password: 'password123',
-                options: { data: { role: 'admin' } }
-            });
-            userId = signUpData.user?.id;
-        }
-
-        if (!userId) {
-            // Eğer hala yoksa, belki kullanıcı zaten vardır ama şifre yanlıştır veya confirm gerek.
-            // Listings'e null user_id atamayız (Foreign key constraint).
-            // Bu adımda patlarsa listings oluşmaz.
-            return NextResponse.json({ error: 'User creation failed' }, { status: 400 });
-        }
-
-        // 5. Listings (Profiller)
+        // 5. Listings
         const titles = ['Elif Model', 'Ayşe', 'Zeynep', 'Melis', 'Selin', 'Gizem', 'Ece', 'Nazlı'];
         const serviceCat = createdCats.find(c => c.slug === 'hizmetler') || createdCats[0];
         const ist = createdCities.find(c => c.slug === 'istanbul') || createdCities[0];
 
         let createdListings = 0;
-        for (let i = 0; i < titles.length; i++) {
-            const title = titles[i];
-            const { error } = await supabase.from('listings').insert({
-                user_id: userId,
-                title: title + ' ' + (i + 1),
-                slug: `${title.toLowerCase()}-${i + 1}`,
-                description: 'Profesyonel çekimler ve etkinlikler için uygunum.',
-                price: 1500 + (i * 100),
-                city_id: ist.id,
-                category_id: serviceCat.id,
-                is_active: true,
-                is_featured: i < 4,
-            });
-            if (!error) createdListings++;
+        if (serviceCat && ist && userId) {
+            for (let i = 0; i < titles.length; i++) {
+                const title = titles[i];
+                const slug = `${title.toLowerCase().replace(/ /g, '-')}-${Date.now()}-${i}`;
+
+                const { error } = await supabase.from('listings').insert({
+                    user_id: userId,
+                    title: title + ' ' + (i + 1),
+                    slug: slug,
+                    description: 'Profesyonel çekimler ve etkinlikler için uygunum. Detaylı bilgi için profilimi inceleyin.',
+                    price: 1500 + (i * 100),
+                    city_id: ist.id,
+                    category_id: serviceCat.id,
+                    is_active: true,
+                    is_featured: i < 4,
+                });
+
+                if (!error) createdListings++;
+                else console.error('Listing Error:', error.message);
+            }
         }
 
         return NextResponse.json({ success: true, message: `Data seeded. Listings: ${createdListings}` });
