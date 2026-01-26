@@ -1,17 +1,7 @@
-// Supabase clients
+// Supabase clients - client-side only
 export { createClient as createBrowserClient } from './supabase/client';
-export { createClient as createServerClient } from './supabase/server';
-export { createAdminClient } from './supabase/admin';
 
-// Auth helpers
-export {
-    getCurrentUser,
-    requireAuth,
-    requireAdmin,
-    signOut,
-} from './auth/helpers';
-
-// Utilities
+// Utilities - safe for both client and server
 export {
     slugify,
     formatPrice,
@@ -19,3 +9,4 @@ export {
     truncate,
     getPublicUrl,
 } from './utils';
+

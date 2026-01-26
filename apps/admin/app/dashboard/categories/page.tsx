@@ -1,4 +1,4 @@
-import { createServerClient } from '@repo/lib';
+import { createServerClient } from '@repo/lib/server';
 import type { Category } from '@repo/types';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@repo/ui';
 import Link from 'next/link';

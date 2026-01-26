@@ -1,4 +1,4 @@
-import { requireAdmin, createServerClient } from '@repo/lib';
+import { requireAdmin, createServerClient } from '@repo/lib/server';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui';
 
