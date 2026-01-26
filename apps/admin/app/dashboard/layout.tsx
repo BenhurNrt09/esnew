@@ -2,6 +2,7 @@ import { requireAdmin } from '@repo/lib';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@repo/ui';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export default async function DashboardLayout({
     children,
@@ -57,6 +58,7 @@ export default async function DashboardLayout({
                         </nav>
                     </div>
                     <div className="flex items-center gap-4">
+                        <LanguageSwitcher />
                         <form action="/api/logout" method="POST">
                             <Button variant="ghost" size="sm" type="submit">
                                 Çıkış Yap
