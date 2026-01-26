@@ -1,4 +1,4 @@
-import { requireAdmin } from '@repo/lib';
+import { requireAdmin } from '@repo/lib/server';
 import { redirect } from 'next/navigation';
 import { DashboardHeader } from '../components/DashboardHeader';
 

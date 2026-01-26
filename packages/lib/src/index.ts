@@ -1,15 +1,8 @@
-// Supabase clients
-export { createClient as createBrowserClient } from './supabase/client';
-export { createClient as createServerClient } from './supabase/server';
-export { createAdminClient } from './supabase/admin';
+// Client-safe exports only
+// Server-side exports -> import from '@repo/lib/server'
 
-// Auth helpers  
-export {
-    getCurrentUser,
-    requireAuth,
-    requireAdmin,
-    signOut,
-} from './auth/helpers';
+// Supabase client (Client-side only)
+export { createClient as createBrowserClient } from './supabase/client';
 
 // Utilities - safe for both client and server
 export {
