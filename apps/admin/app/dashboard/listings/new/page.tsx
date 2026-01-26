@@ -14,7 +14,8 @@ import {
     Image as ImageIcon,
     User,
     MapPin,
-    Info
+    Info,
+    Link as LinkIcon
 } from 'lucide-react';
 
 export default function NewProfilePage() {
@@ -207,16 +208,19 @@ export default function NewProfilePage() {
                                     required
                                     className="border-gray-200 focus:border-red-500 font-medium h-11 text-base shadow-sm"
                                 />
+                                <p className="text-xs text-gray-400">Profilinizin ana başlığı.</p>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700">URL Slug *</label>
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                    <LinkIcon className="h-3 w-3" /> Profil Linki (URL)
+                                </label>
                                 <Input
                                     value={formData.slug}
-                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                    placeholder="ayse-yilmaz"
-                                    required
-                                    className="border-gray-200 bg-gray-50/50 font-mono text-sm h-11 shadow-sm"
+                                    readOnly
+                                    placeholder="Otomatik oluşturulur..."
+                                    className="border-gray-200 bg-gray-50 text-gray-500 font-mono text-sm h-11 shadow-sm cursor-not-allowed"
                                 />
+                                <p className="text-xs text-gray-400">Profil adınıza göre otomatik oluşturulur.</p>
                             </div>
                         </div>
 
@@ -310,7 +314,7 @@ export default function NewProfilePage() {
                             </div>
 
                             {/* Dinamik Combobox'lar */}
-                            {featureGroups.map(group => (
+                            {featureGroups.length > 0 ? featureGroups.map(group => (
                                 <div key={group.parent.id} className="space-y-2">
                                     <label className="text-sm font-bold text-gray-700">{group.parent.name}</label>
                                     <Combobox
@@ -321,7 +325,11 @@ export default function NewProfilePage() {
                                         searchPlaceholder="Ara..."
                                     />
                                 </div>
-                            ))}
+                            )) : (
+                                <div className="col-span-full py-4 text-center bg-gray-50 rounded-lg border border-dashed border-gray-200 text-sm text-gray-500">
+                                    Özellik kategorileri yüklenmedi. Lütfen veritabanı Seed işlemini gerçekleştirin.
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -429,7 +437,7 @@ export default function NewProfilePage() {
                     </CardContent>
                 </Card>
 
-                {/* 4. YAYIN AYARLARI KARTLARI (Öncekiyle aynı ama shadow/border iyileştiriliyor) */}
+                {/* 4. YAYIN AYARLARI */}
                 <Card className="border-red-100 shadow-md bg-white overflow-hidden">
                     <CardContent className="p-6">
                         <div className="flex flex-col md:flex-row gap-6">
