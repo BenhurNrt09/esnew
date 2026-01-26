@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@repo/ui';
 import { slugify, createBrowserClient } from '@repo/lib';
 import type { City, Category } from '@repo/types';
+import { Combobox } from '../../../components/Combobox';
 import {
     Star,
     CheckCircle2,
@@ -13,8 +14,7 @@ import {
     Image as ImageIcon,
     User,
     MapPin,
-    Info,
-    Layers
+    Info
 } from 'lucide-react';
 
 export default function NewProfilePage() {
@@ -25,7 +25,6 @@ export default function NewProfilePage() {
     // Data
     const [cities, setCities] = useState<City[]>([]);
     const [featureGroups, setFeatureGroups] = useState<{ parent: Category, subs: Category[] }[]>([]);
-    const [mainCategory, setMainCategory] = useState<string>(''); // Ana kategori (ör: Escort, Masaj vb. eğer varsa)
 
     // Form
     const [formData, setFormData] = useState({
@@ -33,16 +32,15 @@ export default function NewProfilePage() {
         slug: '',
         description: '',
         city_id: '',
-        category_id: '', // Ana kategori (Hizmet türü)
+        category_id: '',
         price: '',
         is_featured: false,
         is_active: true,
-        details: {} as Record<string, string>, // Dinamik özellikler { "Sac Rengi": "Sarı" }
+        details: {} as Record<string, string>,
         cover_image: null as File | null,
         gallery_images: [] as File[],
     });
 
-    // Preview URLs
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
     const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
@@ -59,13 +57,10 @@ export default function NewProfilePage() {
             if (categoriesRes.data) {
                 const allCats = categoriesRes.data as Category[];
                 const parents = allCats.filter(c => !c.parent_id);
-
-                // Gruplandır
                 const groups = parents.map(parent => ({
                     parent,
                     subs: allCats.filter(c => c.parent_id === parent.id)
-                })).filter(g => g.subs.length > 0); // Alt özelliği olanları özellik grubu yap
-
+                })).filter(g => g.subs.length > 0);
                 setFeatureGroups(groups);
             }
         }
@@ -105,7 +100,6 @@ export default function NewProfilePage() {
                 ...prev,
                 gallery_images: [...prev.gallery_images, ...files]
             }));
-
             const newPreviews = files.map(f => URL.createObjectURL(f));
             setGalleryPreviews(prev => [...prev, ...newPreviews]);
         }
@@ -127,7 +121,6 @@ export default function NewProfilePage() {
         try {
             const supabase = createBrowserClient();
 
-            // 1. Profil Oluştur
             const { data: profile, error: insertError } = await supabase
                 .from('listings')
                 .insert([{
@@ -139,57 +132,41 @@ export default function NewProfilePage() {
                     price: formData.price ? parseFloat(formData.price) : null,
                     is_active: formData.is_active,
                     is_featured: formData.is_featured,
-                    details: formData.details, // JSONB
-                    // images ve cover_image kolonları varsa buraya eklenecek, yoksa hata vermez ama kaydetmez
+                    details: formData.details,
                 }])
                 .select()
                 .single();
 
             if (insertError) throw insertError;
 
-            // 2. Resim Yükleme (Eğer profil oluştuysa)
             if (profile) {
                 const profileId = profile.id;
                 let coverUrl = null;
                 const galleryUrls = [];
 
-                // Bucket kontrolü yapamıyoruz client'tan create bucket yetkisi yok genelde.
-                // Varsayalım bucket var: 'listings'
-
-                // Cover
                 if (formData.cover_image) {
                     const ext = formData.cover_image.name.split('.').pop();
                     const path = `${profileId}/cover.${ext}`;
                     const { error: uploadError } = await supabase.storage.from('listings').upload(path, formData.cover_image);
-
                     if (!uploadError) {
                         const { data: publicUrl } = supabase.storage.from('listings').getPublicUrl(path);
                         coverUrl = publicUrl.publicUrl;
                     }
                 }
 
-                // Gallery
                 for (let i = 0; i < formData.gallery_images.length; i++) {
                     const file = formData.gallery_images[i];
                     const ext = file.name.split('.').pop();
                     const path = `${profileId}/gallery_${i}.${ext}`;
                     const { error: uploadError } = await supabase.storage.from('listings').upload(path, file);
-
                     if (!uploadError) {
                         const { data: publicUrl } = supabase.storage.from('listings').getPublicUrl(path);
                         galleryUrls.push(publicUrl.publicUrl);
                     }
                 }
 
-                // URL'leri update et
                 if (coverUrl || galleryUrls.length > 0) {
-                    await supabase
-                        .from('listings')
-                        .update({
-                            cover_image: coverUrl,
-                            images: galleryUrls
-                        })
-                        .eq('id', profileId);
+                    await supabase.from('listings').update({ cover_image: coverUrl, images: galleryUrls }).eq('id', profileId);
                 }
             }
 
@@ -197,7 +174,7 @@ export default function NewProfilePage() {
             router.refresh();
         } catch (err: any) {
             console.error(err);
-            setError(err.message || 'Profil oluşturulurken bir hata oluştu. Veritabanı güncel olmayabilir.');
+            setError(err.message || 'Profil oluşturulurken hata oluştu. Veritabanınızı güncellediğinizden emin olun.');
         } finally {
             setLoading(false);
         }
@@ -205,18 +182,16 @@ export default function NewProfilePage() {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl animate-in fade-in duration-500">
-            <div className="mb-8 flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-black text-red-950">Yeni Profil Oluştur</h1>
-                    <p className="text-muted-foreground mt-1">Platforma detaylı bir profil ekleyin</p>
-                </div>
+            <div className="mb-8">
+                <h1 className="text-3xl font-black text-red-950 tracking-tight">Yeni Profil Oluştur</h1>
+                <p className="text-muted-foreground mt-1">Platforma detaylı bir profesyonel profil ekleyin</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
 
                 {/* 1. KİŞİSEL BİLGİLER */}
-                <Card className="border-red-100 shadow-sm overflow-hidden">
-                    <CardHeader className="bg-red-50/50 border-b border-red-100 py-4">
+                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
                         <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
                             <User className="h-5 w-5" /> Temel Bilgiler
                         </CardTitle>
@@ -230,7 +205,7 @@ export default function NewProfilePage() {
                                     onChange={(e) => handleTitleChange(e.target.value)}
                                     placeholder="Örn: Ayşe Yılmaz"
                                     required
-                                    className="border-gray-300 focus:border-red-500 font-medium"
+                                    className="border-gray-200 focus:border-red-500 font-medium h-11 text-base shadow-sm"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -240,7 +215,7 @@ export default function NewProfilePage() {
                                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                     placeholder="ayse-yilmaz"
                                     required
-                                    className="border-gray-300 bg-gray-50 font-mono text-sm"
+                                    className="border-gray-200 bg-gray-50/50 font-mono text-sm h-11 shadow-sm"
                                 />
                             </div>
                         </div>
@@ -251,7 +226,7 @@ export default function NewProfilePage() {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Kendinizden bahsedin..."
-                                className="w-full min-h-[120px] rounded-lg border border-gray-300 p-3 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none"
+                                className="w-full min-h-[140px] rounded-xl border border-gray-200 p-4 text-sm focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none shadow-sm transition-all resize-y"
                             />
                         </div>
 
@@ -260,31 +235,24 @@ export default function NewProfilePage() {
                                 <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                     <MapPin className="h-4 w-4 text-red-500" /> Şehir / İl
                                 </label>
-                                <select
+                                <Combobox
+                                    options={cities.map(c => ({ value: c.id, label: c.name }))}
                                     value={formData.city_id}
-                                    onChange={(e) => setFormData({ ...formData, city_id: e.target.value })}
-                                    required
-                                    className="w-full h-10 rounded-lg border border-gray-300 px-3 bg-white focus:border-red-500 outline-none"
-                                >
-                                    <option value="">Seçiniz...</option>
-                                    {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </select>
+                                    onChange={(val) => setFormData({ ...formData, city_id: val })}
+                                    placeholder="Şehir Seçiniz..."
+                                    searchPlaceholder="Şehir ara..."
+                                />
                             </div>
 
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700">Hizmet Kategorisi</label>
-                                <select
+                                <Combobox
+                                    options={featureGroups.map(g => ({ value: g.parent.id, label: g.parent.name }))}
                                     value={formData.category_id}
-                                    onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                                    required
-                                    className="w-full h-10 rounded-lg border border-gray-300 px-3 bg-white focus:border-red-500 outline-none"
-                                >
-                                    <option value="">Seçiniz...</option>
-                                    {/* Sadece parent olmayan kategorileri ana kategori yapalım isterseniz, veya hepsini */}
-                                    {featureGroups.map(g => (
-                                        <option key={g.parent.id} value={g.parent.id}>{g.parent.name}</option>
-                                    ))}
-                                </select>
+                                    onChange={(val) => setFormData({ ...formData, category_id: val })}
+                                    placeholder="Kategori Seçiniz..."
+                                    searchPlaceholder="Kategori ara..."
+                                />
                             </div>
 
                             <div className="space-y-2">
@@ -294,7 +262,7 @@ export default function NewProfilePage() {
                                     value={formData.price}
                                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                     placeholder="0.00"
-                                    className="border-gray-300"
+                                    className="border-gray-200 h-11 shadow-sm"
                                 />
                             </div>
                         </div>
@@ -302,15 +270,14 @@ export default function NewProfilePage() {
                 </Card>
 
                 {/* 2. FİZİKSEL & DETAYLI ÖZELLİKLER */}
-                <Card className="border-red-100 shadow-sm overflow-hidden">
-                    <CardHeader className="bg-red-50/50 border-b border-red-100 py-4">
+                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
                         <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
                             <Info className="h-5 w-5" /> Fiziksel Özellikler & Detaylar
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6">
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {/* Sabit Inputlar (İstek üzerine) */}
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700">Yaş</label>
                                 <Input
@@ -318,7 +285,7 @@ export default function NewProfilePage() {
                                     placeholder="25"
                                     value={formData.details['age'] || ''}
                                     onChange={e => handleFeatureChange('age', e.target.value)}
-                                    className="border-gray-300 focus:border-red-500"
+                                    className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -328,7 +295,7 @@ export default function NewProfilePage() {
                                     placeholder="175"
                                     value={formData.details['height'] || ''}
                                     onChange={e => handleFeatureChange('height', e.target.value)}
-                                    className="border-gray-300 focus:border-red-500"
+                                    className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -338,23 +305,21 @@ export default function NewProfilePage() {
                                     placeholder="60"
                                     value={formData.details['weight'] || ''}
                                     onChange={e => handleFeatureChange('weight', e.target.value)}
-                                    className="border-gray-300 focus:border-red-500"
+                                    className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
                                 />
                             </div>
 
-                            {/* Dinamik Kategorilerden Gelen Seçenekler */}
+                            {/* Dinamik Combobox'lar */}
                             {featureGroups.map(group => (
                                 <div key={group.parent.id} className="space-y-2">
                                     <label className="text-sm font-bold text-gray-700">{group.parent.name}</label>
-                                    <select
-                                        className="w-full h-10 rounded-lg border border-gray-300 px-3 bg-white focus:border-red-500 outline-none"
-                                        onChange={(e) => handleFeatureChange(group.parent.name, e.target.value)}
-                                    >
-                                        <option value="">Seçiniz...</option>
-                                        {group.subs.map(sub => (
-                                            <option key={sub.id} value={sub.name}>{sub.name}</option>
-                                        ))}
-                                    </select>
+                                    <Combobox
+                                        options={group.subs.map(sub => ({ value: sub.name, label: sub.name }))}
+                                        value={formData.details[group.parent.name] || ''}
+                                        onChange={(val) => handleFeatureChange(group.parent.name, val)}
+                                        placeholder={`${group.parent.name} Seçiniz...`}
+                                        searchPlaceholder="Ara..."
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -362,28 +327,27 @@ export default function NewProfilePage() {
                 </Card>
 
                 {/* 3. MEDYA GALERİSİ */}
-                <Card className="border-red-100 shadow-sm overflow-hidden">
-                    <CardHeader className="bg-red-50/50 border-b border-red-100 py-4">
+                <Card className="border-red-100 shadow-lg shadow-red-100/20">
+                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
                         <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
                             <ImageIcon className="h-5 w-5" /> Fotoğraf Galerisi
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-6 space-y-6">
+                    <CardContent className="pt-6 space-y-8">
 
-                        {/* Cover Image */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Kapak Fotoğrafı (Ana Resim)</label>
-                            <div className="flex items-start gap-4">
+                        <div className="space-y-3">
+                            <label className="text-sm font-bold text-gray-700 block">Kapak Fotoğrafı (Ana Resim)</label>
+                            <div className="flex items-start gap-6 p-4 bg-gray-50/50 rounded-xl border border-gray-100 border-dashed">
                                 <div
-                                    className="w-32 h-32 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 cursor-pointer hover:border-red-400 overflow-hidden relative"
+                                    className="w-40 h-56 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-white cursor-pointer hover:border-red-400 hover:bg-red-50/10 transition-all overflow-hidden relative shadow-sm"
                                     onClick={() => document.getElementById('cover_input')?.click()}
                                 >
                                     {coverPreview ? (
                                         <img src={coverPreview} className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="text-center text-gray-400">
-                                            <UploadCloud className="h-8 w-8 mx-auto mb-1" />
-                                            <span className="text-xs">Profil Resmi</span>
+                                        <div className="text-center text-gray-400 px-4">
+                                            <UploadCloud className="h-10 w-10 mx-auto mb-2 text-gray-300" />
+                                            <span className="text-sm font-medium">Kapak Resmi Yükle</span>
                                         </div>
                                     )}
                                 </div>
@@ -394,18 +358,21 @@ export default function NewProfilePage() {
                                     className="hidden"
                                     onChange={handleCoverSelect}
                                 />
-                                <div className="text-xs text-gray-500 pt-2">
-                                    <p>Bu resim listelerde ve arama sonuçlarında görünecektir.</p>
-                                    <p>Tavsiye: Dikey (Portrait) format, yüksek kalite.</p>
+                                <div className="text-sm text-gray-500 pt-2 flex-1">
+                                    <h4 className="font-bold text-gray-800 mb-1">Görsel Talimatları</h4>
+                                    <ul className="list-disc list-inside space-y-1 text-xs text-gray-400">
+                                        <li>Yüksek çözünürlüklü dikey (portrait) fotoğraflar önerilir.</li>
+                                        <li>Yüz hatlarının belirgin olduğu, aydınlık fotoğraflar etkileşimi artırır.</li>
+                                        <li>Maksimum dosya boyutu 5MB.</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Gallery Images */}
-                        <div className="space-y-2 border-t pt-6">
-                            <div className="flex justify-between items-center mb-2">
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
                                 <label className="text-sm font-bold text-gray-700">Galeri Resimleri (Çoklu)</label>
-                                <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('gallery_input')?.click()}>
+                                <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('gallery_input')?.click()} className="border-red-200 text-red-600 hover:bg-red-50">
                                     + Resim Ekle
                                 </Button>
                             </div>
@@ -420,28 +387,41 @@ export default function NewProfilePage() {
                             />
 
                             {galleryPreviews.length > 0 ? (
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                                     {galleryPreviews.map((preview, idx) => (
-                                        <div key={idx} className="aspect-[3/4] rounded-lg border border-gray-200 overflow-hidden relative group">
+                                        <div key={idx} className="aspect-[3/4] rounded-xl border border-gray-200 overflow-hidden relative group shadow-sm hover:shadow-md transition-all">
                                             <img src={preview} className="w-full h-full object-cover" />
-                                            <button
-                                                type="button"
-                                                onClick={() => removeGalleryImage(idx)}
-                                                className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <X className="h-3 w-3" />
-                                            </button>
+                                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeGalleryImage(idx)}
+                                                    className="bg-red-600 text-white rounded-full p-2 transform scale-0 group-hover:scale-100 transition-transform duration-200 hover:bg-red-700 shadow-lg"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
+                                    <div
+                                        className="aspect-[3/4] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-red-300 hover:bg-red-50/10 transition-colors bg-gray-50/30"
+                                        onClick={() => document.getElementById('gallery_input')?.click()}
+                                    >
+                                        <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center mb-2 shadow-sm">
+                                            <span className="text-2xl text-gray-400 font-light">+</span>
+                                        </div>
+                                        <span className="text-xs text-gray-400 font-medium">Daha Ekle</span>
+                                    </div>
                                 </div>
                             ) : (
                                 <div
-                                    className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-400 cursor-pointer hover:bg-gray-50 hover:border-red-300 transition-colors"
+                                    className="border-2 border-dashed border-gray-200 rounded-xl p-10 text-center cursor-pointer hover:bg-gray-50 hover:border-red-300 transition-all group"
                                     onClick={() => document.getElementById('gallery_input')?.click()}
                                 >
-                                    <ImageIcon className="h-10 w-10 mx-auto mb-3 opacity-50" />
-                                    <p className="font-medium">Resimleri buraya sürükleyin veya seçmek için tıklayın</p>
-                                    <p className="text-xs mt-1">Birden fazla resim seçebilirsiniz.</p>
+                                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                                        <ImageIcon className="h-8 w-8 text-red-300 group-hover:text-red-500" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-700">Fotoğraf Yükle</h3>
+                                    <p className="text-sm text-gray-400 mt-1">Sürükleyip bırakın veya seçmek için tıklayın</p>
                                 </div>
                             )}
                         </div>
@@ -449,39 +429,45 @@ export default function NewProfilePage() {
                     </CardContent>
                 </Card>
 
-                {/* 4. YAYIN AYARLARI */}
-                <Card className="border-red-100 shadow-sm bg-gray-50/50">
-                    <CardContent className="pt-6">
+                {/* 4. YAYIN AYARLARI KARTLARI (Öncekiyle aynı ama shadow/border iyileştiriliyor) */}
+                <Card className="border-red-100 shadow-md bg-white overflow-hidden">
+                    <CardContent className="p-6">
                         <div className="flex flex-col md:flex-row gap-6">
                             <div
-                                className={`flex-1 flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${formData.is_featured
-                                        ? 'bg-amber-50 border-amber-200 shadow-sm ring-1 ring-amber-200'
-                                        : 'bg-white border-gray-200 hover:border-amber-200'
+                                className={`flex-1 flex items-center gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${formData.is_featured
+                                        ? 'bg-amber-50 border-amber-300 shadow-lg shadow-amber-100/50'
+                                        : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                                     }`}
                                 onClick={() => setFormData({ ...formData, is_featured: !formData.is_featured })}
                             >
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${formData.is_featured ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-sm ${formData.is_featured ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
                                     <Star className="w-6 h-6 fill-current" />
                                 </div>
                                 <div>
-                                    <p className={`font-bold ${formData.is_featured ? 'text-amber-900' : 'text-gray-700'}`}>Vitrine Ekle</p>
-                                    <p className="text-xs text-muted-foreground">Ana sayfada öne çıkar.</p>
+                                    <p className={`font-bold text-lg ${formData.is_featured ? 'text-amber-900' : 'text-gray-700'}`}>Vitrine Ekle</p>
+                                    <p className="text-sm text-muted-foreground leading-tight mt-1">Bu profili ana sayfa vitrininde öne çıkarın.</p>
+                                </div>
+                                <div className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center ${formData.is_featured ? 'border-amber-500 bg-amber-500' : 'border-gray-300'}`}>
+                                    {formData.is_featured && <CheckCircle2 className="w-4 h-4 text-white" />}
                                 </div>
                             </div>
 
                             <div
-                                className={`flex-1 flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${formData.is_active
-                                        ? 'bg-green-50 border-green-200 shadow-sm ring-1 ring-green-200'
-                                        : 'bg-white border-gray-200 hover:border-green-200'
+                                className={`flex-1 flex items-center gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${formData.is_active
+                                        ? 'bg-green-50 border-green-300 shadow-lg shadow-green-100/50'
+                                        : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                                     }`}
                                 onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
                             >
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${formData.is_active ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-sm ${formData.is_active ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
                                     <CheckCircle2 className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <p className={`font-bold ${formData.is_active ? 'text-green-900' : 'text-gray-700'}`}>Profil Yayında</p>
-                                    <p className="text-xs text-muted-foreground">Hemen erişime aç.</p>
+                                    <p className={`font-bold text-lg ${formData.is_active ? 'text-green-900' : 'text-gray-700'}`}>Profil Yayında</p>
+                                    <p className="text-sm text-muted-foreground leading-tight mt-1">Kaydettikten sonra hemen yayınlansın.</p>
+                                </div>
+                                <div className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center ${formData.is_active ? 'border-green-500 bg-green-500' : 'border-gray-300'}`}>
+                                    {formData.is_active && <CheckCircle2 className="w-4 h-4 text-white" />}
                                 </div>
                             </div>
                         </div>
@@ -489,21 +475,22 @@ export default function NewProfilePage() {
                 </Card>
 
                 {error && (
-                    <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 flex items-center gap-2">
+                    <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-3 font-medium animate-pulse">
                         <Info className="h-5 w-5" />
                         {error}
                     </div>
                 )}
 
-                <div className="flex items-center gap-4 sticky bottom-4 bg-white/90 backdrop-blur p-4 rounded-xl border border-gray-200 shadow-lg z-50">
-                    <Button type="submit" disabled={loading} className="flex-1 bg-red-600 hover:bg-red-700 text-white h-12 text-lg shadow-red-200">
+                <div className="flex items-center gap-4 sticky bottom-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-gray-200 shadow-2xl z-40 transform translate-y-2">
+                    <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-bold shadow-lg shadow-red-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
                         {loading ? 'Profil Oluşturuluyor...' : 'Profili Kaydet ve Yayınla'}
                     </Button>
-                    <Button type="button" variant="outline" onClick={() => router.back()} className="h-12 px-8">
+                    <Button type="button" variant="outline" onClick={() => router.back()} className="h-14 px-8 rounded-xl border-gray-300 text-gray-600 hover:bg-gray-50 font-medium">
                         İptal
                     </Button>
                 </div>
 
+                <div className="h-8"></div> {/* Bottom Spacer */}
             </form>
         </div>
     );
