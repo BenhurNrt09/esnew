@@ -1,9 +1,11 @@
-import { createServerClient } from '@repo/lib';
+import { createServerClient } from '@repo/lib/server';
 import type { Category, Listing } from '@repo/types';
 import { Button } from '@repo/ui';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { formatPrice } from '@repo/lib';
+import { MapPin, Heart, Star, Calendar } from 'lucide-react';
 
 export const revalidate = 3600;
 
@@ -25,7 +27,7 @@ async function getListings(category_id: string): Promise<Listing[]> {
 
     const { data, error } = await supabase
         .from('listings')
-        .select('*')
+        .select('*, city:cities(*)')
         .eq('category_id', category_id)
         .eq('is_active', true)
         .order('is_featured', { ascending: false })
@@ -53,7 +55,7 @@ export async function generateMetadata({
     }
 
     return {
-        title: category.seo_title || `${category.name} İlanları`,
+        title: category.seo_title || `${category.name} Profilleri`,
         description: category.seo_description || `${category.name} kategorisindeki tüm ilan ve profiller`,
     };
 }
@@ -72,74 +74,84 @@ export default async function CategoryPage({
     const listings = await getListings(category.id);
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <section className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground py-12">
-                <div className="container mx-auto px-4">
-                    <nav className="text-sm mb-4 opacity-90">
-                        <Link href="/" className="hover:underline">Ana Sayfa</Link>
-                        {' / '}
-                        <Link href="/kategori/hizmetler" className="hover:underline">Kategoriler</Link>
-                        {' / '}
-                        <span>{category.name}</span>
+            <section className="bg-white border-b sticky top-0 md:static z-20">
+                <div className="container mx-auto px-4 py-8">
+                    <nav className="text-sm mb-4 text-gray-500">
+                        <Link href="/" className="hover:text-indigo-600">Ana Sayfa</Link>
+                        <span className="mx-2">/</span>
+                        <span className="font-semibold text-gray-900">{category.name}</span>
                     </nav>
-                    <h1 className="text-4xl font-bold mb-2">
-                        {category.name}
-                    </h1>
-                    <p className="text-lg opacity-90">
-                        {listings.length} ilan bulundu
-                    </p>
+                    <div className="flex items-baseline justify-between">
+                        <h1 className="text-3xl font-bold text-gray-900">
+                            {category.name} <span className="text-indigo-600 font-light">Profilleri</span>
+                        </h1>
+                        <span className="text-sm font-medium bg-gray-100 px-3 py-1 rounded-full text-gray-600">
+                            {listings.length} sonuç
+                        </span>
+                    </div>
                 </div>
             </section>
 
             {/* Listings Grid */}
-            <section className="py-12">
+            <section className="py-8">
                 <div className="container mx-auto px-4">
                     {listings.length === 0 ? (
-                        <div className="text-center py-16">
-                            <p className="text-lg text-muted-foreground mb-6">
-                                {category.name} kategorisinde henüz ilan bulunmuyor.
+                        <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-dashed">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                                🔍
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz profil bulunamadı</h3>
+                            <p className="text-gray-500 mb-6">
+                                Bu kategoride henüz aktif ilan bulunmuyor.
                             </p>
                             <Button variant="outline" asChild>
-                                <Link href="/">Ana Sayfaya Dön</Link>
+                                <Link href="/">Diğer Kategorilere Bak</Link>
                             </Button>
                         </div>
                     ) : (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {listings.map((listing) => (
                                 <Link
                                     key={listing.id}
                                     href={`/ilan/${listing.slug}`}
-                                    className="group"
+                                    className="group block"
                                 >
-                                    <div className="bg-card rounded-lg shadow-sm hover:shadow-lg transition-all overflow-hidden h-full">
-                                        <div className="p-6">
-                                            <div className="flex items-start justify-between mb-4">
-                                                <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2">
-                                                    {listing.title}
-                                                </h3>
+                                    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 relative h-full flex flex-col">
+                                        {/* Image Area */}
+                                        <div className="aspect-[3/4] bg-gray-200 relative overflow-hidden">
+                                            <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-400 group-hover:scale-105 transition-transform duration-500">
+                                                <span className="text-4xl opacity-30">📷</span>
+                                            </div>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+
+                                            {/* Badges */}
+                                            <div className="absolute top-3 left-3 flex flex-col gap-2">
                                                 {listing.is_featured && (
-                                                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full shrink-0 ml-2">
-                                                        Öne Çıkan
+                                                    <span className="bg-amber-400 text-amber-950 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide flex items-center gap-1">
+                                                        <Star className="h-3 w-3 fill-current" /> Vitrin
                                                     </span>
                                                 )}
                                             </div>
-                                            {listing.description && (
-                                                <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
-                                                    {listing.description}
-                                                </p>
-                                            )}
-                                            {listing.price && (
-                                                <p className="text-lg font-bold text-primary">
-                                                    {new Intl.NumberFormat('tr-TR', {
-                                                        style: 'currency',
-                                                        currency: 'TRY',
-                                                    }).format(listing.price)}
-                                                </p>
-                                            )}
-                                            <p className="text-xs text-muted-foreground mt-2">
+
+                                            <div className="absolute bottom-4 left-4 right-4 text-white">
+                                                <div className="flex items-center gap-1 text-sm font-medium mb-1 opacity-90">
+                                                    <MapPin className="h-3 w-3" /> {(listing as any).city?.name || 'Konum Belirtilmemiş'}
+                                                </div>
+                                                <h3 className="text-lg font-bold leading-tight line-clamp-1">{listing.title}</h3>
+                                            </div>
+                                        </div>
+
+                                        {/* Info Area */}
+                                        <div className="p-4 flex items-center justify-between mt-auto bg-white">
+                                            <div className="text-indigo-600 font-bold text-lg">
+                                                {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
+                                            </div>
+                                            <div className="text-xs text-gray-400 flex items-center gap-1">
+                                                <Calendar className="h-3 w-3" />
                                                 {new Date(listing.created_at).toLocaleDateString('tr-TR')}
-                                            </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </Link>
