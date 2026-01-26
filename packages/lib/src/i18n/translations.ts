@@ -90,6 +90,35 @@ export interface Translations {
         addFirstListing: string;
         viewOnWebsite: string;
     };
+
+    // Web Profile
+    profile: {
+        createTitle: string;
+        createSubtitle: string;
+        personalInfo: string;
+        attributes: string;
+        name: string;
+        phone: string;
+        hairColor: string;
+        bodyType: string;
+        age: string;
+        ethnicity: string;
+        city: string;
+        price: string;
+        photos: string;
+        submit: string;
+        success: string;
+    };
+
+    // Web Home
+    home: {
+        heroTitle: string;
+        heroSubtitle: string;
+        searchPlaceholder: string;
+        featuredProfiles: string;
+        viewAll: string;
+        quickSearch: string;
+    };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -170,8 +199,32 @@ export const translations: Record<Language, Translations> = {
             addFirstListing: 'İlk ilanınızı ekleyin',
             viewOnWebsite: 'Web sitesinde görüntüleyin (localhost:3000)',
         },
-    },
-    en: {
+        profile: {
+            createTitle: 'Profil Oluştur',
+            createSubtitle: 'Binlerce kullanıcıya ulaşmak için profilinizi oluşturun.',
+            personalInfo: 'Kişisel Bilgiler',
+            attributes: 'Fiziksel Özellikler',
+            name: 'Adınız / Başlığınız',
+            phone: 'Telefon Numarası',
+            hairColor: 'Saç Rengi',
+            bodyType: 'Vücut Tipi',
+            age: 'Yaş',
+            ethnicity: 'Köken / Irk',
+            city: 'Şehir',
+            price: 'Saatlik Ücret (Opsiyonel)',
+            photos: 'Fotoğraflar',
+            submit: 'Profili Oluştur',
+            success: 'Profiliniz başarıyla oluşturuldu!',
+        },
+        home: {
+            heroTitle: 'En Seçkin Profilleri Keşfedin',
+            heroSubtitle: '81 ilde aradığınız özelliklere sahip profilleri güvenle bulun.',
+            searchPlaceholder: 'Profilleri Ara',
+            featuredProfiles: 'Vitrin Profilleri',
+            viewAll: 'Tümünü Gör',
+            quickSearch: 'Hızlı Arama',
+        },
+    }, en: {
         common: {
             loading: 'Loading...',
             error: 'Error',
@@ -247,6 +300,31 @@ export const translations: Record<Language, Translations> = {
             addCategories: 'Create categories and subcategories',
             addFirstListing: 'Add your first listing',
             viewOnWebsite: 'View on website (localhost:3000)',
+        },
+        profile: {
+            createTitle: 'Create Profile',
+            createSubtitle: 'Create your profile to reach thousands of users.',
+            personalInfo: 'Personal Information',
+            attributes: 'Physical Attributes',
+            name: 'Your Name / Title',
+            phone: 'Phone Number',
+            hairColor: 'Hair Color',
+            bodyType: 'Body Type',
+            age: 'Age',
+            ethnicity: 'Ethnicity',
+            city: 'City',
+            price: 'Hourly Rate (Optional)',
+            photos: 'Photos',
+            submit: 'Create Profile',
+            success: 'Profile created successfully!',
+        },
+        home: {
+            heroTitle: 'Discover Exclusive Profiles',
+            heroSubtitle: 'Find profiles with the features you are looking for in 81 cities.',
+            searchPlaceholder: 'Search Profiles',
+            featuredProfiles: 'Featured Profiles',
+            viewAll: 'View All',
+            quickSearch: 'Quick Search',
         },
     },
 };
