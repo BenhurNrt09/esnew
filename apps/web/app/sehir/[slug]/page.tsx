@@ -1,4 +1,4 @@
-import { createServerClient } from '@repo/lib/server';
+import { createServerClient } from '@repo/lib';
 import type { City, Listing } from '@repo/types';
 import { Button } from '@repo/ui';
 import Link from 'next/link';

@@ -1,4 +1,4 @@
-import { requireAdmin } from '@repo/lib/server';
+import { requireAdmin } from '@repo/lib';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@repo/ui';
