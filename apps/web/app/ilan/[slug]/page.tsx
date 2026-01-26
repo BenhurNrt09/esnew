@@ -1,183 +1,212 @@
-export const revalidate = 3600;
-
 import { createServerClient } from '@repo/lib/server';
 import type { Listing, City, Category } from '@repo/types';
-import { Button, Card, CardContent } from '@repo/ui';
+import { Button } from '@repo/ui';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { formatDate, formatPrice } from '@repo/lib';
-import { MapPin, Calendar, Tag, Share2, Heart, MessageCircle } from 'lucide-react';
+import type { Metadata } from 'next';
+import { MapPin, Calendar, Share2, Phone, CheckCircle2, User, Info, ArrowLeft } from 'lucide-react';
+import { formatPrice } from '@repo/lib';
 
-async function getListing(slug: string) {
+export const revalidate = 0; // Her zaman güncel veri
+
+// Extended Listing Type for new columns & missing types
+interface ExtendedListing extends Listing {
+    city?: City;
+    category?: Category;
+    details?: Record<string, string>;
+    images?: string[];
+    cover_image?: string;
+    seo_title?: string;
+    seo_description?: string;
+}
+
+// Key mapping for fixed keys
+const labelMap: Record<string, string> = {
+    age: 'Yaş',
+    height: 'Boy',
+    weight: 'Kilo'
+};
+
+function formatLabel(key: string) {
+    return labelMap[key] || key;
+}
+
+function formatValue(key: string, value: string) {
+    if (key === 'height') return `${value} cm`;
+    if (key === 'weight') return `${value} kg`;
+    return value;
+}
+
+async function getListing(slug: string): Promise<ExtendedListing | null> {
     const supabase = createServerClient();
-
     const { data, error } = await supabase
         .from('listings')
         .select('*, city:cities(*), category:categories(*)')
         .eq('slug', slug)
+        .eq('is_active', true)
         .single();
 
     if (error || !data) return null;
-    return data as (Listing & { city: City; category: Category });
+    return data;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const listing = await getListing(params.slug);
-    if (!listing) return {};
-
+    if (!listing) return { title: 'Profil Bulunamadı' };
     return {
         title: listing.seo_title || listing.title,
         description: listing.seo_description || listing.description,
+        openGraph: {
+            images: listing.cover_image ? [listing.cover_image] : [],
+        }
     };
 }
 
-export default async function ListingDetailPage({ params }: { params: { slug: string } }) {
+export default async function ListingPage({ params }: { params: { slug: string } }) {
     const listing = await getListing(params.slug);
+    if (!listing) notFound();
 
-    if (!listing) {
-        notFound();
-    }
+    // Galeriye cover image'ı da ekleyelim (en başa)
+    const gallery = listing.images || [];
+    const allImages = listing.cover_image ? [listing.cover_image, ...gallery] : gallery;
+
+    // Özellikler
+    const details = listing.details || {};
+    const hasDetails = Object.keys(details).length > 0;
 
     return (
-        <div className="bg-muted/10 min-h-screen pb-20">
-            {/* Breadcrumb - Basic implementation */}
-            <div className="bg-background border-b">
-                <div className="container mx-auto px-4 py-3 text-sm text-muted-foreground">
-                    <Link href="/" className="hover:text-primary">Ana Sayfa</Link>
-                    <span className="mx-2">/</span>
-                    <Link href={`/kategori/${listing.category?.slug}`} className="hover:text-primary">{listing.category?.name}</Link>
-                    <span className="mx-2">/</span>
-                    <span className="text-foreground">{listing.title}</span>
+        <div className="min-h-screen bg-gray-50 pb-20">
+            {/* HER0 - Cover Image & Title */}
+            <div className="relative h-[400px] md:h-[500px] w-full bg-gray-900 overflow-hidden">
+                {listing.cover_image ? (
+                    <>
+                        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${listing.cover_image})` }}></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+                    </>
+                ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-rose-900"></div>
+                )}
+
+                <div className="absolute top-0 left-0 p-4 md:p-8 z-20">
+                    <Button variant="ghost" className="text-white hover:bg-white/10" asChild>
+                        <Link href="/">
+                            <ArrowLeft className="mr-2 h-4 w-4" /> Ana Sayfa
+                        </Link>
+                    </Button>
                 </div>
-            </div>
 
-            <div className="container mx-auto px-4 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-6">
-
-                        {/* Image Placeholder */}
-                        <div className="aspect-video bg-muted rounded-xl flex items-center justify-center overflow-hidden relative group">
-                            <div className="text-muted-foreground flex flex-col items-center">
-                                <span className="text-6xl mb-4">🖼️</span>
-                                <p>Görsel Yüklenmedi</p>
+                <div className="absolute bottom-0 left-0 w-full p-4 md:p-12 z-20">
+                    <div className="container mx-auto">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                            <div>
+                                <div className="flex flex-wrap items-center gap-2 mb-3">
+                                    <span className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                                        {listing.category?.name}
+                                    </span>
+                                    {listing.is_featured && (
+                                        <span className="bg-amber-400 text-amber-950 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                                            Vitrin Profili
+                                        </span>
+                                    )}
+                                </div>
+                                <h1 className="text-4xl md:text-6xl font-black text-white mb-2 leading-tight">
+                                    {listing.title}
+                                </h1>
+                                <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm md:text-base">
+                                    <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10">
+                                        <MapPin className="h-4 w-4 text-red-400" /> {listing.city?.name}
+                                    </span>
+                                    <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10">
+                                        <Calendar className="h-4 w-4 text-red-400" /> {new Date(listing.created_at).toLocaleDateString('tr-TR')}
+                                    </span>
+                                </div>
                             </div>
-                            {listing.is_featured && (
-                                <span className="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
-                                    ⭐ Öne Çıkan
-                                </span>
-                            )}
-                        </div>
 
-                        {/* Title & Price Mobile */}
-                        <div className="lg:hidden bg-background p-6 rounded-xl shadow-sm border">
-                            <h1 className="text-2xl font-bold mb-2">{listing.title}</h1>
-                            <div className="text-3xl font-bold text-primary mb-4">
-                                {listing.price ? formatPrice(listing.price) : 'Fiyat Belirtilmedi'}
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                <Button size="lg" className="w-full">
-                                    <MessageCircle className="mr-2 h-4 w-4" /> Satıcıya Mesaj Gönder
+                            <div className="flex items-center gap-3">
+                                <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white gap-2 rounded-full h-14 px-8 shadow-lg shadow-green-900/20 text-lg font-bold">
+                                    <Phone className="h-5 w-5" /> İletişime Geç
+                                </Button>
+                                <Button size="icon" variant="secondary" className="h-14 w-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur border border-white/10">
+                                    <Share2 className="h-5 w-5" />
                                 </Button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        {/* Description Card */}
-                        <Card className="shadow-sm border-none">
-                            <CardContent className="p-8">
-                                <h2 className="text-xl font-semibold mb-4 pb-2 border-b">İlan Detayları</h2>
-                                <div className="prose max-w-none text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                                    {listing.description || 'Açıklama bulunmuyor.'}
-                                </div>
-                            </CardContent>
-                        </Card>
+            <div className="container mx-auto px-4 -mt-8 relative z-30">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                        {/* Attributes Card */}
-                        <Card className="shadow-sm border-none">
-                            <CardContent className="p-8">
-                                <h3 className="text-lg font-semibold mb-4">Özellikler</h3>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
-                                    <div className="flex flex-col">
-                                        <span className="text-xs text-muted-foreground uppercase tracking-wider">İlan No</span>
-                                        <span className="font-medium text-foreground">#{listing.id.slice(0, 8)}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-xs text-muted-foreground uppercase tracking-wider">İlan Tarihi</span>
-                                        <span className="font-medium text-foreground">{formatDate(listing.created_at)}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Kategori</span>
-                                        <Link href={`/kategori/${listing.category?.slug}`} className="font-medium text-primary hover:underline">
-                                            {listing.category?.name}
-                                        </Link>
-                                    </div>
+                    {/* LEFT COLUMN: Main Info & Gallery */}
+                    <div className="lg:col-span-2 space-y-8">
+
+                        {/* About Card */}
+                        <div className="bg-white rounded-2xl p-8 shadow-lg shadow-gray-200/50 border border-gray-100">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <User className="h-6 w-6 text-red-600" /> Hakkımda
+                            </h2>
+                            <div className="prose prose-red max-w-none text-gray-600 leading-relaxed whitespace-pre-line">
+                                {listing.description || 'Açıklama bulunmuyor.'}
+                            </div>
+                        </div>
+
+                        {/* Gallery Grid */}
+                        {allImages.length > 0 && (
+                            <div className="bg-white rounded-2xl p-8 shadow-lg shadow-gray-200/50 border border-gray-100">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                    <CheckCircle2 className="h-6 w-6 text-red-600" /> Galeri
+                                </h2>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {allImages.map((img, idx) => (
+                                        <div key={idx} className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity border border-gray-100 relative group">
+                                            <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                        </div>
+                                    ))}
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Sidebar */}
+                    {/* RIGHT COLUMN: Sidebar (Details & Pricing) */}
                     <div className="space-y-6">
 
-                        {/* Price & Action Card (Desktop) */}
-                        <Card className="hidden lg:block shadow-md border-primary/10 sticky top-24">
-                            <CardContent className="p-6 space-y-6">
-                                <div>
-                                    <h1 className="text-2xl font-bold leading-tight mb-2">{listing.title}</h1>
-                                    <div className="text-sm text-muted-foreground flex items-center gap-1 mb-6">
-                                        <MapPin className="h-4 w-4" />
-                                        {listing.city?.name}
-                                    </div>
-                                    <div className="text-4xl font-bold text-primary tracking-tight">
-                                        {listing.price ? formatPrice(listing.price) : 'Fiyat Yok'}
-                                    </div>
+                        {/* Pricing Card */}
+                        <div className="bg-white rounded-2xl p-6 shadow-xl shadow-red-900/5 border border-red-50 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -mr-8 -mt-8 -z-0"></div>
+                            <div className="relative z-10">
+                                <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Başlangıç Fiyatı</p>
+                                <div className="text-4xl font-black text-red-600 mb-2">
+                                    {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
                                 </div>
-
-                                <div className="grid gap-3">
-                                    <Button size="lg" className="w-full font-semibold text-lg h-12">
-                                        <MessageCircle className="mr-2 h-5 w-5" /> Mesaj Gönder
-                                    </Button>
-                                    <div className="flex gap-3">
-                                        <Button variant="outline" className="flex-1">
-                                            <Heart className="mr-2 h-4 w-4" /> Kaydet
-                                        </Button>
-                                        <Button variant="outline" className="flex-1">
-                                            <Share2 className="mr-2 h-4 w-4" /> Paylaş
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className="bg-muted/50 rounded-lg p-4 text-sm text-center text-muted-foreground">
-                                    Güvenli alışveriş ipuçları için tıklayın
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Seller Profile Placeholder */}
-                        <Card className="shadow-sm">
-                            <CardContent className="p-6 flex items-center gap-4">
-                                <div className="w-14 h-14 bg-primary/20 rounded-full flex items-center justify-center text-xl font-bold text-primary">
-                                    A
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-lg">Admin Satıcı</p>
-                                    <p className="text-sm text-muted-foreground">Üyelik Tarihi: Ocak 2024</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Location Placeholder */}
-                        <Card className="shadow-sm overflow-hidden">
-                            <div className="h-48 bg-muted flex items-center justify-center text-muted-foreground">
-                                <MapPin className="h-8 w-8 mb-2 opacity-50" />
-                                <span className="sr-only">Harita Yükleniyor</span>
-                            </div>
-                            <CardContent className="p-4 bg-background">
-                                <p className="font-medium flex items-center gap-2">
-                                    <MapPin className="h-4 w-4 text-primary" /> {listing.city?.name} Merkez
+                                <p className="text-xs text-gray-500">
+                                    * Hizmet ve detaylara göre fiyat değişkenlik gösterebilir.
                                 </p>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
+
+                        {/* Fiziksel & Detay Özellikler */}
+                        {hasDetails && (
+                            <div className="bg-white rounded-2xl p-6 shadow-lg shadow-gray-200/50 border border-gray-100">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                                    <Info className="h-5 w-5 text-red-600" /> Özellikler
+                                </h3>
+                                <div className="space-y-3">
+                                    {Object.entries(details).map(([key, value]) => (
+                                        <div key={key} className="flex justify-between items-center py-2 border-b border-dashed border-gray-100 last:border-0 last:pb-0">
+                                            <span className="text-gray-500 font-medium">{formatLabel(key)}</span>
+                                            <span className="text-gray-900 font-bold">{formatValue(key, value)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Güvenlik Uyarısı */}
+                        <div className="bg-amber-50 rounded-xl p-4 border border-amber-100 text-amber-800 text-sm">
+                            <p className="font-bold mb-1 flex items-center gap-2">⚠️ Güvenlik Uyarısı</p>
+                            Bu platform sadece listeleme hizmeti sunar.
+                        </div>
 
                     </div>
                 </div>
