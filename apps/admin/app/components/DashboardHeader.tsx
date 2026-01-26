@@ -12,41 +12,10 @@ export function DashboardHeader() {
         <header className="bg-card border-b sticky top-0 z-10">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-8">
-                    <Link href="/dashboard" className="text-xl font-bold">
-                        ESNew Admin
+                    <Link href="/dashboard" className="text-xl font-black text-red-600 tracking-tight md:hidden">
+                        ESAdmin
                     </Link>
-                    <nav className="hidden md:flex items-center gap-6">
-                        <Link
-                            href="/dashboard"
-                            className="text-sm hover:text-primary transition-colors"
-                        >
-                            {t.nav.dashboard}
-                        </Link>
-                        <Link
-                            href="/dashboard/cities"
-                            className="text-sm hover:text-primary transition-colors"
-                        >
-                            {t.nav.cities}
-                        </Link>
-                        <Link
-                            href="/dashboard/categories"
-                            className="text-sm hover:text-primary transition-colors"
-                        >
-                            {t.nav.categories}
-                        </Link>
-                        <Link
-                            href="/dashboard/listings"
-                            className="text-sm hover:text-primary transition-colors"
-                        >
-                            {t.nav.listings}
-                        </Link>
-                        <Link
-                            href="/dashboard/features"
-                            className="text-sm hover:text-primary transition-colors"
-                        >
-                            {t.nav.features}
-                        </Link>
-                    </nav>
+                    {/* Mobile Menu Trigger could go here */}
                 </div>
                 <div className="flex items-center gap-4">
                     <LanguageSwitcher />

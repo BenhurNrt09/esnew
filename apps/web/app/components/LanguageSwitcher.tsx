@@ -29,13 +29,25 @@ export function LanguageSwitcher() {
                 >
                     {language === 'tr' ? (
                         <>
-                            <span className="text-lg">🇹🇷</span>
-                            <span className="font-medium text-xs">TR</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" className="w-5 h-3.5 rounded-sm shadow-sm object-cover">
+                                <path fill="#E30A17" d="M0 0h1200v800H0z" />
+                                <circle cx="425" cy="400" r="200" fill="#fff" />
+                                <circle cx="475" cy="400" r="160" fill="#E30A17" />
+                                <path fill="#fff" d="M583.334 400l180.901 63.603-107.755-164.293v201.38l107.755-164.293z" />
+                            </svg>
+                            <span className="font-bold text-xs tracking-wide">TR</span>
                         </>
                     ) : (
                         <>
-                            <span className="text-lg">🇬🇧</span>
-                            <span className="font-medium text-xs">EN</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" className="w-5 h-3.5 rounded-sm shadow-sm object-cover">
+                                <clipPath id="a"><path d="M0 0v30h60V0z" /></clipPath>
+                                <path d="M0 0v30h60V0z" fill="#012169" />
+                                <path d="M0 0l60 30m0-30L0 30" stroke="#fff" strokeWidth="6" />
+                                <path d="M0 0l60 30m0-30L0 30" stroke="#c8102e" strokeWidth="4" />
+                                <path d="M30 0v30M0 15h60" stroke="#fff" strokeWidth="10" />
+                                <path d="M30 0v30M0 15h60" stroke="#c8102e" strokeWidth="6" />
+                            </svg>
+                            <span className="font-bold text-xs tracking-wide">EN</span>
                         </>
                     )}
                 </motion.div>

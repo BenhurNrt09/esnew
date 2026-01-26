@@ -10,7 +10,7 @@ export function Header() {
     return (
         <header className="bg-background/80 backdrop-blur-md sticky top-0 z-50 border-b">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                <Link href="/" className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                <Link href="/" className="text-2xl font-black text-red-600 tracking-tighter">
                     ESNew
                 </Link>
                 <div className="flex items-center gap-6">
