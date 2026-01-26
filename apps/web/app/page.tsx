@@ -29,13 +29,13 @@ export default async function HomePage() {
     return (
         <div className="min-h-screen bg-neutral-50">
             {/* Hero Section */}
-            <section className="relative bg-gradient-to-r from-violet-600 to-indigo-600 text-white overflow-hidden">
+            <section className="relative bg-gradient-to-r from-red-600 to-rose-600 text-white overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
                 <div className="container mx-auto px-4 py-24 relative z-10 text-center">
                     <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
                         En Seçkin Profilleri Keşfedin
                     </h1>
-                    <p className="text-xl md:text-2xl mb-10 text-indigo-100 max-w-2xl mx-auto font-light">
+                    <p className="text-xl md:text-2xl mb-10 text-red-50 max-w-2xl mx-auto font-light">
                         81 ilde aradığınız özelliklere sahip profilleri güvenle bulun.
                     </p>
 
@@ -49,7 +49,7 @@ export default async function HomePage() {
                             </Link>
                         ))}
                         <Link href="/sehir/istanbul">
-                            <Button variant="secondary" className="rounded-full px-6 bg-white text-indigo-600 hover:bg-indigo-50 font-semibold">
+                            <Button variant="secondary" className="rounded-full px-6 bg-white text-red-600 hover:bg-red-50 font-semibold">
                                 Tümünü Gör
                             </Button>
                         </Link>
@@ -67,7 +67,7 @@ export default async function HomePage() {
                                 href={`/kategori/${cat.slug}`}
                                 className="group flex flex-col items-center gap-3 p-4 min-w-[100px] rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
                             >
-                                <div className="w-16 h-16 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <div className="w-16 h-16 rounded-full bg-red-50 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                     {/* Icon placeholder logic based on slug */}
                                     <span className="text-2xl">
                                         {cat.slug.includes('sac') ? '💇‍♀️' :
@@ -76,7 +76,7 @@ export default async function HomePage() {
                                                     cat.slug.includes('irk') ? '🌍' : '✨'}
                                     </span>
                                 </div>
-                                <span className="font-medium text-gray-700 group-hover:text-indigo-600">{cat.name}</span>
+                                <span className="font-medium text-gray-700 group-hover:text-red-600">{cat.name}</span>
                             </Link>
                         ))}
                     </div>
@@ -91,7 +91,7 @@ export default async function HomePage() {
                             <h2 className="text-3xl font-bold text-gray-900">Vitrin Profilleri</h2>
                             <p className="text-gray-500 mt-2">Özenle seçilmiş, popüler profiller</p>
                         </div>
-                        <Link href="/kategori/hizmetler" className="hidden md:flex items-center text-indigo-600 font-medium hover:underline">
+                        <Link href="/kategori/hizmetler" className="hidden md:flex items-center text-red-600 font-medium hover:underline">
                             Tümünü Gör <ArrowRight className="ml-1 h-4 w-4" />
                         </Link>
                     </div>
@@ -132,10 +132,10 @@ export default async function HomePage() {
 
                                     {/* Info Area (Minimal) */}
                                     <div className="p-4 flex items-center justify-between">
-                                        <div className="text-indigo-600 font-bold text-lg">
+                                        <div className="text-red-600 font-bold text-lg">
                                             {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
                                         </div>
-                                        <Button size="icon" variant="ghost" className="rounded-full hover:bg-pink-50 hover:text-pink-500">
+                                        <Button size="icon" variant="ghost" className="rounded-full hover:bg-red-50 hover:text-red-500">
                                             <Heart className="h-5 w-5" />
                                         </Button>
                                     </div>
@@ -149,7 +149,7 @@ export default async function HomePage() {
             {/* Sticky Mobile Filter Button (Optional) */}
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:hidden z-40">
                 <Link href="/kategori/hizmetler">
-                    <Button size="lg" className="rounded-full shadow-lg bg-indigo-600 hover:bg-indigo-700 px-8">
+                    <Button size="lg" className="rounded-full shadow-lg bg-red-600 hover:bg-red-700 px-8">
                         <Search className="mr-2 h-5 w-5" /> Profilleri Ara
                     </Button>
                 </Link>

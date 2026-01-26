@@ -79,13 +79,13 @@ export default async function CategoryPage({
             <section className="bg-white border-b sticky top-0 md:static z-20">
                 <div className="container mx-auto px-4 py-8">
                     <nav className="text-sm mb-4 text-gray-500">
-                        <Link href="/" className="hover:text-indigo-600">Ana Sayfa</Link>
+                        <Link href="/" className="hover:text-red-600">Ana Sayfa</Link>
                         <span className="mx-2">/</span>
                         <span className="font-semibold text-gray-900">{category.name}</span>
                     </nav>
                     <div className="flex items-baseline justify-between">
                         <h1 className="text-3xl font-bold text-gray-900">
-                            {category.name} <span className="text-indigo-600 font-light">Profilleri</span>
+                            {category.name} <span className="text-red-600 font-light">Profilleri</span>
                         </h1>
                         <span className="text-sm font-medium bg-gray-100 px-3 py-1 rounded-full text-gray-600">
                             {listings.length} sonuç
@@ -145,7 +145,7 @@ export default async function CategoryPage({
 
                                         {/* Info Area */}
                                         <div className="p-4 flex items-center justify-between mt-auto bg-white">
-                                            <div className="text-indigo-600 font-bold text-lg">
+                                            <div className="text-red-600 font-bold text-lg">
                                                 {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
                                             </div>
                                             <div className="text-xs text-gray-400 flex items-center gap-1">
