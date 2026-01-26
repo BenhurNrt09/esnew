@@ -15,12 +15,15 @@ import {
     User,
     MapPin,
     Info,
-    Link as LinkIcon
+    Link as LinkIcon,
+    RefreshCw,
+    Database
 } from 'lucide-react';
 
 export default function NewProfilePage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [seeding, setSeeding] = useState(false); // Seeding state
     const [error, setError] = useState('');
 
     // Data
@@ -45,28 +48,102 @@ export default function NewProfilePage() {
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
     const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
-    useEffect(() => {
-        async function loadData() {
-            const supabase = createBrowserClient();
-            const [citiesRes, categoriesRes] = await Promise.all([
-                supabase.from('cities').select('*').eq('is_active', true).order('name'),
-                supabase.from('categories').select('*').order('name'),
-            ]);
+    async function loadData() {
+        const supabase = createBrowserClient();
+        const [citiesRes, categoriesRes] = await Promise.all([
+            supabase.from('cities').select('*').eq('is_active', true).order('name'),
+            supabase.from('categories').select('*').order('name'),
+        ]);
 
-            if (citiesRes.data) setCities(citiesRes.data);
+        if (citiesRes.data) setCities(citiesRes.data);
 
-            if (categoriesRes.data) {
-                const allCats = categoriesRes.data as Category[];
-                const parents = allCats.filter(c => !c.parent_id);
-                const groups = parents.map(parent => ({
-                    parent,
-                    subs: allCats.filter(c => c.parent_id === parent.id)
-                })).filter(g => g.subs.length > 0);
-                setFeatureGroups(groups);
-            }
+        if (categoriesRes.data) {
+            const allCats = categoriesRes.data as Category[];
+            const parents = allCats.filter(c => !c.parent_id);
+            const groups = parents.map(parent => ({
+                parent,
+                subs: allCats.filter(c => c.parent_id === parent.id)
+            })).filter(g => g.subs.length > 0);
+            setFeatureGroups(groups);
         }
+    }
+
+    useEffect(() => {
         loadData();
     }, []);
+
+    const handleInitialize = async () => {
+        setSeeding(true);
+        try {
+            const supabase = createBrowserClient();
+
+            const seedData = [
+                {
+                    name: 'Saç Rengi',
+                    slug: 'sac-rengi',
+                    subs: ['Sarı', 'Esmer', 'Kumral', 'Kızıl', 'Siyah', 'Boyalı']
+                },
+                {
+                    name: 'Göz Rengi',
+                    slug: 'goz-rengi',
+                    subs: ['Mavi', 'Yeşil', 'Kahverengi', 'Ela', 'Siyah']
+                },
+                {
+                    name: 'Vücut Tipi',
+                    slug: 'vucut-tipi',
+                    subs: ['Zayıf', 'Fit / Sportif', 'Balık Etli', 'Dolgun', 'Büyük Beden']
+                },
+                {
+                    name: 'Uyruk / Köken',
+                    slug: 'uyruk',
+                    subs: ['Türk', 'Rus', 'Ukrayna', 'Azerbaycan', 'Latin', 'Avrupa', 'Asya', 'Afro', 'Arap']
+                },
+                {
+                    name: 'Hizmetler',
+                    slug: 'hizmetler',
+                    subs: ['Eskort', 'Masaj', 'Dans / Show', 'Partner']
+                }
+            ];
+
+            for (const cat of seedData) {
+                // 1. Create/Get Parent
+                const { data: existing } = await supabase.from('categories').select('id').eq('slug', cat.slug).single();
+                let parentId = existing?.id;
+
+                if (!parentId) {
+                    const { data: created } = await supabase.from('categories').insert({
+                        name: cat.name,
+                        slug: cat.slug,
+                        is_active: true
+                    }).select().single();
+                    if (created) parentId = created.id;
+                }
+
+                // 2. Create Subs
+                if (parentId) {
+                    for (const sub of cat.subs) {
+                        const subSlug = slugify(sub);
+                        await supabase.from('categories').upsert({
+                            name: sub,
+                            slug: subSlug,
+                            parent_id: parentId,
+                            is_active: true
+                        }, { onConflict: 'slug' });
+                    }
+                }
+            }
+
+            // Reload
+            await loadData();
+            alert('Özellik kategorileri başarıyla yüklendi!');
+
+        } catch (err: any) {
+            console.error(err);
+            alert('Hata: ' + err.message);
+        } finally {
+            setSeeding(false);
+        }
+    };
 
     const handleTitleChange = (value: string) => {
         setFormData({
@@ -175,7 +252,7 @@ export default function NewProfilePage() {
             router.refresh();
         } catch (err: any) {
             console.error(err);
-            setError(err.message || 'Profil oluşturulurken hata oluştu. Veritabanınızı güncellediğinizden emin olun.');
+            setError(err.message || 'Profil oluşturulurken hata oluştu.');
         } finally {
             setLoading(false);
         }
@@ -183,9 +260,24 @@ export default function NewProfilePage() {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl animate-in fade-in duration-500">
-            <div className="mb-8">
-                <h1 className="text-3xl font-black text-red-950 tracking-tight">Yeni Profil Oluştur</h1>
-                <p className="text-muted-foreground mt-1">Platforma detaylı bir profesyonel profil ekleyin</p>
+            <div className="mb-8 flex justify-between items-end">
+                <div>
+                    <h1 className="text-3xl font-black text-red-950 tracking-tight">Yeni Profil Oluştur</h1>
+                    <p className="text-muted-foreground mt-1">Platforma detaylı bir profesyonel profil ekleyin</p>
+                </div>
+                {featureGroups.length === 0 && (
+                    <Button
+                        onClick={handleInitialize}
+                        disabled={seeding}
+                        className="bg-amber-100 text-amber-900 border border-amber-200 hover:bg-amber-200"
+                    >
+                        {seeding ? (
+                            <><RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Yükleniyor...</>
+                        ) : (
+                            <><Database className="mr-2 h-4 w-4" /> Özellikleri Otomatik Yükle</>
+                        )}
+                    </Button>
+                )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -326,8 +418,17 @@ export default function NewProfilePage() {
                                     />
                                 </div>
                             )) : (
-                                <div className="col-span-full py-4 text-center bg-gray-50 rounded-lg border border-dashed border-gray-200 text-sm text-gray-500">
-                                    Özellik kategorileri yüklenmedi. Lütfen veritabanı Seed işlemini gerçekleştirin.
+                                <div className="col-span-full py-8 text-center bg-amber-50 rounded-xl border border-dashed border-amber-200 text-amber-800">
+                                    <Info className="h-8 w-8 mx-auto mb-2 text-amber-500" />
+                                    <p className="font-bold">Özellik kategorileri henüz yüklenmemiş.</p>
+                                    <p className="text-sm mb-4">Profil özelliklerini (Saç, Göz, vb.) seçebilmek için veri tabanı kurulumunu yapmanız gerekiyor.</p>
+                                    <Button
+                                        onClick={handleInitialize}
+                                        disabled={seeding}
+                                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                                    >
+                                        {seeding ? 'Yükleniyor...' : 'Özellikleri Şimdi Yükle'}
+                                    </Button>
                                 </div>
                             )}
                         </div>

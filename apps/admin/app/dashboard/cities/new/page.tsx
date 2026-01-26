@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@repo/ui';
-import { slugify } from '@repo/lib';
-import { createBrowserClient } from '@repo/lib';
+import { slugify, createBrowserClient } from '@repo/lib';
+import { MapPin, AlignLeft, Link as LinkIcon, FileText, Info, CheckCircle2 } from 'lucide-react';
 
 export default function NewCityPage() {
     const router = useRouter();
@@ -51,118 +51,125 @@ export default function NewCityPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="container mx-auto px-4 py-8 max-w-3xl animate-in fade-in duration-500">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold">Yeni Şehir Ekle</h1>
-                <p className="text-muted-foreground mt-1">
-                    Platform'a yeni bir şehir ekleyin
-                </p>
+                <h1 className="text-3xl font-black text-red-950 tracking-tight">Yeni Şehir Ekle</h1>
+                <p className="text-muted-foreground mt-1">Platformun hizmet vereceği yeni bir lokasyon tanımlayın.</p>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Şehir Bilgileri</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
+
+                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
+                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
+                            <MapPin className="h-5 w-5" /> Şehir Bilgileri
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 grid gap-6">
+
                         <div className="space-y-2">
-                            <label htmlFor="name" className="text-sm font-medium">
-                                Şehir Adı *
-                            </label>
-                            <Input
-                                id="name"
-                                value={formData.name}
-                                onChange={(e) => handleNameChange(e.target.value)}
-                                placeholder="İstanbul"
-                                required
-                                disabled={loading}
-                            />
+                            <label className="text-sm font-bold text-gray-700">Şehir Adı *</label>
+                            <div className="relative">
+                                <AlignLeft className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                                <Input
+                                    value={formData.name}
+                                    onChange={(e) => handleNameChange(e.target.value)}
+                                    placeholder="Örn: İstanbul"
+                                    required
+                                    className="pl-10 border-gray-200 focus:border-red-500 h-11 shadow-sm font-medium"
+                                />
+                            </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="slug" className="text-sm font-medium">
-                                Slug (URL) *
+                            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                <LinkIcon className="h-3 w-3" /> Slug (URL)
                             </label>
                             <Input
-                                id="slug"
                                 value={formData.slug}
                                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                 placeholder="istanbul"
                                 required
-                                disabled={loading}
+                                className="border-gray-200 bg-gray-50 text-gray-500 font-mono text-sm h-11 shadow-sm"
                             />
-                            <p className="text-xs text-muted-foreground">
-                                URL'de görünecek: /sehir/{formData.slug || 'slug'}
-                            </p>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                id="is_active"
-                                checked={formData.is_active}
-                                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                                disabled={loading}
-                                className="w-4 h-4 rounded border-gray-300"
+                        {/* Status Toggle Card */}
+                        <div
+                            className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${formData.is_active
+                                    ? 'bg-green-50 border-green-300 shadow-lg shadow-green-100/50'
+                                    : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
+                                }`}
+                            onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
+                        >
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-sm ${formData.is_active ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                <CheckCircle2 className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className={`font-bold text-lg ${formData.is_active ? 'text-green-900' : 'text-gray-700'}`}>Şehir Aktif</p>
+                                <p className="text-sm text-muted-foreground leading-tight mt-1">Bu şehir sitede listelensin ve kullanıcılar seçim yapabilsin.</p>
+                            </div>
+                            <div className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center ${formData.is_active ? 'border-green-500 bg-green-500' : 'border-gray-300'}`}>
+                                {formData.is_active && <CheckCircle2 className="w-4 h-4 text-white" />}
+                            </div>
+                        </div>
+
+                    </CardContent>
+                </Card>
+
+                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
+                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
+                            <FileText className="h-5 w-5" /> SEO Ayarları
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 grid gap-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-700">SEO Başlık</label>
+                            <Input
+                                value={formData.seo_title}
+                                onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
+                                placeholder={`${formData.name || '...'} İlanları - En İyi Profiller`}
+                                className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
                             />
-                            <label htmlFor="is_active" className="text-sm font-medium">
-                                Aktif
-                            </label>
                         </div>
 
-                        <div className="border-t pt-6">
-                            <h3 className="font-medium mb-4">SEO Ayarları</h3>
-
-                            <div className="space-y-2 mb-4">
-                                <label htmlFor="seo_title" className="text-sm font-medium">
-                                    SEO Başlık
-                                </label>
-                                <Input
-                                    id="seo_title"
-                                    value={formData.seo_title}
-                                    onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
-                                    placeholder={`${formData.name} İlanları`}
-                                    disabled={loading}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label htmlFor="seo_description" className="text-sm font-medium">
-                                    SEO Açıklama
-                                </label>
-                                <textarea
-                                    id="seo_description"
-                                    value={formData.seo_description}
-                                    onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
-                                    placeholder={`${formData.name}'da en iyi hizmet ve profil ilanları`}
-                                    disabled={loading}
-                                    className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px]"
-                                />
-                            </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-700">SEO Açıklama</label>
+                            <textarea
+                                value={formData.seo_description}
+                                onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
+                                placeholder={`${formData.name || '...'} bölgesindeki en popüler ilanlar ve profiller.`}
+                                className="w-full min-h-[100px] rounded-xl border border-gray-200 p-4 text-sm focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none shadow-sm transition-all resize-y"
+                            />
                         </div>
+                    </CardContent>
+                </Card>
 
-                        {error && (
-                            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-                                {error}
-                            </div>
-                        )}
+                {error && (
+                    <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-3 font-medium animate-pulse">
+                        <Info className="h-5 w-5" />
+                        {error}
+                    </div>
+                )}
 
-                        <div className="flex items-center gap-4">
-                            <Button type="submit" disabled={loading}>
-                                {loading ? 'Ekleniyor...' : 'Şehir Ekle'}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => router.back()}
-                                disabled={loading}
-                            >
-                                İptal
-                            </Button>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
+                <div className="flex items-center gap-4 sticky bottom-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-gray-200 shadow-2xl z-40">
+                    <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-bold shadow-lg shadow-red-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
+                        {loading ? 'Ekleniyor...' : 'Şehri Kaydet'}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => router.back()}
+                        disabled={loading}
+                        className="h-14 px-8 rounded-xl border-gray-300 text-gray-600 hover:bg-gray-50 font-medium"
+                    >
+                        İptal
+                    </Button>
+                </div>
+
+                <div className="h-8"></div>
+            </form>
         </div>
     );
 }

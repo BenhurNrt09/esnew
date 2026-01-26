@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@repo/ui';
 import { slugify, createBrowserClient } from '@repo/lib';
 import type { Category } from '@repo/types';
+import { Combobox } from '../../../components/Combobox';
+import { Layers, AlignLeft, Link as LinkIcon, SortAsc, FileText, Info } from 'lucide-react';
 
 export default function NewCategoryPage() {
     const router = useRouter();
@@ -54,6 +56,8 @@ export default function NewCategoryPage() {
         try {
             const supabase = createBrowserClient();
 
+            // Eğer varsa slug kontrolü yapmak iyi olabilir ama DB constraint halleder.
+
             const dataToInsert = {
                 ...formData,
                 parent_id: formData.parent_id || null,
@@ -75,147 +79,139 @@ export default function NewCategoryPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="container mx-auto px-4 py-8 max-w-3xl animate-in fade-in duration-500">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold">
-                    {parentId ? 'Yeni Alt Kategori Ekle' : 'Yeni Kategori Ekle'}
+                <h1 className="text-3xl font-black text-red-950 tracking-tight">
+                    {parentId ? 'Yeni Alt Kategori' : 'Yeni Kategori'}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                    {parentId ? 'Ana kategoriye bağlı yeni alt kategori oluşturun' : 'Yeni ana kategori oluşturun'}
+                    {parentId ? 'Mevcut kategoriye bağlı bir alt özellik grubu ekleyin.' : 'Platform genelinde kullanılacak yeni bir ana kategori oluşturun.'}
                 </p>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Kategori Bilgileri</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
+
+                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
+                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
+                            <Layers className="h-5 w-5" /> Kategori Detayları
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 grid gap-6">
+
                         {!parentId && (
                             <div className="space-y-2">
-                                <label htmlFor="parent_id" className="text-sm font-medium">
-                                    Ana Kategori (Opsiyonel)
-                                </label>
-                                <select
-                                    id="parent_id"
+                                <label className="text-sm font-bold text-gray-700">Ana Kategori (Opsiyonel)</label>
+                                <Combobox
+                                    options={categories.map(c => ({ value: c.id, label: c.name }))}
                                     value={formData.parent_id}
-                                    onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
-                                    disabled={loading}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                >
-                                    <option value="">-- Ana Kategori --</option>
-                                    {categories.map((cat) => (
-                                        <option key={cat.id} value={cat.id}>
-                                            {cat.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <p className="text-xs text-muted-foreground">
-                                    Boş bırakırsanız ana kategori olarak eklenir
+                                    onChange={(val) => setFormData({ ...formData, parent_id: val })}
+                                    placeholder="Ana Kategori Seçiniz (Yoksa boş bırakın)"
+                                    searchPlaceholder="Kategori ara..."
+                                />
+                                <p className="text-xs text-gray-400">
+                                    Bir ana kategori seçerseniz, bu kategori onun alt özelliği olur (Örn: Saç Rengi -> Sarı).
                                 </p>
                             </div>
                         )}
 
                         <div className="space-y-2">
-                            <label htmlFor="name" className="text-sm font-medium">
-                                Kategori Adı *
-                            </label>
-                            <Input
-                                id="name"
-                                value={formData.name}
-                                onChange={(e) => handleNameChange(e.target.value)}
-                                placeholder="Hizmetler"
-                                required
-                                disabled={loading}
-                            />
+                            <label className="text-sm font-bold text-gray-700">Kategori Adı *</label>
+                            <div className="relative">
+                                <AlignLeft className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                                <Input
+                                    value={formData.name}
+                                    onChange={(e) => handleNameChange(e.target.value)}
+                                    placeholder="Örn: Hizmetler veya Göz Rengi"
+                                    required
+                                    className="pl-10 border-gray-200 focus:border-red-500 h-11 shadow-sm font-medium"
+                                />
+                            </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="slug" className="text-sm font-medium">
-                                Slug (URL) *
+                            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                <LinkIcon className="h-3 w-3" /> Slug (URL)
                             </label>
                             <Input
-                                id="slug"
                                 value={formData.slug}
                                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                placeholder="hizmetler"
+                                placeholder="otomatik-olusturulur"
                                 required
-                                disabled={loading}
+                                className="border-gray-200 bg-gray-50 text-gray-500 font-mono text-sm h-11 shadow-sm"
                             />
-                            <p className="text-xs text-muted-foreground">
-                                URL'de görünecek: /kategori/{formData.slug || 'slug'}
-                            </p>
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="order" className="text-sm font-medium">
-                                Sıra
-                            </label>
-                            <Input
-                                id="order"
-                                type="number"
-                                value={formData.order}
-                                onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                                disabled={loading}
-                            />
-                            <p className="text-xs text-muted-foreground">
-                                Küçük sayılar önce görünür
-                            </p>
-                        </div>
-
-                        <div className="border-t pt-6">
-                            <h3 className="font-medium mb-4">SEO Ayarları</h3>
-
-                            <div className="space-y-2 mb-4">
-                                <label htmlFor="seo_title" className="text-sm font-medium">
-                                    SEO Başlık
-                                </label>
+                            <label className="text-sm font-bold text-gray-700">Sıra No</label>
+                            <div className="relative">
+                                <SortAsc className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
                                 <Input
-                                    id="seo_title"
-                                    value={formData.seo_title}
-                                    onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
-                                    placeholder={`${formData.name} İlanları`}
-                                    disabled={loading}
+                                    type="number"
+                                    value={formData.order}
+                                    onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                                    className="pl-10 border-gray-200 focus:border-red-500 h-11 shadow-sm"
                                 />
                             </div>
-
-                            <div className="space-y-2">
-                                <label htmlFor="seo_description" className="text-sm font-medium">
-                                    SEO Açıklama
-                                </label>
-                                <textarea
-                                    id="seo_description"
-                                    value={formData.seo_description}
-                                    onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
-                                    placeholder={`${formData.name} kategorisindeki tüm ilanlar`}
-                                    disabled={loading}
-                                    className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px]"
-                                />
-                            </div>
+                            <p className="text-xs text-gray-400">Menülerde listelenme sırası (Küçük sayılar önce gelir).</p>
                         </div>
 
-                        {error && (
-                            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-                                {error}
-                            </div>
-                        )}
+                    </CardContent>
+                </Card>
 
-                        <div className="flex items-center gap-4">
-                            <Button type="submit" disabled={loading}>
-                                {loading ? 'Ekleniyor...' : 'Kategori Ekle'}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => router.back()}
-                                disabled={loading}
-                            >
-                                İptal
-                            </Button>
+                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
+                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
+                            <FileText className="h-5 w-5" /> SEO Ayarları
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 grid gap-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-700">SEO Başlık</label>
+                            <Input
+                                value={formData.seo_title}
+                                onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
+                                placeholder={`${formData.name || '...'} İlanları`}
+                                className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
+                            />
                         </div>
-                    </form>
-                </CardContent>
-            </Card>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-700">SEO Açıklama</label>
+                            <textarea
+                                value={formData.seo_description}
+                                onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
+                                placeholder={`${formData.name || '...'} kategorisindeki tüm ilanlar ve profiller.`}
+                                className="w-full min-h-[100px] rounded-xl border border-gray-200 p-4 text-sm focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none shadow-sm transition-all resize-y"
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {error && (
+                    <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-3 font-medium animate-pulse">
+                        <Info className="h-5 w-5" />
+                        {error}
+                    </div>
+                )}
+
+                <div className="flex items-center gap-4 sticky bottom-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-gray-200 shadow-2xl z-40">
+                    <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-bold shadow-lg shadow-red-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
+                        {loading ? 'Ekleniyor...' : 'Kategoriyi Kaydet'}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => router.back()}
+                        disabled={loading}
+                        className="h-14 px-8 rounded-xl border-gray-300 text-gray-600 hover:bg-gray-50 font-medium"
+                    >
+                        İptal
+                    </Button>
+                </div>
+
+                <div className="h-8"></div>
+            </form>
         </div>
     );
 }
