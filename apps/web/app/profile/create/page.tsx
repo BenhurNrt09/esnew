@@ -56,34 +56,52 @@ export default function CreateProfilePage() {
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('Oturum bulunamadı');
+            if (!user) throw new Error('Oturum bulunamadı. Lütfen giriş yapın.');
 
-            // Find categories
-            // Note: In a real app we'd need a better way to handle multiple categories per listing
-            // For now, we will pick one as the main category_id (e.g. Ethnicity) 
-            // and store others in a JSONB column or separate table if schema supported it.
-            // Since schema is simple, let's just use ethnicity as main category for now.
-            const mainCategoryId = formData.ethnicity_id || formData.hair_id;
+            // Validate Category
+            const mainCategoryId = formData.ethnicity_id || formData.hair_id || formData.body_id || formData.age_id;
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+            if (!mainCategoryId || !uuidRegex.test(mainCategoryId)) {
+                alert('Lütfen geçerli bir kategori (özellik) seçiniz.');
+                console.error('Invalid Category ID:', mainCategoryId);
+                setLoading(false);
+                return;
+            }
+
+            // Validate City
+            if (!formData.city_id || !uuidRegex.test(formData.city_id)) {
+                alert('Lütfen geçerli bir şehir seçiniz.');
+                console.error('Invalid City ID:', formData.city_id);
+                setLoading(false);
+                return;
+            }
 
             // Create Profile (Listing)
-            const { error } = await supabase.from('listings').insert({
+            const payload = {
                 user_id: user.id,
                 title: formData.title,
-                slug: `${formData.title.toLowerCase().replace(/ /g, '-')}-${Math.floor(Math.random() * 1000)}`,
+                slug: `${formData.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Math.floor(Math.random() * 10000)}`,
                 city_id: formData.city_id,
-                category_id: mainCategoryId, // Simple schema limitation
+                category_id: mainCategoryId,
                 price: formData.price ? parseFloat(formData.price) : null,
                 description: `Yaş Grubu: ${getCatName(formData.age_id)}\nSaç: ${getCatName(formData.hair_id)}\nVücut: ${getCatName(formData.body_id)}\n\n${formData.description}`,
-                is_active: false, // Wait for admin approval
-            });
+                is_active: false,
+            };
 
-            if (error) throw error;
+            const { error } = await supabase.from('listings').insert(payload);
 
-            alert('Profiliniz oluşturuldu! Onay sürecinden sonra yayına alınacaktır.');
-            router.push('/dashboard'); // User dashboard (not admin)
+            if (error) {
+                console.error('Insert Error:', error);
+                throw error;
+            }
+
+            alert('Profiliniz başarıyla oluşturuldu! Onay sürecinden sonra yayına alınacaktır.');
+            router.push('/dashboard');
 
         } catch (err: any) {
-            alert(err.message);
+            console.error('Submit Error:', err);
+            alert('Hata: ' + (err.message || 'Bilinmeyen bir hata oluştu.'));
         } finally {
             setLoading(false);
         }

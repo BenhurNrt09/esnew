@@ -1,3 +1,5 @@
+
+
 import { createServerClient } from '@repo/lib/server';
 import type { City, Listing, Category } from '@repo/types';
 import { Button } from '@repo/ui';
@@ -5,17 +7,19 @@ import Link from 'next/link';
 import { MapPin, ArrowRight, Search, Heart, Star, Sparkles, Clock } from 'lucide-react';
 import { formatPrice } from '@repo/lib';
 import { HeroSearch } from './components/HeroSearch';
+import { AdSidebar } from './components/AdSidebar';
 
 export const revalidate = 3600;
 
 async function getData() {
     const supabase = createServerClient();
 
-    const [citiesRes, featuredRes, latestRes, categoriesRes] = await Promise.all([
-        supabase.from('cities').select('*').eq('is_active', true).order('name').limit(81), // Tüm illeri alalım dropdown için
+    const [citiesRes, featuredRes, latestRes, categoriesRes, adsRes] = await Promise.all([
+        supabase.from('cities').select('*').eq('is_active', true).order('name').limit(81),
         supabase.from('listings').select('*, city:cities(*), category:categories(*)').eq('is_active', true).eq('is_featured', true).order('created_at', { ascending: false }).limit(8),
         supabase.from('listings').select('*, city:cities(*), category:categories(*)').eq('is_active', true).eq('is_featured', false).order('created_at', { ascending: false }).limit(8),
         supabase.from('categories').select('*').eq('is_active', true).is('parent_id', null).order('order'),
+        supabase.from('ads').select('*').eq('is_active', true).order('order', { ascending: true }),
     ]);
 
     return {
@@ -23,14 +27,16 @@ async function getData() {
         featuredListings: featuredRes.data || [],
         latestListings: latestRes.data || [],
         categories: categoriesRes.data || [],
+        ads: adsRes.data || [],
     };
 }
 
 export default async function HomePage() {
-    const { cities, featuredListings, latestListings, categories } = await getData();
+    const { cities, featuredListings, latestListings, categories, ads } = await getData();
 
-    // Popüler şehirler (İstanbul, Ankara, İzmir vs)
     const popularCities = cities.filter(c => ['istanbul', 'ankara', 'izmir', 'antalya', 'bursa'].includes(c.slug));
+    const leftAds = ads.filter(a => a.position === 'left');
+    const rightAds = ads.filter(a => a.position === 'right');
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -99,141 +105,153 @@ export default async function HomePage() {
                 </div>
             </section>
 
-            {/* Featured Profiles (Vitrin) */}
-            <section className="py-20 bg-gray-50">
-                <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-                        <div className="relative">
-                            <span className="absolute -top-6 left-0 text-red-500/20 text-6xl font-black -z-10">VİTRİN</span>
-                            <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                                <Sparkles className="h-6 w-6 text-amber-500 fill-amber-500" />
-                                Öne Çıkan Profiller
-                            </h2>
-                            <p className="text-gray-500 mt-2 font-medium">Editörlerimizin seçtiği en popüler profiller</p>
+            {/* Content Area with Ads Layout */}
+            <div className="container mx-auto px-4 py-8 flex items-start justify-center gap-6 relative z-10">
+
+                {/* Left Ads Sidebar */}
+                <aside className="w-[160px] hidden xl:flex flex-col gap-4 sticky top-4 h-fit shrink-0">
+                    <AdSidebar ads={leftAds} />
+                </aside>
+
+                {/* Main Content Column */}
+                <main className="flex-1 min-w-0 space-y-12">
+
+                    {/* Featured Profiles (Vitrin) */}
+                    <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 relative overflow-hidden">
+                        {/* Vitrin Header */}
+                        <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 relative z-10">
+                            <div>
+                                <span className="text-red-500/10 text-5xl font-black absolute -top-4 -left-2 -z-10 select-none">VİTRİN</span>
+                                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-3">
+                                    <Sparkles className="h-6 w-6 text-amber-500 fill-amber-500" />
+                                    Öne Çıkan Profiller
+                                </h2>
+                                <p className="text-gray-500 mt-1 font-medium text-sm md:text-base">Editörlerimizin seçtiği en popüler profiller</p>
+                            </div>
+                            <Link href="/kategori/hizmetler" className="flex items-center text-red-600 font-bold hover:bg-red-50 px-4 py-2 rounded-lg transition-colors group text-sm">
+                                Tümünü Gör <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            </Link>
                         </div>
-                        <Link href="/kategori/hizmetler" className="flex items-center text-red-600 font-bold hover:bg-red-50 px-4 py-2 rounded-lg transition-colors group">
-                            Tümünü Gör <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {featuredListings.map((listing) => (
-                            <Link key={listing.id} href={`/ilan/${listing.slug}`} className="group block">
-                                <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-red-900/10 transition-all duration-500 border border-gray-100 h-full flex flex-col relative">
-                                    {/* Image Area */}
-                                    <div className="aspect-[3/4] bg-gray-200 relative overflow-hidden">
-                                        {/* Placeholder for real image */}
-                                        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-700">
-                                            <span className="text-5xl opacity-40 grayscale group-hover:grayscale-0 transition-all">📸</span>
-                                        </div>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
+                        {/* Vitrin Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {featuredListings.map((listing) => (
+                                <Link key={listing.id} href={`/ilan/${listing.slug}`} className="group block h-full">
+                                    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-red-900/10 transition-all duration-300 border border-gray-100 h-full flex flex-col relative group-hover:-translate-y-1">
+                                        <div className="aspect-[3/4] bg-gray-200 relative overflow-hidden">
+                                            <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-700">
+                                                <span className="text-4xl opacity-40 grayscale group-hover:grayscale-0 transition-all">📸</span>
+                                            </div>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
 
-                                        <div className="absolute top-4 left-4">
-                                            <span className="bg-white/90 backdrop-blur-md text-red-950 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide flex items-center gap-1 shadow-lg">
-                                                <Star className="h-3 w-3 text-amber-500 fill-amber-500" /> Vitrin
-                                            </span>
-                                        </div>
-
-                                        <div className="absolute top-4 right-4">
-                                            <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white hover:text-red-500 transition-all">
-                                                <Heart className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-
-                                        <div className="absolute bottom-0 left-0 right-0 p-5 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                                            <div className="flex items-center gap-2 text-xs font-medium mb-2 opacity-90">
-                                                <span className="bg-red-600 px-2 py-0.5 rounded text-white shadow-sm">
-                                                    {listing.city?.name}
-                                                </span>
-                                                <span className="bg-white/20 px-2 py-0.5 rounded backdrop-blur-md">
-                                                    {listing.category?.name}
+                                            <div className="absolute top-3 left-3">
+                                                <span className="bg-white/90 backdrop-blur-md text-red-950 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide flex items-center gap-1 shadow-lg">
+                                                    <Star className="h-3 w-3 text-amber-500 fill-amber-500" /> Vitrin
                                                 </span>
                                             </div>
-                                            <h3 className="text-xl font-bold leading-tight mb-2">{listing.title}</h3>
-                                            <div className="h-0 group-hover:h-auto overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
-                                                <p className="text-sm text-gray-300 line-clamp-2 mb-2">{listing.description}</p>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    {/* Info Area */}
-                                    <div className="p-4 flex items-center justify-between mt-auto border-t border-gray-50 bg-white z-10 relative">
-                                        <div>
-                                            <p className="text-xs text-gray-400">Başlangıç</p>
-                                            <div className="text-red-600 font-black text-lg">
-                                                {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
+                                            <div className="absolute top-3 right-3">
+                                                <div className="h-8 w-8 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center hover:bg-white hover:text-red-500 transition-all">
+                                                    <Heart className="h-4 w-4" />
+                                                </div>
+                                            </div>
+
+                                            <div className="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                                                <div className="flex items-center gap-2 text-[10px] font-medium mb-1 opacity-90">
+                                                    <span className="bg-red-600 px-1.5 py-0.5 rounded text-white shadow-sm">
+                                                        {listing.city?.name}
+                                                    </span>
+                                                    <span className="bg-white/20 px-1.5 py-0.5 rounded backdrop-blur-md">
+                                                        {listing.category?.name}
+                                                    </span>
+                                                </div>
+                                                <h3 className="text-lg font-bold leading-tight mb-1 truncate">{listing.title}</h3>
+                                                <div className="h-0 group-hover:h-auto overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
+                                                    <p className="text-xs text-gray-300 line-clamp-2">{listing.description}</p>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-red-600 group-hover:border-red-600 group-hover:text-white transition-all text-gray-400">
-                                            <ArrowRight className="h-5 w-5 -rotate-45 group-hover:rotate-0 transition-transform" />
+
+                                        <div className="p-3 flex items-center justify-between mt-auto border-t border-gray-50 bg-white z-10 relative">
+                                            <div>
+                                                <p className="text-[10px] text-gray-400">Başlangıç</p>
+                                                <div className="text-red-600 font-black text-base">
+                                                    {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
+                                                </div>
+                                            </div>
+                                            <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-red-600 group-hover:border-red-600 group-hover:text-white transition-all text-gray-400">
+                                                <ArrowRight className="h-4 w-4 -rotate-45 group-hover:rotate-0 transition-transform" />
+                                            </div>
                                         </div>
                                     </div>
+                                </Link>
+                            ))}
+                            {featuredListings.length === 0 && (
+                                <div className="col-span-full text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                    <p className="text-gray-500">Henüz vitrin ilanı bulunmuyor.</p>
                                 </div>
-                            </Link>
-                        ))}
-                        {featuredListings.length === 0 && (
-                            <div className="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-200">
-                                <p className="text-gray-500">Henüz vitrin ilanı bulunmuyor.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </section>
-
-            {/* Latest Profiles (Diğerleri) */}
-            <section className="py-20 bg-white">
-                <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-                        <div>
-                            <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                                <Clock className="h-6 w-6 text-red-500" />
-                                Yeni Eklenenler
-                            </h2>
-                            <p className="text-gray-500 mt-2 font-medium">Platforma katılan en yeni üyeler</p>
+                            )}
                         </div>
-                        <Link href="/kategori/hizmetler" className="flex items-center text-gray-500 font-bold hover:text-red-600 transition-colors group">
-                            Tüm Profillere Göz At <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {latestListings.map((listing) => (
-                            <Link key={listing.id} href={`/ilan/${listing.slug}`} className="group block">
-                                <div className="bg-gray-50 rounded-2xl overflow-hidden hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 h-full flex flex-row sm:flex-col">
-                                    {/* Image Area - Smaller for normal listings */}
-                                    <div className="w-1/3 sm:w-full sm:aspect-[4/3] bg-gray-200 relative overflow-hidden">
-                                        <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                                            <span className="text-2xl">📷</span>
-                                        </div>
-                                    </div>
 
-                                    {/* Info Area */}
-                                    <div className="flex-1 p-4 flex flex-col justify-center">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{listing.city?.name}</span>
-                                        </div>
-                                        <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-red-600 transition-colors">{listing.title}</h3>
-                                        <p className="text-xs text-gray-500 line-clamp-1 mb-3">{listing.category?.name}</p>
-
-                                        <div className="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between">
-                                            <div className="text-gray-900 font-bold text-sm">
-                                                {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
-                                            </div>
-                                            <span className="text-[10px] text-gray-400">{new Date(listing.created_at).toLocaleDateString('tr-TR')}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
-                        {latestListings.length === 0 && (
-                            <div className="col-span-full text-center py-12">
-                                <p className="text-gray-500">Henüz başka ilan bulunmuyor.</p>
+                    {/* Latest Profiles (Diğerleri) */}
+                    <div>
+                        <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                                    <Clock className="h-6 w-6 text-red-500" />
+                                    Yeni Eklenenler
+                                </h2>
+                                <p className="text-gray-500 mt-1 font-medium text-sm">Platforma katılan en yeni üyeler</p>
                             </div>
-                        )}
-                    </div>
-                </div>
-            </section>
+                            <Link href="/kategori/hizmetler" className="flex items-center text-gray-500 font-bold hover:text-red-600 transition-colors group text-sm">
+                                Tüm Profillere Göz At <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
 
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {latestListings.map((listing) => (
+                                <Link key={listing.id} href={`/ilan/${listing.slug}`} className="group block">
+                                    <div className="bg-white rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 h-full flex flex-row sm:flex-col shadow-sm">
+                                        <div className="w-1/3 sm:w-full sm:aspect-[4/3] bg-gray-200 relative overflow-hidden">
+                                            <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                                                <span className="text-2xl">📷</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex-1 p-4 flex flex-col justify-center">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{listing.city?.name}</span>
+                                            </div>
+                                            <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-red-600 transition-colors truncate">{listing.title}</h3>
+                                            <p className="text-xs text-gray-500 line-clamp-1 mb-2">{listing.category?.name}</p>
+
+                                            <div className="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between">
+                                                <div className="text-gray-900 font-bold text-sm">
+                                                    {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
+                                                </div>
+                                                <span className="text-[10px] text-gray-400">{new Date(listing.created_at).toLocaleDateString('tr-TR')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                            {latestListings.length === 0 && (
+                                <div className="col-span-full text-center py-12">
+                                    <p className="text-gray-500">Henüz başka ilan bulunmuyor.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </main>
+
+                {/* Right Ads Sidebar */}
+                <aside className="w-[160px] hidden xl:flex flex-col gap-4 sticky top-4 h-fit shrink-0">
+                    <AdSidebar ads={rightAds} />
+                </aside>
+
+            </div>
         </div>
     );
 }

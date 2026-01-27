@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@repo/lib/i18n';
-import { LayoutDashboard, MapPin, Layers, Users, Star } from 'lucide-react';
+import { LayoutDashboard, MapPin, Layers, Users, Star, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@repo/ui';
 
 export function Sidebar() {
@@ -16,6 +16,7 @@ export function Sidebar() {
         { href: '/dashboard/categories', label: t.nav.categories, icon: Layers },
         { href: '/dashboard/cities', label: t.nav.cities, icon: MapPin },
         { href: '/dashboard/features', label: t.nav.features, icon: Star },
+        { href: '/dashboard/ads', label: 'Reklamlar', icon: ImageIcon },
     ];
 
     return (
