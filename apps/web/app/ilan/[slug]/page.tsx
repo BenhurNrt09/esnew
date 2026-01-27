@@ -4,8 +4,9 @@ import { Button } from '@repo/ui';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { MapPin, Calendar, Share2, Phone, CheckCircle2, User, Info, ArrowLeft } from 'lucide-react';
+import { MapPin, Calendar, Share2, Phone, CheckCircle2, User, Info, ArrowLeft, MessageCircle } from 'lucide-react';
 import { formatPrice } from '@repo/lib';
+import { ProfileGallery } from '../../components/ProfileGallery';
 
 export const revalidate = 0; // Her zaman güncel veri
 
@@ -16,6 +17,7 @@ interface ExtendedListing extends Listing {
     details?: Record<string, string>;
     images?: string[];
     cover_image?: string;
+    phone?: string;
     seo_title?: string;
     seo_description?: string;
 }
@@ -77,15 +79,9 @@ export default async function ListingPage({ params }: { params: { slug: string }
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* HER0 - Cover Image & Title */}
-            <div className="relative h-[400px] md:h-[500px] w-full bg-gray-900 overflow-hidden">
-                {listing.cover_image ? (
-                    <>
-                        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${listing.cover_image})` }}></div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-                    </>
-                ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-rose-900"></div>
-                )}
+            <div className="relative h-[400px] md:h-[500px] w-full bg-red-950 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-900 to-black/80"></div>
+                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')]"></div>
 
                 <div className="absolute top-0 left-0 p-4 md:p-8 z-20">
                     <Button variant="ghost" className="text-white hover:bg-white/10" asChild>
@@ -123,9 +119,21 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white gap-2 rounded-full h-14 px-8 shadow-lg shadow-green-900/20 text-lg font-bold">
-                                    <Phone className="h-5 w-5" /> İletişime Geç
-                                </Button>
+                                {listing.phone ? (
+                                    <Button
+                                        size="lg"
+                                        className="bg-green-600 hover:bg-green-700 text-white gap-2 rounded-full h-14 px-8 shadow-lg shadow-green-900/20 text-lg font-bold"
+                                        asChild
+                                    >
+                                        <a href={`https://wa.me/${listing.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
+                                            <MessageCircle className="h-6 w-6" /> İletişime Geç
+                                        </a>
+                                    </Button>
+                                ) : (
+                                    <Button size="lg" className="bg-gray-600 hover:bg-gray-700 text-white gap-2 rounded-full h-14 px-8 shadow-lg shadow-gray-900/20 text-lg font-bold">
+                                        <Phone className="h-5 w-5" /> İletişime Geç
+                                    </Button>
+                                )}
                                 <Button size="icon" variant="secondary" className="h-14 w-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur border border-white/10">
                                     <Share2 className="h-5 w-5" />
                                 </Button>
@@ -151,21 +159,8 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             </div>
                         </div>
 
-                        {/* Gallery Grid */}
-                        {allImages.length > 0 && (
-                            <div className="bg-white rounded-2xl p-8 shadow-lg shadow-gray-200/50 border border-gray-100">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                    <CheckCircle2 className="h-6 w-6 text-red-600" /> Galeri
-                                </h2>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                    {allImages.map((img, idx) => (
-                                        <div key={idx} className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity border border-gray-100 relative group">
-                                            <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        {/* Gallery Section */}
+                        <ProfileGallery images={allImages} />
                     </div>
 
                     {/* RIGHT COLUMN: Sidebar (Details & Pricing) */}

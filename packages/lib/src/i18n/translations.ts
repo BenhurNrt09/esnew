@@ -190,7 +190,7 @@ export const translations: Record<Language, Translations> = {
             activeListings: 'Aktif Profil',
         },
         dashboard: {
-            welcome: 'ESNew Admin Panel\'e hoş geldiniz',
+            welcome: 'ValoraEscort Admin Panel\'e hoş geldiniz',
             totalCities: 'Toplam Şehir',
             totalCategories: 'Toplam Kategori',
             quickStart: 'Hızlı Başlangıç',
@@ -292,7 +292,7 @@ export const translations: Record<Language, Translations> = {
             activeListings: 'Active Profiles',
         },
         dashboard: {
-            welcome: 'Welcome to ESNew Admin Panel',
+            welcome: 'Welcome to ValoraEscort Admin Panel',
             totalCities: 'Total Cities',
             totalCategories: 'Total Categories',
             quickStart: 'Quick Start',

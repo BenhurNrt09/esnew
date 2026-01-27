@@ -162,16 +162,19 @@ BEGIN
 
     IF istanbul_id IS NOT NULL AND sarisin_id IS NOT NULL THEN
         INSERT INTO listings (title, slug, description, price, city_id, category_id, is_active, is_featured, created_at) VALUES
-        ('İstanbul Şişli Sarışın Model', 'istanbul-sisli-sarisin-model', 'Merhaba ben Aslı, 22 yaşında sarışın, 1.70 boyunda bakımlı biriyim. Detaylar için arayın.', 5000, istanbul_id, sarisin_id, true, true, NOW());
+        ('İstanbul Şişli Sarışın Model', 'istanbul-sisli-sarisin-model', 'Merhaba ben Aslı, 22 yaşında sarışın, 1.70 boyunda bakımlı biriyim. Detaylar için arayın.', 5000, istanbul_id, sarisin_id, true, true, NOW())
+        ON CONFLICT (slug) DO NOTHING;
     END IF;
 
     IF ankara_id IS NOT NULL AND esmer_id IS NOT NULL THEN
         INSERT INTO listings (title, slug, description, price, city_id, category_id, is_active, is_featured, created_at) VALUES
-        ('Ankara Kızılay Esmer Güzeli', 'ankara-kizilay-esmer', 'Adım Leyla, 25 yaşındayım. Esmer, dolgun vücut hatlarına sahibim.', 4000, ankara_id, esmer_id, true, true, NOW() - INTERVAL '1 day');
+        ('Ankara Kızılay Esmer Güzeli', 'ankara-kizilay-esmer', 'Adım Leyla, 25 yaşındayım. Esmer, dolgun vücut hatlarına sahibim.', 4000, ankara_id, esmer_id, true, true, NOW() - INTERVAL '1 day')
+        ON CONFLICT (slug) DO NOTHING;
     END IF;
 
     IF izmir_id IS NOT NULL AND rus_id IS NOT NULL THEN
         INSERT INTO listings (title, slug, description, price, city_id, category_id, is_active, created_at) VALUES
-        ('İzmir Alsancak Rus Model', 'izmir-alsancak-rus', 'Merhaba, ben Natasha. 21 yaşında, mavi gözlü Rus asıllıyım.', 6000, izmir_id, rus_id, true, NOW() - INTERVAL '2 days');
+        ('İzmir Alsancak Rus Model', 'izmir-alsancak-rus', 'Merhaba, ben Natasha. 21 yaşında, mavi gözlü Rus asıllıyım.', 6000, izmir_id, rus_id, true, NOW() - INTERVAL '2 days')
+        ON CONFLICT (slug) DO NOTHING;
     END IF;
 END $$;

@@ -14,11 +14,13 @@ ON CONFLICT (id) DO NOTHING;
 -- ============================================
 
 -- Public can view listing images
+DROP POLICY IF EXISTS "Public can view listing images" ON storage.objects;
 CREATE POLICY "Public can view listing images"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'listing-images');
 
 -- Admins can upload listing images
+DROP POLICY IF EXISTS "Admins can upload listing images" ON storage.objects;
 CREATE POLICY "Admins can upload listing images"
   ON storage.objects FOR INSERT
   WITH CHECK (
@@ -31,6 +33,7 @@ CREATE POLICY "Admins can upload listing images"
   );
 
 -- Admins can update listing images
+DROP POLICY IF EXISTS "Admins can update listing images" ON storage.objects;
 CREATE POLICY "Admins can update listing images"
   ON storage.objects FOR UPDATE
   USING (
@@ -43,6 +46,7 @@ CREATE POLICY "Admins can update listing images"
   );
 
 -- Admins can delete listing images
+DROP POLICY IF EXISTS "Admins can delete listing images" ON storage.objects;
 CREATE POLICY "Admins can delete listing images"
   ON storage.objects FOR DELETE
   USING (

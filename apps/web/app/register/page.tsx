@@ -50,7 +50,7 @@ export default function RegisterPage() {
         <div className="min-h-screen flex items-center justify-center bg-muted/20 px-4">
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-bold text-center text-primary">ESNew'e Katılın</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-center text-primary">ValoraEscort'a Katılın</CardTitle>
                     <CardDescription className="text-center">
                         Profilinizi oluşturun ve binlerce kişiye ulaşın.
                     </CardDescription>

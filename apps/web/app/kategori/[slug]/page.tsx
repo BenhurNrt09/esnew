@@ -103,62 +103,54 @@ export default async function CategoryPage({ params }: { params: { slug: string 
                             </Button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {listings.map((listing) => (
                                 <Link
                                     key={listing.id}
                                     href={`/ilan/${listing.slug}`}
                                     className="group block"
                                 >
-                                    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-red-900/10 hover:-translate-y-1 transition-all duration-300 border border-gray-100 h-full flex flex-col">
-                                        <div className="aspect-[4/3] bg-gray-200 relative overflow-hidden group-hover:brightness-105 transition-all">
-                                            <div className="absolute inset-0 flex items-center justify-center text-gray-400 bg-gray-100">
-                                                <span className="text-4xl grayscale group-hover:grayscale-0 transition-all duration-500">📷</span>
-                                            </div>
+                                    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-red-900/10 hover:-translate-y-1 transition-all duration-300 border border-gray-100 h-full flex flex-col relative">
+                                        {/* Image */}
+                                        <div className="aspect-[3/4] bg-gray-200 relative overflow-hidden">
+                                            {listing.cover_image ? (
+                                                <img src={listing.cover_image} alt={listing.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                            ) : (
+                                                <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-300">
+                                                    <span className="text-4xl opacity-40 grayscale group-hover:grayscale-0 transition-all">📸</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
 
-                                            <div className="absolute top-4 left-4 flex flex-col gap-2">
+                                            {/* Badges */}
+                                            <div className="absolute top-3 left-3 flex flex-col gap-2">
                                                 {listing.is_featured && (
-                                                    <span className="bg-amber-400 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                                                    <span className="bg-amber-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 uppercase tracking-tight">
                                                         ★ VİTRİN
                                                     </span>
                                                 )}
-                                                <span className="bg-white/90 backdrop-blur text-gray-800 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+                                                <span className="bg-white/90 backdrop-blur text-gray-800 text-[10px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1 uppercase tracking-tight">
                                                     <MapPin className="h-3 w-3 text-red-500" /> {listing.city?.name || 'Konum'}
                                                 </span>
                                             </div>
 
-                                            <div className="absolute top-4 right-4">
-                                                <div className="h-8 w-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-colors cursor-pointer">
-                                                    <Heart className="h-4 w-4" />
-                                                </div>
+                                            <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                                                <h3 className="text-base font-bold leading-tight mb-1 truncate">{listing.title}</h3>
+                                                <p className="text-[10px] text-gray-300 line-clamp-1">{listing.description}</p>
                                             </div>
                                         </div>
 
-                                        <div className="p-6 flex-1 flex flex-col">
-                                            <div className="mb-2 flex items-center justify-between">
-                                                <h3 className="font-bold text-lg text-gray-900 group-hover:text-red-600 transition-colors line-clamp-1">
-                                                    {listing.title}
-                                                </h3>
+                                        {/* Content */}
+                                        <div className="p-3 flex items-center justify-between mt-auto border-t border-gray-50 bg-white">
+                                            <div>
+                                                <p className="text-[10px] text-gray-400">Fiyat</p>
+                                                <div className="text-red-600 font-black text-sm">
+                                                    {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
+                                                </div>
                                             </div>
-
-                                            <p className="text-gray-500 text-sm line-clamp-2 mb-4 flex-1">
-                                                {listing.description || 'Açıklama belirtilmemiş.'}
-                                            </p>
-
-                                            <div className="pt-4 border-t border-gray-50 flex items-center justify-between mt-auto">
-                                                <div>
-                                                    <p className="text-xs text-gray-400 mb-0.5">Fiyat</p>
-                                                    <p className="text-red-600 font-black text-lg">
-                                                        {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
-                                                    </p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-xs text-gray-400 mb-0.5">Tarih</p>
-                                                    <div className="flex items-center gap-1 text-xs font-medium text-gray-600">
-                                                        <Calendar className="h-3 w-3 text-gray-400" />
-                                                        {new Date(listing.created_at).toLocaleDateString('tr-TR')}
-                                                    </div>
-                                                </div>
+                                            <div className="text-right">
+                                                <p className="text-[10px] text-gray-400">Tarih</p>
+                                                <span className="text-[10px] text-gray-500">{new Date(listing.created_at).toLocaleDateString('tr-TR')}</span>
                                             </div>
                                         </div>
                                     </div>

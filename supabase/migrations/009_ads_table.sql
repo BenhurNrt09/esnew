@@ -11,20 +11,28 @@ create table if not exists public.ads (
 );
 
 -- Add RLS policies
-alter table public.ads enable row level security;
+DO $$ 
+BEGIN
+    alter table public.ads enable row level security;
+EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'RLS already enabled or table missing on ads: %', SQLERRM;
+END $$;
 
 -- Policy to allow read access for everyone
+drop policy if exists "Allow public read access" on public.ads;
 create policy "Allow public read access" on public.ads
     for select using (true);
 
--- Policy to allow full access for authenticated users (admin logic to be refined later if needed, assuming auth users are admins now or will be handled by middleware)
--- Ideally only admins should write, but for now allow authenticated to write (admin panel uses authenticated user)
+-- Policy to allow full access for authenticated users
+drop policy if exists "Allow authenticated insert" on public.ads;
 create policy "Allow authenticated insert" on public.ads
     for insert with check (auth.role() = 'authenticated');
 
+drop policy if exists "Allow authenticated update" on public.ads;
 create policy "Allow authenticated update" on public.ads
     for update using (auth.role() = 'authenticated');
 
+drop policy if exists "Allow authenticated delete" on public.ads;
 create policy "Allow authenticated delete" on public.ads
     for delete using (auth.role() = 'authenticated');
 
@@ -33,18 +41,23 @@ insert into storage.buckets (id, name, public)
 values ('ads', 'ads', true)
 on conflict (id) do nothing;
 
+-- Storage policies
+drop policy if exists "Ads Images Public Access" on storage.objects;
 create policy "Ads Images Public Access"
 on storage.objects for select
 using ( bucket_id = 'ads' );
 
+drop policy if exists "Ads Images Upload Access" on storage.objects;
 create policy "Ads Images Upload Access"
 on storage.objects for insert
 with check ( bucket_id = 'ads' and auth.role() = 'authenticated' );
 
+drop policy if exists "Ads Images Update Access" on storage.objects;
 create policy "Ads Images Update Access"
 on storage.objects for update
 using ( bucket_id = 'ads' and auth.role() = 'authenticated' );
 
+drop policy if exists "Ads Images Delete Access" on storage.objects;
 create policy "Ads Images Delete Access"
 on storage.objects for delete
 using ( bucket_id = 'ads' and auth.role() = 'authenticated' );

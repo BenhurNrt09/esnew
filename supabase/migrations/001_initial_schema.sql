@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================
 -- USERS TABLE
 -- ============================================
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL UNIQUE,
   role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
@@ -21,7 +21,7 @@ CREATE TABLE users (
 -- ============================================
 -- CITIES TABLE
 -- ============================================
-CREATE TABLE cities (
+CREATE TABLE IF NOT EXISTS cities (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -32,13 +32,13 @@ CREATE TABLE cities (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_cities_slug ON cities(slug);
-CREATE INDEX idx_cities_active ON cities(is_active);
+CREATE INDEX IF NOT EXISTS idx_cities_slug ON cities(slug);
+CREATE INDEX IF NOT EXISTS idx_cities_active ON cities(is_active);
 
 -- ============================================
 -- CATEGORIES TABLE (Hierarchical)
 -- ============================================
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -50,25 +50,25 @@ CREATE TABLE categories (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_categories_slug ON categories(slug);
-CREATE INDEX idx_categories_parent ON categories(parent_id);
+CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
+CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_id);
 
 -- ============================================
 -- TAGS TABLE
 -- ============================================
-CREATE TABLE tags (
+CREATE TABLE IF NOT EXISTS tags (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL UNIQUE,
   slug TEXT NOT NULL UNIQUE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_tags_slug ON tags(slug);
+CREATE INDEX IF NOT EXISTS idx_tags_slug ON tags(slug);
 
 -- ============================================
 -- FEATURES TABLE
 -- ============================================
-CREATE TABLE features (
+CREATE TABLE IF NOT EXISTS features (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -78,12 +78,12 @@ CREATE TABLE features (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_features_category ON features(category_id);
+CREATE INDEX IF NOT EXISTS idx_features_category ON features(category_id);
 
 -- ============================================
 -- LISTINGS TABLE
 -- ============================================
-CREATE TABLE listings (
+CREATE TABLE IF NOT EXISTS listings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -98,18 +98,18 @@ CREATE TABLE listings (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_listings_city ON listings(city_id);
-CREATE INDEX idx_listings_category ON listings(category_id);
-CREATE INDEX idx_listings_slug ON listings(slug);
-CREATE INDEX idx_listings_active ON listings(is_active);
-CREATE INDEX idx_listings_featured ON listings(is_featured);
-CREATE INDEX idx_listings_created ON listings(created_at DESC);
-CREATE INDEX idx_listings_price ON listings(price);
+CREATE INDEX IF NOT EXISTS idx_listings_city ON listings(city_id);
+CREATE INDEX IF NOT EXISTS idx_listings_category ON listings(category_id);
+CREATE INDEX IF NOT EXISTS idx_listings_slug ON listings(slug);
+CREATE INDEX IF NOT EXISTS idx_listings_active ON listings(is_active);
+CREATE INDEX IF NOT EXISTS idx_listings_featured ON listings(is_featured);
+CREATE INDEX IF NOT EXISTS idx_listings_created ON listings(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_listings_price ON listings(price);
 
 -- ============================================
 -- LISTING IMAGES TABLE
 -- ============================================
-CREATE TABLE listing_images (
+CREATE TABLE IF NOT EXISTS listing_images (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   listing_id UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL,
@@ -117,13 +117,13 @@ CREATE TABLE listing_images (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_listing_images_listing ON listing_images(listing_id);
-CREATE INDEX idx_listing_images_order ON listing_images(listing_id, "order");
+CREATE INDEX IF NOT EXISTS idx_listing_images_listing ON listing_images(listing_id);
+CREATE INDEX IF NOT EXISTS idx_listing_images_order ON listing_images(listing_id, "order");
 
 -- ============================================
 -- LISTING FEATURES (Many-to-Many)
 -- ============================================
-CREATE TABLE listing_features (
+CREATE TABLE IF NOT EXISTS listing_features (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   listing_id UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
   feature_id UUID NOT NULL REFERENCES features(id) ON DELETE CASCADE,
@@ -132,26 +132,26 @@ CREATE TABLE listing_features (
   UNIQUE(listing_id, feature_id)
 );
 
-CREATE INDEX idx_listing_features_listing ON listing_features(listing_id);
-CREATE INDEX idx_listing_features_feature ON listing_features(feature_id);
+CREATE INDEX IF NOT EXISTS idx_listing_features_listing ON listing_features(listing_id);
+CREATE INDEX IF NOT EXISTS idx_listing_features_feature ON listing_features(feature_id);
 
 -- ============================================
 -- LISTING TAGS (Many-to-Many)
 -- ============================================
-CREATE TABLE listing_tags (
+CREATE TABLE IF NOT EXISTS listing_tags (
   listing_id UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
   tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   PRIMARY KEY (listing_id, tag_id)
 );
 
-CREATE INDEX idx_listing_tags_listing ON listing_tags(listing_id);
-CREATE INDEX idx_listing_tags_tag ON listing_tags(tag_id);
+CREATE INDEX IF NOT EXISTS idx_listing_tags_listing ON listing_tags(listing_id);
+CREATE INDEX IF NOT EXISTS idx_listing_tags_tag ON listing_tags(tag_id);
 
 -- ============================================
 -- SEO PAGES TABLE
 -- ============================================
-CREATE TABLE seo_pages (
+CREATE TABLE IF NOT EXISTS seo_pages (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   page_type TEXT NOT NULL CHECK (page_type IN ('homepage', 'city', 'category', 'listing')),
   reference_id UUID,
@@ -164,8 +164,8 @@ CREATE TABLE seo_pages (
   UNIQUE(page_type, reference_id)
 );
 
-CREATE INDEX idx_seo_pages_type ON seo_pages(page_type);
-CREATE INDEX idx_seo_pages_reference ON seo_pages(reference_id);
+CREATE INDEX IF NOT EXISTS idx_seo_pages_type ON seo_pages(page_type);
+CREATE INDEX IF NOT EXISTS idx_seo_pages_reference ON seo_pages(reference_id);
 
 -- ============================================
 -- UPDATE TIMESTAMP TRIGGERS
@@ -181,18 +181,23 @@ END;
 $$ language 'plpgsql';
 
 -- Apply to tables with updated_at
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_cities_updated_at ON cities;
 CREATE TRIGGER update_cities_updated_at BEFORE UPDATE ON cities
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_categories_updated_at ON categories;
 CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON categories
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_listings_updated_at ON listings;
 CREATE TRIGGER update_listings_updated_at BEFORE UPDATE ON listings
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_seo_pages_updated_at ON seo_pages;
 CREATE TRIGGER update_seo_pages_updated_at BEFORE UPDATE ON seo_pages
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

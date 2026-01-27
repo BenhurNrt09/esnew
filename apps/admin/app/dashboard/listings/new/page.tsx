@@ -14,6 +14,7 @@ import {
     Image as ImageIcon,
     User,
     MapPin,
+    Phone,
     Info,
     Link as LinkIcon,
     RefreshCw,
@@ -41,6 +42,7 @@ export default function NewProfilePage() {
         is_featured: false,
         is_active: true,
         details: {} as Record<string, string>,
+        phone: '',
         cover_image: null as File | null,
         gallery_images: [] as File[],
     });
@@ -81,8 +83,17 @@ export default function NewProfilePage() {
         try {
             const supabase = createBrowserClient();
 
-            // GELİŞMİŞ VE PROJEYE ÖZEL KATEGORİ SETİ
             const seedData = [
+                {
+                    name: 'Hizmetler',
+                    slug: 'hizmetler',
+                    subs: ['Eskort', 'Masaj', 'Dans / Show', 'Partner', 'VIP Eşlik', 'Seyahat Arkadaşlığı']
+                },
+                {
+                    name: 'Fiziksel Özellikler',
+                    slug: 'fiziksel',
+                    subs: ['Zayıf', 'Fit / Sportif', 'Balık Etli', 'Dolgun', 'Büyük Beden', 'Minyon']
+                },
                 {
                     name: 'Saç Rengi',
                     slug: 'sac-rengi',
@@ -94,19 +105,9 @@ export default function NewProfilePage() {
                     subs: ['Mavi', 'Yeşil', 'Kahverengi', 'Ela', 'Siyah', 'Lens']
                 },
                 {
-                    name: 'Vücut Tipi',
-                    slug: 'vucut-tipi',
-                    subs: ['Zayıf', 'Fit / Sportif', 'Balık Etli', 'Dolgun', 'Büyük Beden', 'Minyon']
-                },
-                {
                     name: 'Uyruk / Köken',
                     slug: 'uyruk',
                     subs: ['Türk', 'Rus', 'Ukrayna', 'Azerbaycan', 'Latin', 'Avrupa', 'Asya', 'Afro', 'Arap', 'Moldova', 'Özbek', 'İran']
-                },
-                {
-                    name: 'Hizmetler',
-                    slug: 'hizmetler',
-                    subs: ['Eskort', 'Masaj', 'Dans / Show', 'Partner', 'VIP Eşlik', 'Seyahat Arkadaşlığı']
                 },
                 {
                     name: 'Bildiği Diller',
@@ -122,11 +123,6 @@ export default function NewProfilePage() {
                     name: 'Seyahat Durumu',
                     slug: 'seyahat',
                     subs: ['Seyahat Edebilirim', 'Şehir Dışına Çıkarım', 'Yurt Dışına Çıkarım', 'Sadece Şehir İçi']
-                },
-                {
-                    name: 'Sigara Kullanımı',
-                    slug: 'sigara',
-                    subs: ['Kullanıyorum', 'Kullanmıyorum', 'Sosyal İçici']
                 }
             ];
 
@@ -233,6 +229,7 @@ export default function NewProfilePage() {
                     city_id: formData.city_id,
                     category_id: formData.category_id,
                     price: formData.price ? parseFloat(formData.price) : null,
+                    phone: formData.phone,
                     is_active: formData.is_active,
                     is_featured: formData.is_featured,
                     details: formData.details,
@@ -384,6 +381,21 @@ export default function NewProfilePage() {
                                     placeholder="0.00"
                                     className="border-gray-200 h-11 shadow-sm"
                                 />
+                            </div>
+
+                            <div className="space-y-2 flex flex-col justify-end">
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                    <Phone className="h-4 w-4 text-green-600" /> WhatsApp Numarası *
+                                </label>
+                                <Input
+                                    type="text"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                    placeholder="Örn: 905xxxxxxxxx"
+                                    required
+                                    className="border-gray-200 focus:border-green-500 h-11 shadow-sm font-bold"
+                                />
+                                <p className="text-[10px] text-gray-400">Ülke kodu ile birlikte girin (90 gibi).</p>
                             </div>
                         </div>
                     </CardContent>
@@ -565,8 +577,8 @@ export default function NewProfilePage() {
                         <div className="flex flex-col md:flex-row gap-6">
                             <div
                                 className={`flex-1 flex items-center gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${formData.is_featured
-                                        ? 'bg-amber-50 border-amber-300 shadow-lg shadow-amber-100/50'
-                                        : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
+                                    ? 'bg-amber-50 border-amber-300 shadow-lg shadow-amber-100/50'
+                                    : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                                     }`}
                                 onClick={() => setFormData({ ...formData, is_featured: !formData.is_featured })}
                             >
@@ -584,8 +596,8 @@ export default function NewProfilePage() {
 
                             <div
                                 className={`flex-1 flex items-center gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${formData.is_active
-                                        ? 'bg-green-50 border-green-300 shadow-lg shadow-green-100/50'
-                                        : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
+                                    ? 'bg-green-50 border-green-300 shadow-lg shadow-green-100/50'
+                                    : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                                     }`}
                                 onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
                             >

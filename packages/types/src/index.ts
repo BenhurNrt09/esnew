@@ -39,9 +39,11 @@ export interface Listing {
     city_id: string;
     category_id: string;
     price?: number;
+    phone?: string;
     is_featured: boolean;
     is_active: boolean;
     metadata: Record<string, any>;
+    cover_image?: string;
     created_at: string;
     updated_at: string;
 }

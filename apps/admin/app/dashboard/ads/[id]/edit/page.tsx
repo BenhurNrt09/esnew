@@ -26,7 +26,7 @@ export default function EditAdPage({ params }: { params: { id: string } }) {
     useEffect(() => {
         const fetchAd = async () => {
             const { data, error } = await supabase
-                .from('ads')
+                .from('banners')
                 .select('*')
                 .eq('id', params.id)
                 .single();
@@ -55,32 +55,46 @@ export default function EditAdPage({ params }: { params: { id: string } }) {
         if (!e.target.files || e.target.files.length === 0) return;
 
         const file = e.target.files[0];
+
+        // Immediate local preview
+        const localUrl = URL.createObjectURL(file);
+        setPreview(localUrl);
+
         // 10MB limit
         if (file.size > 10 * 1024 * 1024) {
             alert('Dosya boyutu çok yüksek! Lütfen 10MB\'dan küçük bir dosya yükleyin.');
+            // Revert preview to existing image if possible
+            setPreview(formData.image_url);
             return;
         }
 
         try {
             setUploading(true);
-            const file = e.target.files[0];
             const fileExt = file.name.split('.').pop();
             const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
             const filePath = `${fileName}`;
 
+            console.log('Editing ad: Uploading file to banners bucket:', filePath);
+
             const { error: uploadError } = await supabase.storage
-                .from('ads')
+                .from('banners')
                 .upload(filePath, file);
 
-            if (uploadError) throw uploadError;
+            if (uploadError) {
+                console.error('Edit upload error:', uploadError);
+                throw uploadError;
+            }
 
-            const { data } = supabase.storage.from('ads').getPublicUrl(filePath);
+            const { data } = supabase.storage.from('banners').getPublicUrl(filePath);
+            console.log('File uploaded during edit, public URL:', data.publicUrl);
 
             setFormData({ ...formData, image_url: data.publicUrl });
             setPreview(data.publicUrl);
 
         } catch (error: any) {
-            alert('Resim yüklenirken hata oluştu: ' + error.message);
+            console.error('Full edit upload error context:', error);
+            alert('Resim yüklenirken hata oluştu: ' + (error.message || 'Bilinmeyen hata'));
+            setPreview(formData.image_url);
         } finally {
             setUploading(false);
         }
@@ -96,7 +110,7 @@ export default function EditAdPage({ params }: { params: { id: string } }) {
             }
 
             const { error } = await supabase
-                .from('ads')
+                .from('banners')
                 .update({
                     image_url: formData.image_url,
                     link: formData.link || null,
@@ -145,68 +159,101 @@ export default function EditAdPage({ params }: { params: { id: string } }) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-8">
 
-                            {/* Image Upload */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reklam Görseli</label>
-                                <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:bg-gray-50 transition-colors relative cursor-pointer"
-                                    onClick={() => document.getElementById('ad-image-upload')?.click()}>
+                            {/* Image Upload Area */}
+                            <div className="space-y-4">
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                    <ImageIcon className="h-4 w-4 text-red-600" />
+                                    Reklam Görseli
+                                </label>
 
-                                    <input
-                                        type="file"
-                                        id="ad-image-upload"
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={handleImageUpload}
-                                        disabled={uploading}
-                                    />
+                                <input
+                                    type="file"
+                                    id="ad-image-upload"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    disabled={uploading}
+                                />
 
-                                    {preview ? (
-                                        <div className="relative aspect-square max-h-[300px] mx-auto">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={preview} alt="Preview" className="w-full h-full object-contain" />
-                                            {uploading && (
-                                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                                                    <Loader2 className="h-8 w-8 animate-spin text-red-600" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div className="py-8">
+                                {preview ? (
+                                    <div className="relative w-full min-h-[300px] flex flex-col items-center justify-center bg-gray-50 rounded-2xl border-2 border-gray-100 overflow-hidden group">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={preview}
+                                            alt="Ad Preview"
+                                            className="max-w-full max-h-[500px] object-contain"
+                                            onError={() => console.error('Preview load failed')}
+                                        />
+
+                                        {/* Overlay when uploading */}
+                                        {uploading && (
+                                            <div className="absolute inset-0 bg-white/95 flex flex-col items-center justify-center z-20">
+                                                <Loader2 className="h-12 w-12 animate-spin text-red-600 mb-4" />
+                                                <p className="text-xl font-black text-red-900 animate-pulse">YÜKLENİYOR...</p>
+                                            </div>
+                                        )}
+
+                                        {/* Controls */}
+                                        {!uploading && (
+                                            <div className="absolute bottom-4 right-4 flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    onClick={() => document.getElementById('ad-image-upload')?.click()}
+                                                    className="bg-white text-black hover:bg-gray-100 border shadow-md font-bold"
+                                                >
+                                                    Görseli Değiştir
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="w-full py-20 flex flex-col items-center justify-center border-4 border-dashed border-red-200 rounded-3xl bg-white hover:bg-red-50/50 hover:border-red-400 transition-all cursor-pointer group"
+                                        onClick={() => document.getElementById('ad-image-upload')?.click()}
+                                    >
+                                        <div className="bg-red-50 p-6 rounded-full mb-6 shadow-sm border border-red-100 group-hover:scale-110 transition-transform duration-300">
                                             {uploading ? (
-                                                <Loader2 className="h-10 w-10 animate-spin text-gray-400 mx-auto block mb-2" />
+                                                <Loader2 className="h-12 w-12 animate-spin text-red-600" />
                                             ) : (
-                                                <Upload className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+                                                <Upload className="h-12 w-12 text-red-500" />
                                             )}
-                                            <p className="text-sm text-gray-500">
-                                                {uploading ? 'Yükleniyor...' : 'Görsel yüklemek için tıklayın'}
-                                            </p>
-                                            <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF (Max 10MB)</p>
                                         </div>
-                                    )}
-                                </div>
+                                        <div className="text-center px-4">
+                                            <h3 className="text-2xl font-black text-gray-900 mb-2">Görsel Seçmek İçin Tıklayın</h3>
+                                            <p className="text-gray-500 font-medium max-w-sm mx-auto">
+                                                Reklam görselini buradan güncelleyebilirsiniz.
+                                            </p>
+                                        </div>
+                                        <div className="mt-8 px-8 py-4 bg-red-600 text-white rounded-xl font-black shadow-lg shadow-red-600/20 group-hover:bg-red-700 transition-all uppercase tracking-tight">
+                                            Değiştir (Gözat)
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-6">
+                            <div className="grid md:grid-cols-2 gap-8">
                                 {/* Position */}
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Konum</label>
+                                <div className="space-y-3">
+                                    <label className="text-sm font-bold text-gray-700">Görüntülenecek Taraf</label>
                                     <select
-                                        className="w-full h-10 px-3 rounded-md border bg-background text-sm"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-gray-100 bg-white text-sm focus:border-red-600 focus:ring-0 transition-all cursor-pointer font-medium"
                                         value={formData.position}
                                         onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                                     >
-                                        <option value="left">Sol Taraf</option>
-                                        <option value="right">Sağ Taraf</option>
+                                        <option value="left">Sol Taraf (Sidebar)</option>
+                                        <option value="right">Sağ Taraf (Sidebar)</option>
                                     </select>
                                 </div>
 
                                 {/* Order */}
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Görüntüleme Sırası</label>
+                                <div className="space-y-3">
+                                    <label className="text-sm font-bold text-gray-700">Sıralama Önceliği</label>
                                     <Input
                                         type="number"
+                                        className="h-12 rounded-xl border-2 border-gray-100 focus:border-red-600 transition-all font-medium"
                                         value={formData.order}
                                         onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
                                         min={0}
@@ -215,34 +262,49 @@ export default function EditAdPage({ params }: { params: { id: string } }) {
                             </div>
 
                             {/* Link */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Yönlendirilecek Link (Opsiyonel)</label>
+                            <div className="space-y-3">
+                                <label className="text-sm font-bold text-gray-700 font-bold flex items-center gap-2">
+                                    <ArrowLeft className="h-4 w-4 text-red-600 rotate-180" />
+                                    Tıklayınca Gidilecek Link (Opsiyonel)
+                                </label>
                                 <Input
                                     placeholder="https://"
+                                    className="h-12 rounded-xl border-2 border-gray-100 focus:border-red-600 transition-all font-medium"
                                     value={formData.link}
                                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                                 />
                             </div>
 
                             {/* Is Active */}
-                            <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
-                                <div className="space-y-0.5">
-                                    <label className="text-base font-medium">Aktif Durum</label>
-                                    <p className="text-xs text-gray-500">Pasif yaparsanız sitede görünmez</p>
+                            <div className="flex items-center justify-between p-6 border-2 border-gray-100 rounded-2xl bg-gray-50/50">
+                                <div className="space-y-1">
+                                    <label className="text-lg font-bold text-gray-900">Reklam Yayında</label>
+                                    <p className="text-sm text-gray-500 font-medium">Bu reklamı dilediğiniz zaman duraklatabilirsiniz.</p>
                                 </div>
                                 <div className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        className="h-6 w-6 rounded border-gray-300 text-red-600 focus:ring-red-600"
+                                        className="h-7 w-7 rounded-lg border-2 border-gray-300 text-red-600 focus:ring-red-600 transition-all cursor-pointer"
                                         checked={formData.is_active}
                                         onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                                     />
                                 </div>
                             </div>
 
-                            <Button type="submit" size="lg" className="w-full bg-red-600 hover:bg-red-700" disabled={saving || uploading}>
-                                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Değişiklikleri Kaydet
+                            <Button
+                                type="submit"
+                                size="lg"
+                                className="w-full h-14 bg-red-600 hover:bg-red-700 text-white font-black text-lg transition-all shadow-xl shadow-red-600/20 active:scale-[0.98]"
+                                disabled={saving || uploading}
+                            >
+                                {saving ? (
+                                    <>
+                                        <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                                        GÜNCELLENİYOR...
+                                    </>
+                                ) : (
+                                    'DEĞİŞİKLİKLERİ KAYDET'
+                                )}
                             </Button>
                         </form>
                     </CardContent>

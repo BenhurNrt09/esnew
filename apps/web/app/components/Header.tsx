@@ -12,9 +12,9 @@ export function Header() {
             <div className="container mx-auto px-4 h-16 flex items-center justify-center">
                 <Link
                     href="/"
-                    className="text-3xl font-black text-red-600 tracking-tighter hover:text-red-700 transition-colors"
+                    className="text-3xl font-black text-red-600 tracking-tighter hover:text-red-700 transition-colors uppercase"
                 >
-                    ESNew
+                    ValoraEscort
                 </Link>
                 <div className="absolute right-4">
                     <LanguageSwitcher />

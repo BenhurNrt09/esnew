@@ -9,7 +9,7 @@ import { formatPrice } from '@repo/lib';
 import { HeroSearch } from './components/HeroSearch';
 import { AdSidebar } from './components/AdSidebar';
 
-export const revalidate = 3600;
+export const revalidate = 0; // Her zaman güncel kalsın
 
 async function getData() {
     const supabase = createServerClient();
@@ -19,7 +19,7 @@ async function getData() {
         supabase.from('listings').select('*, city:cities(*), category:categories(*)').eq('is_active', true).eq('is_featured', true).order('created_at', { ascending: false }).limit(8),
         supabase.from('listings').select('*, city:cities(*), category:categories(*)').eq('is_active', true).eq('is_featured', false).order('created_at', { ascending: false }).limit(8),
         supabase.from('categories').select('*').eq('is_active', true).is('parent_id', null).order('order'),
-        supabase.from('ads').select('*').eq('is_active', true).order('order', { ascending: true }),
+        supabase.from('banners').select('*').eq('is_active', true).order('order', { ascending: true }),
     ]);
 
     return {
@@ -106,10 +106,11 @@ export default async function HomePage() {
             </section>
 
             {/* Content Area with Ads Layout */}
-            <div className="container mx-auto px-4 py-8 flex items-start justify-center gap-6 relative z-10">
+            <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-8 flex items-start justify-center gap-8 relative z-10">
 
                 {/* Left Ads Sidebar */}
-                <aside className="w-[160px] hidden xl:flex flex-col gap-4 sticky top-4 h-fit shrink-0">
+                <aside className="w-[160px] xl:w-[220px] hidden lg:flex flex-col gap-4 shrink-0">
+                    <div className="text-[10px] font-black text-gray-400 bg-gray-100 py-1.5 px-4 rounded-full w-fit mb-2 tracking-widest border border-gray-200">SPONSOR REKLAM</div>
                     <AdSidebar ads={leftAds} />
                 </aside>
 
@@ -134,14 +135,18 @@ export default async function HomePage() {
                         </div>
 
                         {/* Vitrin Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                             {featuredListings.map((listing) => (
                                 <Link key={listing.id} href={`/ilan/${listing.slug}`} className="group block h-full">
                                     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-red-900/10 transition-all duration-300 border border-gray-100 h-full flex flex-col relative group-hover:-translate-y-1">
                                         <div className="aspect-[3/4] bg-gray-200 relative overflow-hidden">
-                                            <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-700">
-                                                <span className="text-4xl opacity-40 grayscale group-hover:grayscale-0 transition-all">📸</span>
-                                            </div>
+                                            {listing.cover_image ? (
+                                                <img src={listing.cover_image} alt={listing.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                            ) : (
+                                                <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-700">
+                                                    <span className="text-4xl opacity-40 grayscale group-hover:grayscale-0 transition-all">📸</span>
+                                                </div>
+                                            )}
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
 
                                             <div className="absolute top-3 left-3">
@@ -195,6 +200,25 @@ export default async function HomePage() {
                     </div>
 
 
+                    {/* Mobile Ads (Only visible on small screens) */}
+                    {ads.length > 0 && (
+                        <div className="lg:hidden bg-white border border-gray-100 rounded-3xl p-6 shadow-sm overflow-hidden mb-12">
+                            <div className="flex items-center gap-2 mb-4">
+                                <span className="text-[10px] font-black text-gray-400 bg-gray-50 py-1 px-3 rounded-full tracking-widest">SPONSORLU İÇERİKLER</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                {ads.map(ad => (
+                                    <Link key={ad.id} href={ad.link || '#'} target="_blank" className="block relative group overflow-hidden rounded-2xl border border-gray-100 shadow-sm bg-white">
+                                        <img src={ad.image_url} alt="Reklam" className="w-full h-auto block transition-transform group-hover:scale-105" />
+                                        <div className="absolute top-2 right-2">
+                                            <span className="bg-black/40 backdrop-blur-md text-[8px] text-white px-2 py-0.5 rounded font-bold">REKLAM</span>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Latest Profiles (Diğerleri) */}
                     <div>
                         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
@@ -210,14 +234,18 @@ export default async function HomePage() {
                             </Link>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                             {latestListings.map((listing) => (
                                 <Link key={listing.id} href={`/ilan/${listing.slug}`} className="group block">
                                     <div className="bg-white rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 h-full flex flex-row sm:flex-col shadow-sm">
                                         <div className="w-1/3 sm:w-full sm:aspect-[4/3] bg-gray-200 relative overflow-hidden">
-                                            <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                                                <span className="text-2xl">📷</span>
-                                            </div>
+                                            {listing.cover_image ? (
+                                                <img src={listing.cover_image} alt={listing.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                            ) : (
+                                                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                                                    <span className="text-2xl">📷</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="flex-1 p-4 flex flex-col justify-center">
@@ -247,7 +275,8 @@ export default async function HomePage() {
                 </main>
 
                 {/* Right Ads Sidebar */}
-                <aside className="w-[160px] hidden xl:flex flex-col gap-4 sticky top-4 h-fit shrink-0">
+                <aside className="w-[160px] xl:w-[220px] hidden lg:flex flex-col gap-4 shrink-0">
+                    <div className="text-[10px] font-black text-gray-400 bg-gray-100 py-1.5 px-4 rounded-full w-fit mb-2 tracking-widest border border-gray-200">SPONSOR REKLAM</div>
                     <AdSidebar ads={rightAds} />
                 </aside>
 

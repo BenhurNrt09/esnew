@@ -2,13 +2,14 @@ import { createServerClient } from '@repo/lib/server';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@repo/ui';
 import Link from 'next/link';
 import { Image as ImageIcon, Plus, ExternalLink, Trash2, Edit } from 'lucide-react';
+import { revalidatePath } from 'next/cache';
 
 export const revalidate = 0;
 
 async function getAds() {
     const supabase = createServerClient();
     const { data: ads, error } = await supabase
-        .from('ads')
+        .from('banners')
         .select('*')
         .order('order', { ascending: true });
 
@@ -45,12 +46,12 @@ export default async function AdsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {ads.map((ad) => (
                     <Card key={ad.id} className="overflow-hidden border-red-100 shadow-sm group hover:shadow-md transition-shadow">
-                        <div className="aspect-[1/1] bg-gray-100 relative">
+                        <div className="w-full bg-gray-50 relative overflow-hidden border-b border-gray-100 flex items-center justify-center p-2">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={ad.image_url}
                                 alt="Reklam"
-                                className="w-full h-full object-cover"
+                                className="max-w-full h-auto max-h-64 shadow-sm rounded-sm"
                             />
                             <div className="absolute top-2 right-2 flex gap-1">
                                 <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase shadow-sm ${ad.position === 'left' ? 'bg-blue-500 text-white' : 'bg-purple-500 text-white'
@@ -92,8 +93,8 @@ export default async function AdsPage() {
                                 <form action={async () => {
                                     'use server';
                                     const supabase = createServerClient();
-                                    await supabase.from('ads').delete().eq('id', ad.id);
-                                    // revalidate path not needed as page is revalidate = 0, but good practice
+                                    await supabase.from('banners').delete().eq('id', ad.id);
+                                    revalidatePath('/dashboard/ads');
                                 }}>
                                     <Button variant="ghost" size="icon" className="text-gray-400 hover:text-red-600">
                                         <Trash2 className="h-4 w-4" />

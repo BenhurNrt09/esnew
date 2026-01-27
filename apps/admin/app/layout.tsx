@@ -6,8 +6,8 @@ import { Providers } from './components/Providers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: 'Admin Panel | ESNew',
-    description: 'ESNew Admin Panel',
+    title: 'Admin Panel | ValoraEscort',
+    description: 'ValoraEscort Admin Panel',
     robots: {
         index: false,
         follow: false,
