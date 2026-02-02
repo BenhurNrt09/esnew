@@ -14,5 +14,8 @@ export {
     CardContent,
 } from './components/card';
 
+export { ToastProvider, useToast } from './Toast';
+export type { Toast, ToastType } from './Toast';
+
 // Utils
 export { cn } from './lib/utils';

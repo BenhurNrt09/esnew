@@ -30,6 +30,7 @@ export interface Translations {
     // Auth
     auth: {
         login: string;
+        register: string;
         email: string;
         password: string;
         loginButton: string;
@@ -112,12 +113,26 @@ export interface Translations {
 
     // Web Home
     home: {
+        badge: string;
         heroTitle: string;
+        heroTitleHighlight: string;
         heroSubtitle: string;
+        popularCities: string;
         searchPlaceholder: string;
+        browseCategories: string;
+        sponsorAd: string;
         featuredProfiles: string;
+        featuredProfilesSub: string;
+        latestProfiles: string;
+        latestProfilesSub: string;
         viewAll: string;
+        viewAllProfiles: string;
+        vitrinBadge: string;
+        startingFrom: string;
+        negotiable: string;
         quickSearch: string;
+        noFeatured: string;
+        noLatest: string;
     };
 }
 
@@ -147,6 +162,7 @@ export const translations: Record<Language, Translations> = {
         },
         auth: {
             login: 'Giriş Yap',
+            register: 'Kayıt Ol',
             email: 'E-posta',
             password: 'Şifre',
             loginButton: 'Giriş Yap',
@@ -217,12 +233,26 @@ export const translations: Record<Language, Translations> = {
             success: 'Profiliniz başarıyla oluşturuldu!',
         },
         home: {
-            heroTitle: 'En Seçkin Profilleri Keşfedin',
-            heroSubtitle: '81 ilde aradığınız özelliklere sahip profilleri güvenle bulun.',
-            searchPlaceholder: 'Profilleri Ara',
-            featuredProfiles: 'Vitrin Profilleri',
+            badge: '✨ Türkiye\'nin En Seçkin Profil Platformu',
+            heroTitle: 'Hayalindeki Profili',
+            heroTitleHighlight: 'Keşfetmeye Başla',
+            heroSubtitle: '81 ilde, aradığınız özelliklere sahip doğrulanmış profillerle güvenle iletişim kurun.',
+            popularCities: 'Popüler Şehirler:',
+            searchPlaceholder: 'Şehir ara (Örn: İstanbul, İzmir...)',
+            browseCategories: 'KATEGORİLERE GÖRE GÖZ AT',
+            sponsorAd: 'SPONSOR REKLAM',
+            featuredProfiles: 'Öne Çıkan Profiller',
+            featuredProfilesSub: 'Editörlerimizin seçtiği en popüler profiller',
+            latestProfiles: 'Yeni Eklenenler',
+            latestProfilesSub: 'Platforma katılan en yeni üyeler',
             viewAll: 'Tümünü Gör',
+            viewAllProfiles: 'Tüm Profillere Göz At',
+            vitrinBadge: 'Vitrin',
+            startingFrom: 'Başlangıç',
+            negotiable: 'Görüşülür',
             quickSearch: 'Hızlı Arama',
+            noFeatured: 'Henüz vitrin ilanı bulunmuyor.',
+            noLatest: 'Henüz başka ilan bulunmuyor.',
         },
     }, en: {
         common: {
@@ -249,6 +279,7 @@ export const translations: Record<Language, Translations> = {
         },
         auth: {
             login: 'Login',
+            register: 'Register',
             email: 'Email',
             password: 'Password',
             loginButton: 'Login',
@@ -319,12 +350,26 @@ export const translations: Record<Language, Translations> = {
             success: 'Profile created successfully!',
         },
         home: {
-            heroTitle: 'Discover Exclusive Profiles',
-            heroSubtitle: 'Find profiles with the features you are looking for in 81 cities.',
-            searchPlaceholder: 'Search Profiles',
+            badge: '✨ Turkey\'s Most Exclusive Profile Platform',
+            heroTitle: 'Discover Your',
+            heroTitleHighlight: 'Dream Profile',
+            heroSubtitle: 'Communicate safely with verified profiles that have the features you are looking for in 81 cities.',
+            popularCities: 'Popular Cities:',
+            searchPlaceholder: 'Search city (e.g. Istanbul, Izmir...)',
+            browseCategories: 'BROWSE BY CATEGORIES',
+            sponsorAd: 'SPONSOR AD',
             featuredProfiles: 'Featured Profiles',
+            featuredProfilesSub: 'The most popular profiles selected by our editors',
+            latestProfiles: 'New Additions',
+            latestProfilesSub: 'The newest members joining the platform',
             viewAll: 'View All',
+            viewAllProfiles: 'Browse All Profiles',
+            vitrinBadge: 'Featured',
+            startingFrom: 'Starting from',
+            negotiable: 'Negotiable',
             quickSearch: 'Quick Search',
+            noFeatured: 'No featured listings yet.',
+            noLatest: 'No more listings yet.',
         },
     },
 };

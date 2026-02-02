@@ -34,10 +34,10 @@ export function HeroSearch({ cities }: { cities: { id: string; name: string; slu
         <div className="w-full max-w-xl mx-auto relative group" ref={wrapperRef}>
             <div className={`
                 flex items-center bg-white rounded-full transition-all duration-300 border-2
-                ${isOpen ? 'border-red-500 shadow-2xl ring-4 ring-red-500/10' : 'border-red-100 shadow-xl shadow-red-950/10 hover:border-red-300'}
+                ${isOpen ? 'border-primary shadow-2xl ring-4 ring-primary/10' : 'border-primary/10 shadow-xl shadow-primary/10 hover:border-primary/30'}
                 p-1.5 overflow-hidden
             `}>
-                <div className="pl-5 pr-3 text-red-500">
+                <div className="pl-5 pr-3 text-primary">
                     <MapPin className={`h-6 w-6 transition-transform duration-300 ${isOpen ? 'scale-110' : ''}`} />
                 </div>
 
@@ -56,14 +56,14 @@ export function HeroSearch({ cities }: { cities: { id: string; name: string; slu
                 {query && (
                     <button
                         onClick={() => setQuery('')}
-                        className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                        className="p-2 text-gray-400 hover:text-primary transition-colors"
                     >
                         <X className="h-5 w-5" />
                     </button>
                 )}
 
                 <button
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-full px-8 h-12 flex items-center gap-2 transition-all font-black text-sm uppercase tracking-wider shadow-lg shadow-red-600/30 active:scale-95"
+                    className="bg-primary hover:opacity-90 text-white rounded-full px-8 h-12 flex items-center gap-2 transition-all font-black text-sm uppercase tracking-wider shadow-lg shadow-primary/30 active:scale-95"
                 >
                     <Search className="h-5 w-5" />
                     <span className="hidden sm:inline">BUL</span>
@@ -80,13 +80,13 @@ export function HeroSearch({ cities }: { cities: { id: string; name: string; slu
                                 <button
                                     key={city.id}
                                     onClick={() => handleSelect(city.slug)}
-                                    className="w-full text-left px-4 py-3 rounded-2xl hover:bg-red-50 flex items-center justify-between group transition-all"
+                                    className="w-full text-left px-4 py-3 rounded-2xl hover:bg-primary/5 flex items-center justify-between group transition-all"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-white group-hover:text-red-500 transition-colors">
+                                        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-white group-hover:text-primary transition-colors">
                                             <MapPin className="h-4 w-4" />
                                         </div>
-                                        <span className="font-bold text-gray-700 group-hover:text-red-600 transition-colors">{city.name}</span>
+                                        <span className="font-bold text-gray-700 group-hover:text-primary transition-colors">{city.name}</span>
                                     </div>
                                     <Search className="h-4 w-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
                                 </button>

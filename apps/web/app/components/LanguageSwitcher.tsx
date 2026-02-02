@@ -16,7 +16,7 @@ export function LanguageSwitcher() {
             variant="outline"
             size="sm"
             onClick={toggleLanguage}
-            className="ml-4 w-20 relative overflow-hidden group border-primary/20 hover:border-primary/50 bg-background/50 backdrop-blur-sm"
+            className="w-20 relative overflow-hidden group border-primary/20 hover:border-primary/50 bg-background/50 backdrop-blur-sm"
         >
             <AnimatePresence mode="wait">
                 <motion.div

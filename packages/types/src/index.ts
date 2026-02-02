@@ -33,6 +33,7 @@ export interface Category {
 
 export interface Listing {
     id: string;
+    user_id: string;
     title: string;
     slug: string;
     description: string;
@@ -44,6 +45,9 @@ export interface Listing {
     is_active: boolean;
     metadata: Record<string, any>;
     cover_image?: string;
+    images?: string[];
+    city?: City;
+    category?: Category;
     created_at: string;
     updated_at: string;
 }
@@ -102,9 +106,6 @@ export interface SeoPage {
 // Extended Types with Relations
 
 export interface ListingWithRelations extends Listing {
-    city: City;
-    category: Category;
-    images: ListingImage[];
     features: (ListingFeature & { feature: Feature })[];
     tags: (ListingTag & { tag: Tag })[];
 }

@@ -38,7 +38,7 @@ export const ProfileGallery = ({ images }: ProfileGalleryProps) => {
     return (
         <div className="bg-white rounded-2xl p-6 shadow-lg shadow-gray-200/50 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Maximize2 className="h-6 w-6 text-red-600" /> Galeri
+                <Maximize2 className="h-6 w-6 text-primary" /> Galeri
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {images.map((img, idx) => (
