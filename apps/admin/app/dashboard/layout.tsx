@@ -10,7 +10,8 @@ export default async function DashboardLayout({
 }) {
     try {
         await requireAdmin();
-    } catch {
+    } catch (err: any) {
+        console.error('Admin check failed:', err);
         redirect('/login');
     }
 

@@ -1,101 +1,100 @@
+'use client';
+
 import Link from 'next/link';
+import { useLanguage } from '@repo/lib/i18n';
 
 export default function TermsOfServicePage() {
+    const { t } = useLanguage();
+
     return (
         <div className="min-h-screen bg-background py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-primary mb-4">Genel Hizmet Şartları</h1>
-                    <p className="text-muted-foreground">Son güncelleme: {new Date().toLocaleDateString('tr-TR')}</p>
+                    <h1 className="text-4xl font-bold text-primary mb-4">{t.legal.generalTerms}</h1>
+                    <p className="text-muted-foreground">{t.legal.lastUpdated} {new Date().toLocaleDateString('tr-TR')}</p>
                 </div>
 
                 <div className="prose prose-slate dark:prose-invert max-w-none space-y-6">
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">1. Hizmet Tanımı</h2>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section1}</h2>
                         <p>
-                            Platformumuz, üyeler, bağımsız modeller ve ajanslar/şirketler için bir buluşma ve
-                            tanıtım platformudur. Hizmetlerimizi kullanarak bu şartları kabul etmiş olursunuz.
+                            {t.legal.serviceDefinition}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">2. Hesap Oluşturma</h2>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section2}</h2>
                         <ul className="list-disc pl-6 space-y-2">
-                            <li>18 yaşından büyük olmanız gerekmektedir</li>
-                            <li>Doğru ve güncel bilgiler sağlamalısınız</li>
-                            <li>Hesap güvenliğinden siz sorumlusunuz</li>
-                            <li>Her kullanıcı yalnızca bir hesap oluşturabilir</li>
+                            <li>{t.legal.accountCreation}</li>
+                            <li>{t.legal.provideAccurateInfo}</li>
+                            <li>{t.legal.accountSecurity}</li>
+                            <li>{t.legal.oneAccountPerUser}</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">3. Kullanıcı Sorumlulukları</h2>
-                        <p>Kullanıcılar aşağıdaki kurallara uymayı kabul eder:</p>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section3}</h2>
+                        <p>{t.legal.userResponsibilities}</p>
                         <ul className="list-disc pl-6 space-y-2">
-                            <li>Yasalara ve yönetmeliklere uygun davranmak</li>
-                            <li>Doğru ve yanıltıcı olmayan bilgiler paylaşmak</li>
-                            <li>Diğer kullanıcılara saygılı davranmak</li>
-                            <li>Telif haklarına ve fikri mülkiyet haklarına saygı göstermek</li>
-                            <li>Platformu kötüye kullanmamak</li>
+                            <li>{t.legal.obeyLaws}</li>
+                            <li>{t.legal.shareHonestInfo}</li>
+                            <li>{t.legal.respectOthers}</li>
+                            <li>{t.legal.respectIntellectualProperty}</li>
+                            <li>{t.legal.dontAbuseService}</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">4. Yasak Davranışlar</h2>
-                        <p>Aşağıdaki davranışlar kesinlikle yasaktır:</p>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section4}</h2>
+                        <p>{t.legal.prohibitedBehaviors}</p>
                         <ul className="list-disc pl-6 space-y-2">
-                            <li>Sahte veya yanıltıcı içerik paylaşmak</li>
-                            <li>Spam veya istenmeyen mesajlar göndermek</li>
-                            <li>Başkalarını taciz etmek veya tehdit etmek</li>
-                            <li>Platformun güvenliğini tehlikeye atmak</li>
-                            <li>Yasadışı faaliyetlerde bulunmak</li>
+                            <li>{t.legal.noFalseContent}</li>
+                            <li>{t.legal.noSpam}</li>
+                            <li>{t.legal.noHarassment}</li>
+                            <li>{t.legal.noSecurityThreats}</li>
+                            <li>{t.legal.noIllegalActivity}</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">5. İçerik Sahipliği</h2>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section5}</h2>
                         <p>
-                            Platformda paylaştığınız içeriklerin telif hakları size aittir. Ancak, içeriğinizi
-                            platformumuzda göstermek için bize sınırlı bir lisans vermiş olursunuz.
+                            {t.legal.contentOwnership}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">6. Hesap Askıya Alma ve Sonlandırma</h2>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section6}</h2>
                         <p>
-                            Şartları ihlal eden hesapları uyarı vermeden askıya alabilir veya sonlandırabiliriz.
-                            Kullanıcılar istedikleri zaman hesaplarını kapatabilirler.
+                            {t.legal.accountTermination}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">7. Sorumluluk Reddi</h2>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section7}</h2>
                         <p>
-                            Platform "olduğu gibi" sağlanmaktadır. Kullanıcılar arasındaki etkileşimlerden,
-                            içeriklerden veya hizmet kesintilerinden sorumlu değiliz.
+                            {t.legal.disclaimer}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">8. Değişiklikler</h2>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section8}</h2>
                         <p>
-                            Bu şartlar zaman zaman güncellenebilir. Önemli değişiklikler yapıldığında
-                            kullanıcılar bilgilendirilecektir.
+                            {t.legal.termsChanges}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">9. Ücretler ve Ödemeler</h2>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section9}</h2>
                         <p>
-                            Bazı hizmetler ücretli olabilir. Ücretler ve ödeme koşulları ilgili sayfalarda
-                            belirtilecektir.
+                            {t.legal.feesPayments}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4">10. İletişim</h2>
+                        <h2 className="text-2xl font-semibold mb-4">{t.legal.section10}</h2>
                         <p>
-                            Hizmet şartlarımız hakkında sorularınız varsa, lütfen bizimle iletişime geçin.
+                            {t.legal.contact}
                         </p>
                     </section>
 

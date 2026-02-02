@@ -30,25 +30,25 @@ export function Header() {
 
     return (
         <header className="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm">
-            <div className="container mx-auto px-4 h-16 flex items-center justify-between relative">
+            <div className="container mx-auto px-2 sm:px-4 h-12 md:h-16 flex items-center justify-between relative">
                 <div className="flex items-center">
                     <LanguageSwitcher />
                 </div>
 
-                <div className="absolute left-1/2 -translate-x-1/2">
+                <div className="md:absolute left-0 md:left-1/2 md:-translate-x-1/2 w-full md:w-auto text-center">
                     <Link
                         href="/"
-                        className="text-3xl font-black text-primary tracking-tighter hover:opacity-90 transition-opacity uppercase"
+                        className="text-2xl md:text-3xl font-black text-primary tracking-tighter hover:opacity-90 transition-opacity uppercase"
                     >
                         ValoraEscort
                     </Link>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 md:gap-3">
                     {user ? (
                         <div className="flex items-center gap-3">
                             <Link href="/dashboard">
-                                <Button variant="ghost" size="sm" className="font-bold text-gray-700 hover:text-primary hover:bg-primary/5">
+                                <Button variant="ghost" size="sm" className="font-bold text-gray-700 hover:text-primary hover:bg-primary/5 truncate max-w-[8rem]">
                                     {user.email?.split('@')[0]}
                                 </Button>
                             </Link>
@@ -70,7 +70,7 @@ export function Header() {
                                 <Button variant="ghost" size="sm" className="font-bold text-gray-700 hover:text-primary hover:bg-primary/5">{t.auth.login}</Button>
                             </Link>
                             <Link href="/register">
-                                <Button size="sm" className="bg-primary text-white hover:bg-primary/90 font-bold px-6">{t.auth.register}</Button>
+                                <Button size="sm" className="bg-primary text-white hover:bg-primary/90 font-bold px-3 md:px-6">{t.auth.register}</Button>
                             </Link>
                         </>
                     )}

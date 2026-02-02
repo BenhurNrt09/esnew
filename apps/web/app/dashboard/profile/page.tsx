@@ -35,6 +35,7 @@ export default function ProfileEditPage() {
     const [formData, setFormData] = useState<any>({
         title: '',
         phone: '',
+        phone_country_code: '+90',
         city_id: '',
         description: '',
         // Attributes
@@ -96,7 +97,8 @@ export default function ProfileEditPage() {
                         username: member.username || '',
                         first_name: member.first_name || '',
                         last_name: member.last_name || '',
-                        phone: member.phone || ''
+                        phone: member.phone || '',
+                        phone_country_code: member.phone_country_code || '+90'
                     });
                 }
             }
@@ -148,7 +150,8 @@ export default function ProfileEditPage() {
                     username: formData.username,
                     first_name: formData.first_name,
                     last_name: formData.last_name,
-                    phone: formData.phone
+                    phone: formData.phone,
+                    phone_country_code: formData.phone_country_code
                 }).eq('id', user.id);
                 if (error) throw error;
             }
@@ -181,10 +184,6 @@ export default function ProfileEditPage() {
                                 <Input value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Telefon</label>
-                                <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
-                            </div>
-                            <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Adınız</label>
                                 <Input value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
                             </div>
@@ -193,6 +192,57 @@ export default function ProfileEditPage() {
                                 <Input value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
                             </div>
                         </div>
+
+                        {/* Phone Number with Country Code */}
+                        <div className="space-y-3 bg-gradient-to-br from-primary/5 via-primary/2 to-transparent rounded-3xl p-8 border border-primary/20 shadow-lg shadow-primary/5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
+                            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest flex items-center gap-2 ml-1">
+                                <Phone className="w-4 h-4 text-primary animate-pulse" /> Telefon Numarası
+                            </label>
+                            <div className="flex gap-3 items-end">
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/5 rounded-2xl pointer-events-none"></div>
+                                    <select
+                                        value={formData.phone_country_code}
+                                        onChange={(e) => setFormData({ ...formData, phone_country_code: e.target.value })}
+                                        className="relative w-32 h-14 rounded-2xl border-2 border-primary/40 bg-white font-bold text-gray-900 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 cursor-pointer hover:border-primary/60 appearance-none bg-no-repeat bg-right bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22%23ea580c%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208l4%204%204-4%22/%3E%3C/svg%3E')] bg-[calc(100%-8px)_center] pr-10"
+                                    >
+                                        <option value="+90">🇹🇷 +90</option>
+                                        <option value="+1">🇺🇸 +1</option>
+                                        <option value="+44">🇬🇧 +44</option>
+                                        <option value="+33">🇫🇷 +33</option>
+                                        <option value="+49">🇩🇪 +49</option>
+                                        <option value="+39">🇮🇹 +39</option>
+                                        <option value="+34">🇪🇸 +34</option>
+                                        <option value="+31">🇳🇱 +31</option>
+                                        <option value="+41">🇨🇭 +41</option>
+                                        <option value="+43">🇦🇹 +43</option>
+                                        <option value="+32">🇧🇪 +32</option>
+                                        <option value="+46">🇸🇪 +46</option>
+                                        <option value="+45">🇩🇰 +45</option>
+                                        <option value="+47">🇳🇴 +47</option>
+                                        <option value="+358">🇫🇮 +358</option>
+                                        <option value="+48">🇵🇱 +48</option>
+                                        <option value="+30">🇬🇷 +30</option>
+                                        <option value="+359">🇧🇬 +359</option>
+                                        <option value="+40">🇷🇴 +40</option>
+                                        <option value="+36">🇭🇺 +36</option>
+                                    </select>
+                                </div>
+                                <Input 
+                                    type="tel"
+                                    value={formData.phone} 
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })} 
+                                    placeholder="5XXXXXXXXX"
+                                    className="flex-1 h-14 rounded-2xl border-2 border-primary/30 bg-gradient-to-r from-white to-primary/2 font-bold text-gray-900 placeholder:text-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none transition-all duration-200 hover:border-primary/50"
+                                />
+                            </div>
+                            <div className="pt-2 px-4 rounded-xl bg-primary/5 border border-primary/10">
+                                <p className="text-xs text-gray-600 font-bold">
+                                    📱 Tam numara: <span className="text-primary font-black">{formData.phone_country_code} {formData.phone || '(boş)'}</span>
+                                </p>
+                            </div>
+                        </div>
+
                         <Button onClick={handleSave} disabled={saving} className="w-full h-16 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20">
                             {saving ? 'KAYDEDİLİYOR...' : 'BİLGİLERİ GÜNCELLE'}
                         </Button>

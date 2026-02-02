@@ -59,6 +59,30 @@
   }
 }
 
+/* Mobile / responsive helpers */
+@layer base {
+  html {
+    /* Fluid / clamped base font size for better mobile scaling */
+    font-size: clamp(14px, 1.6vw + 12px, 18px);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  input, button, textarea, select {
+    font-size: 1rem;
+  }
+
+  /* Tighter default container spacing on small screens */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;

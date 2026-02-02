@@ -28,14 +28,20 @@ export default function LoginPage() {
 
             if (error) throw error;
 
-            // Check if user is admin
-            const { data: userData } = await supabase
+            // Check or create user in database
+            const { data: existingUser, error: selectError } = await supabase
                 .from('users')
                 .select('role')
                 .eq('id', data.user.id)
-                .single();
+                .maybeSingle();
 
-            if (userData?.role !== 'admin') {
+            // If user doesn't exist in DB, deny admin access (do NOT auto-create as admin)
+            if (!existingUser) {
+                await supabase.auth.signOut();
+                setError('Erişim reddedildi. Hesabınız yönetici değil veya veritabanında kayıtlı değil.');
+                return;
+            } else if (existingUser.role !== 'admin') {
+                // If user exists but isn't admin, deny access
                 await supabase.auth.signOut();
                 setError('Erişim reddedildi. Bu panele sadece yöneticiler erişebilir.');
                 return;

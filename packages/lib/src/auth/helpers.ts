@@ -15,7 +15,21 @@ export async function getCurrentUser(): Promise<User | null> {
         .from('users')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+
+    // If user doesn't exist in database, create them
+    if (!data) {
+        const { data: newUser } = await supabase
+            .from('users')
+            .insert({
+                id: user.id,
+                email: user.email,
+                role: 'user'
+            })
+            .select()
+            .single();
+        return newUser;
+    }
 
     return data;
 }

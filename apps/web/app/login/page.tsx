@@ -76,12 +76,23 @@ export default function LoginPage() {
                 }
             }
 
-            const { error: signInError } = await supabase.auth.signInWithPassword({
+            const { error: signInError, data: signInData } = await supabase.auth.signInWithPassword({
                 email: loginEmail,
                 password,
             });
 
             if (signInError) throw signInError;
+
+            // Update user metadata with original username (preserving case)
+            if (signInData?.user && !isEmailInput) {
+                const { error: updateError } = await supabase.auth.updateUser({
+                    data: { 
+                        original_username: emailOrUsername,
+                        display_name: emailOrUsername
+                    }
+                });
+                if (updateError) console.error('Error updating metadata:', updateError);
+            }
 
             // Handle remember me
             if (remember) {

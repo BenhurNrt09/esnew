@@ -87,7 +87,7 @@ export function HomePageContent({
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
 
                 <div className="container mx-auto px-4 py-16 md:py-24 relative z-10 text-center">
-                    <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tight leading-none drop-shadow-sm animate-in fade-in slide-in-from-bottom-6 duration-1000">
+                    <h1 className="text-3xl sm:text-4xl md:text-6xl font-black mb-6 tracking-tight leading-none drop-shadow-sm animate-in fade-in slide-in-from-bottom-6 duration-1000">
                         {h.heroTitle}<br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">{h.heroTitleHighlight}</span>
                     </h1>
@@ -141,7 +141,7 @@ export function HomePageContent({
                             </div>
 
                             {featuredListings.length > 0 ? (
-                                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
                                     {featuredListings.map((listing) => (
                                         <ProfileCard key={listing.id} listing={listing} isFeatured={true} translations={h} />
                                     ))}
@@ -169,7 +169,7 @@ export function HomePageContent({
                             </div>
 
                             {filteredLatest.length > 0 ? (
-                                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
                                     {filteredLatest.map((listing) => (
                                         <ProfileCard key={listing.id} listing={listing} translations={h} />
                                     ))}
@@ -184,7 +184,7 @@ export function HomePageContent({
                             {/* View All Button */}
                             <div className="mt-12 text-center">
                                 <Link href="/ilanlar">
-                                    <Button size="lg" className="rounded-full px-12 h-14 font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all hover:scale-105">
+                                    <Button size="lg" className="rounded-full px-6 sm:px-12 h-12 sm:h-14 font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all hover:scale-105">
                                         {h.viewAllProfiles}
                                     </Button>
                                 </Link>
@@ -210,7 +210,7 @@ function ProfileCard({ listing, isFeatured = false, translations }: { listing: L
     return (
         <Link href={`/ilan/${listing.slug}`} className="group h-full">
             <div className={`relative bg-white rounded-3xl overflow-hidden transition-all duration-300 h-full flex flex-col border border-gray-100 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/10 ${isFeatured ? 'ring-2 ring-primary/10' : ''}`}>
-                <div className="relative aspect-[3/4] overflow-hidden">
+                <div className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden">
                     <img
                         src={listing.cover_image || (listing.images && listing.images[0]) || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600'}
                         alt={listing.title}
@@ -235,24 +235,24 @@ function ProfileCard({ listing, isFeatured = false, translations }: { listing: L
                     </button>
 
                     <div className="absolute bottom-4 left-4 right-4">
-                        <h3 className="text-white text-lg font-black leading-tight uppercase tracking-tighter drop-shadow-md group-hover:text-primary transition-colors">{listing.title}</h3>
-                        <p className="text-white/70 text-[10px] font-bold mt-1 uppercase tracking-widest flex items-center gap-1.5">
+                        <h3 className="text-white text-base sm:text-lg font-black leading-tight uppercase tracking-tighter drop-shadow-md group-hover:text-primary transition-colors truncate">{listing.title}</h3>
+                        <p className="text-white/70 text-[10px] sm:text-[11px] font-bold mt-1 uppercase tracking-widest flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span>
                             {listing.category?.name}
                         </p>
                     </div>
                 </div>
 
-                <div className="p-4 flex flex-col flex-1">
-                    <div className="flex items-center justify-between mb-3">
+                <div className="p-3 sm:p-4 flex flex-col flex-1">
+                    <div className="flex items-center justify-between mb-2 sm:mb-3">
                         <div className="flex flex-col">
                             <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{h.startingFrom}</span>
-                            <span className="text-primary font-black text-xl tracking-tighter">
+                            <span className="text-primary font-black text-lg sm:text-xl tracking-tighter">
                                 {listing.price ? formatPrice(listing.price) : h.negotiable}
                             </span>
                         </div>
-                        <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-primary transition-colors">
-                            <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors" />
+                        <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-primary transition-colors">
+                            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300 group-hover:text-white transition-colors" />
                         </div>
                     </div>
                 </div>

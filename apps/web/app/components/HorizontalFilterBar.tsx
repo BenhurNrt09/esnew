@@ -20,7 +20,7 @@ interface FilterGroupProps {
 
 function FilterGroup({ label, options, value, onChange, icon }: FilterGroupProps) {
     return (
-        <div className="flex flex-col gap-2 min-w-[140px]">
+        <div className="flex flex-col gap-2 min-w-[110px] sm:min-w-[140px]">
             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5 ml-1">
                 {icon} {label}
             </label>
@@ -89,7 +89,7 @@ export function HorizontalFilterBar({ filters, setFilters }: { filters: any, set
 
     return (
         <div className="w-full bg-white border-y border-gray-100 shadow-sm sticky top-16 z-40 overflow-x-auto no-scrollbar">
-            <div className="container mx-auto px-4 py-4 flex items-center gap-6 min-w-max">
+            <div className="container mx-auto px-4 py-4 flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6">
                 <FilterGroup
                     label="IRK"
                     icon={<User className="w-3 h-3" />}
