@@ -110,7 +110,7 @@ export default function NewCategoryPage() {
                                     searchPlaceholder="Kategori ara..."
                                 />
                                 <p className="text-xs text-gray-400">
-                                    Bir ana kategori seçerseniz, bu kategori onun alt özelliği olur (Örn: Saç Rengi -> Sarı).
+                                    Bir ana kategori seçerseniz, bu kategori onun alt özelliği olur (Örn: Saç Rengi: Sarı).
                                 </p>
                             </div>
                         )}

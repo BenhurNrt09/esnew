@@ -1,4 +1,4 @@
-import { createServerClient } from '@repo/lib';
+import { createServerClient } from '@repo/lib/server';
 import type { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

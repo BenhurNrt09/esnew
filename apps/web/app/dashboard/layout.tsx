@@ -15,6 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter();
     const pathname = usePathname();
     const [user, setUser] = useState<any>(null);
+    const [userType, setUserType] = useState<'member' | 'independent_model' | 'agency' | null>(null);
     const [loading, setLoading] = useState(true);
     const [unreadCount, setUnreadCount] = useState(0);
     const supabase = createClient();
@@ -27,23 +28,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 return;
             }
 
-            // Fetch profile info
-            const { data: profile } = await supabase
-                .from('independent_models')
-                .select('username, display_name')
-                .eq('id', user.id)
-                .single();
+            const type = user.user_metadata?.user_type || 'member';
+            setUserType(type);
 
-            const { data: listing } = await supabase
-                .from('listings')
-                .select('title')
-                .eq('user_id', user.id)
-                .single();
+            let displayName = user.email?.split('@')[0];
 
-            setUser({
-                ...user,
-                displayName: listing?.title || profile?.display_name || profile?.username || user.email?.split('@')[0]
-            });
+            if (type === 'independent_model') {
+                const { data: profile } = await supabase
+                    .from('independent_models')
+                    .select('username, display_name')
+                    .eq('id', user.id)
+                    .single();
+
+                const { data: listing } = await supabase
+                    .from('listings')
+                    .select('title')
+                    .eq('user_id', user.id)
+                    .single();
+
+                displayName = listing?.title || profile?.display_name || profile?.username || displayName;
+            } else if (type === 'member') {
+                const { data: profile } = await supabase
+                    .from('members')
+                    .select('username, first_name, last_name')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile) {
+                    displayName = profile.first_name && profile.last_name
+                        ? `${profile.first_name} ${profile.last_name}`
+                        : profile.username || displayName;
+                }
+            }
+
+            setUser({ ...user, displayName });
 
             // Initial unread count
             const { count } = await supabase
@@ -82,18 +100,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         checkUser();
     }, []);
 
-    const menuItems = [
-        { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'Profilim', href: '/dashboard/profile', icon: User },
-        { name: 'Medya & Hikayeler', href: '/dashboard/media', icon: Camera },
-        { name: 'Fiyatlandırma', href: '/dashboard/pricing', icon: DollarSign },
-        { name: 'Yorumlar', href: '/dashboard/comments', icon: MessageSquare },
-        { name: 'İstatistikler', href: '/dashboard/stats', icon: BarChart3 },
-        { name: 'Bildirimler', href: '/dashboard/notifications', icon: Bell },
-        { name: 'Ayarlar', href: '/dashboard/settings', icon: Settings },
+    const allMenuItems = [
+        { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['member', 'independent_model', 'agency'] },
+        { name: 'Profilim', href: '/dashboard/profile', icon: User, roles: ['member', 'independent_model', 'agency'] },
+        { name: 'Medya & Hikayeler', href: '/dashboard/media', icon: Camera, roles: ['independent_model', 'agency'] },
+        { name: 'Fiyatlandırma', href: '/dashboard/pricing', icon: DollarSign, roles: ['independent_model', 'agency'] },
+        { name: 'Yorumlar', href: '/dashboard/comments', icon: MessageSquare, roles: ['member', 'independent_model', 'agency'] },
+        { name: 'İstatistikler', href: '/dashboard/stats', icon: BarChart3, roles: ['independent_model', 'agency'] },
+        { name: 'Bildirimler', href: '/dashboard/notifications', icon: Bell, roles: ['member', 'independent_model', 'agency'] },
+        { name: 'Ayarlar', href: '/dashboard/settings', icon: Settings, roles: ['member', 'independent_model', 'agency'] },
     ];
 
+    const menuItems = allMenuItems.filter(item => userType && item.roles.includes(userType));
+
     if (loading) return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
+
+    const roleLabels = {
+        member: 'Üye',
+        independent_model: 'Bağımsız Model',
+        agency: 'Ajans'
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
@@ -163,7 +189,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </Link>
                         <div className="flex flex-col items-end">
                             <span className="text-sm font-black text-gray-900">{user.displayName}</span>
-                            <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Bağımsız Model</span>
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{roleLabels[userType as keyof typeof roleLabels]}</span>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-bold">
                             {user.displayName[0].toUpperCase()}

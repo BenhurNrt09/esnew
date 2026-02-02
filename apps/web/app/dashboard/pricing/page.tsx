@@ -4,12 +4,18 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, useToast } from '@repo/ui';
-import { Plus, Trash2, DollarSign, Clock, Save, Info } from 'lucide-react';
+import { Plus, Trash2, DollarSign, Clock, Save, Info, MapPin, Globe } from 'lucide-react';
 
 const durationOptions = [
     '30 Dakika', '45 Dakika', '1 Saat', '1.5 Saat',
     '2 Saat', '3 Saat', '4 Saat', 'Gecelik',
     'Haftalık', 'Vaftalık', '24 Saat'
+];
+
+const currencies = [
+    { code: 'TRY', symbol: '₺', label: 'Türk Lirası' },
+    { code: 'USD', symbol: '$', label: 'Amerikan Doları' },
+    { code: 'EUR', symbol: '€', label: 'Euro' }
 ];
 
 export default function PricingPage() {
@@ -25,16 +31,10 @@ export default function PricingPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            // Get listing
-            const { data: listing } = await supabase
-                .from('listings')
-                .select('id')
-                .eq('user_id', user.id)
-                .single();
+            const { data: listing } = await supabase.from('listings').select('id').eq('user_id', user.id).single();
 
             if (listing) {
                 setListingId(listing.id);
-                // Get existing pricing
                 const { data: pricingData } = await supabase
                     .from('model_pricing')
                     .select('*')
@@ -45,15 +45,12 @@ export default function PricingPage() {
                     setPricing(pricingData.map(p => ({
                         id: p.id,
                         duration: p.duration,
-                        incall: p.incall_price || '',
-                        outcall: p.outcall_price || ''
+                        price: p.price || '',
+                        location: p.location || '',
+                        currency: p.currency || 'TRY'
                     })));
                 } else {
-                    // Default tiers if none exist
-                    setPricing([
-                        { duration: '1 Saat', incall: '', outcall: '' },
-                        { duration: 'Gecelik', incall: '', outcall: '' }
-                    ]);
+                    setPricing([{ duration: '1 Saat', price: '', location: 'Kendi Yerim', currency: 'TRY' }]);
                 }
             }
             setLoading(false);
@@ -62,14 +59,14 @@ export default function PricingPage() {
     }, []);
 
     const addTier = () => {
-        setPricing([...pricing, { duration: '1 Saat', incall: '', outcall: '' }]);
+        setPricing([...pricing, { duration: '1 Saat', price: '', location: '', currency: 'TRY' }]);
     };
 
     const removeTier = (index: number) => {
         setPricing(pricing.filter((_, i) => i !== index));
     };
 
-    const updateTier = (index: number, field: string, value: string) => {
+    const updateTier = (index: number, field: string, value: any) => {
         const newPricing = [...pricing];
         newPricing[index][field] = value;
         setPricing(newPricing);
@@ -80,17 +77,16 @@ export default function PricingPage() {
         setSaving(true);
 
         try {
-            // First delete existing pricing for this listing to replace
             await supabase.from('model_pricing').delete().eq('listing_id', listingId);
 
-            // Filter out empty tiers
             const toSave = pricing
-                .filter(p => p.incall || p.outcall)
+                .filter(p => p.price)
                 .map(p => ({
                     listing_id: listingId,
                     duration: p.duration,
-                    incall_price: p.incall ? parseFloat(p.incall) : null,
-                    outcall_price: p.outcall ? parseFloat(p.outcall) : null
+                    price: parseFloat(p.price),
+                    location: p.location,
+                    currency: p.currency
                 }));
 
             if (toSave.length > 0) {
@@ -106,110 +102,120 @@ export default function PricingPage() {
         }
     };
 
-    if (loading) return <div>Yükleniyor...</div>;
-
-    if (!listingId) {
-        return (
-            <div className="text-center py-12">
-                <p className="text-gray-500 font-bold uppercase tracking-widest text-sm mb-4">Profiliniz bulunamadı.</p>
-                <Link href="/profile/create">
-                    <Button>Hemen Profil Oluştur</Button>
-                </Link>
-            </div>
-        );
-    }
+    if (loading) return <div className="min-h-screen flex items-center justify-center font-black text-gray-400 animate-pulse">YÜKLENİYOR...</div>;
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Fiyatlandırma Yönetimi</h1>
-                    <p className="text-gray-500 font-medium">Süre bazlı hizmet ücretlerinizi buradan güncelleyin.</p>
+                    <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Fiyatlandırma Stratejisi</h1>
+                    <p className="text-gray-500 font-medium">Hizmet sürelerinizi ve ücretlerinizi modern barlarla yönetin.</p>
                 </div>
                 <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="bg-primary text-white font-black uppercase tracking-widest px-8 h-12 rounded-xl shadow-xl shadow-primary/20"
+                    className="bg-primary text-white font-black uppercase tracking-widest px-10 h-14 rounded-2xl shadow-2xl shadow-primary/30 hover:scale-105 transition-all"
                 >
-                    <Save className="w-4 h-4 mr-2" /> {saving ? 'KAYDEDİLİYOR...' : 'DEĞİŞİKLİKLERİ KAYDET'}
+                    <Save className="w-4 h-4 mr-2" /> {saving ? 'KAYDEDİLİYOR...' : 'FİYATLARI YAYINLA'}
                 </Button>
             </div>
 
-            <Card className="shadow-sm border-gray-100 rounded-3xl overflow-hidden">
-                <CardHeader className="bg-gray-50/50 border-b border-gray-100">
-                    <CardTitle className="text-lg font-black uppercase tracking-tighter flex items-center gap-2">
-                        <DollarSign className="w-5 h-5 text-primary" /> Ücret Tablosu
-                    </CardTitle>
-                    <CardDescription>Yeni bir bar ekleyebilir veya mevcut olanları silebilirsiniz.</CardDescription>
-                </CardHeader>
-                <CardContent className="p-8 space-y-6">
-                    <div className="space-y-4">
-                        {pricing.map((tier, idx) => (
-                            <div key={idx} className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100 group animate-in fade-in slide-in-from-left-4 duration-300">
-                                <div className="w-full md:w-1/4">
+            <div className="space-y-4">
+                {pricing.map((tier, idx) => (
+                    <Card key={idx} className="shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[2rem] overflow-hidden group hover:border-primary/20 transition-all border-l-8 border-l-primary">
+                        <CardContent className="p-6 md:p-8 flex flex-col lg:flex-row items-center gap-6">
+
+                            {/* Duration Selection */}
+                            <div className="w-full lg:w-1/4 space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Hizmet Süresi</label>
+                                <div className="relative">
+                                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                                    <select
+                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-100 bg-gray-50 font-bold text-gray-700 focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
+                                        value={tier.duration}
+                                        onChange={(e) => updateTier(idx, 'duration', e.target.value)}
+                                    >
+                                        {durationOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Location Input */}
+                            <div className="w-full lg:w-1/4 space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Lokasyon / Yer</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                                    <Input
+                                        className="pl-11 h-12 rounded-xl border-gray-100 bg-gray-50 font-bold"
+                                        placeholder="Örn: Kendi Yerim"
+                                        value={tier.location}
+                                        onChange={(e) => updateTier(idx, 'location', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Price & Currency */}
+                            <div className="flex-1 w-full flex items-center gap-3">
+                                <div className="flex-1 space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Ücret</label>
                                     <div className="relative">
-                                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary opacity-50" />
-                                        <select
-                                            className="w-full h-11 pl-9 pr-3 rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
-                                            value={tier.duration}
-                                            onChange={(e) => updateTier(idx, 'duration', e.target.value)}
-                                        >
-                                            {durationOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                                        </select>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-black text-xl">
+                                            {currencies.find(c => c.code === tier.currency)?.symbol}
+                                        </span>
+                                        <Input
+                                            className="pl-12 h-14 rounded-xl border-gray-100 bg-gray-50 font-black text-xl text-gray-900"
+                                            placeholder="0.00"
+                                            type="number"
+                                            value={tier.price}
+                                            onChange={(e) => updateTier(idx, 'price', e.target.value)}
+                                        />
                                     </div>
                                 </div>
-                                <div className="flex-1 w-full grid grid-cols-2 gap-4">
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary font-black opacity-50">$</span>
-                                        <Input
-                                            className="pl-8 rounded-xl h-11 border-gray-200 bg-white"
-                                            placeholder="Kendi Yerim"
-                                            type="number"
-                                            value={tier.incall}
-                                            onChange={(e) => updateTier(idx, 'incall', e.target.value)}
-                                        />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase">Kendi Yerim</span>
-                                    </div>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary font-black opacity-50">$</span>
-                                        <Input
-                                            className="pl-8 rounded-xl h-11 border-gray-200 bg-white"
-                                            placeholder="Senin Yerin"
-                                            type="number"
-                                            value={tier.outcall}
-                                            onChange={(e) => updateTier(idx, 'outcall', e.target.value)}
-                                        />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase">Senin Yerin</span>
-                                    </div>
+                                <div className="w-32 space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Para Birimi</label>
+                                    <select
+                                        className="w-full h-14 px-4 rounded-xl border border-gray-100 bg-gray-50 font-black text-gray-700 focus:ring-2 focus:ring-primary/20 outline-none"
+                                        value={tier.currency}
+                                        onChange={(e) => updateTier(idx, 'currency', e.target.value)}
+                                    >
+                                        {currencies.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                                    </select>
                                 </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="pt-6 lg:pt-0">
                                 <button
                                     onClick={() => removeTier(idx)}
-                                    className="p-3 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+                                    className="p-4 rounded-2xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 active:scale-95 shadow-sm"
+                                    title="Dili Sil"
                                 >
-                                    <Trash2 className="w-5 h-5" />
+                                    <Trash2 className="w-6 h-6" />
                                 </button>
                             </div>
-                        ))}
-                    </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
 
-                    <button
-                        onClick={addTier}
-                        className="w-full h-14 border-2 border-dashed border-gray-200 rounded-2xl flex items-center justify-center gap-2 text-gray-400 hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all font-bold uppercase tracking-widest text-sm"
-                    >
-                        <Plus className="w-5 h-5" /> YENİ FİYAT BARI EKLE
-                    </button>
-                </CardContent>
-            </Card>
+            <button
+                onClick={addTier}
+                className="w-full h-20 border-4 border-dashed border-gray-100 rounded-[2.5rem] flex items-center justify-center gap-3 text-gray-300 hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-all font-black uppercase tracking-[0.2em] text-sm group"
+            >
+                <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-500" /> YENİ FİYAT BARI EKLE
+            </button>
 
-            <div className="bg-blue-50 border border-blue-100 p-6 rounded-3xl flex items-start gap-4">
-                <div className="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center shrink-0">
-                    <Info className="w-5 h-5" />
+            <div className="bg-gray-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-gray-900/40">
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <Globe className="w-40 h-40" />
                 </div>
-                <div className="space-y-1">
-                    <h4 className="font-black text-blue-900 uppercase tracking-tighter">İpucu</h4>
-                    <p className="text-sm text-blue-700/80 font-medium">
-                        Fiyatlarınızı piyasa ortalamalarına göre düzenlemek daha fazla rezervasyon almanızı sağlar.
-                        Ayrıca "24 Saat" opsiyonu VIP müşterilerin en çok tercih ettiği seçenektir.
+                <div className="relative z-10 space-y-4">
+                    <h3 className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
+                        <Globe className="w-6 h-6 text-primary" /> Küresel Fiyatlandırma
+                    </h3>
+                    <p className="text-gray-400 font-medium max-w-2xl leading-relaxed">
+                        Farklı para birimleri seçerek hem yerel hem de uluslararası müşterilere hitap edebilirsiniz.
+                        Dolar ve Euro bazlı fiyatlandırma, turist müşteriler için daha profesyonel bir görünüm sunar.
                     </p>
                 </div>
             </div>

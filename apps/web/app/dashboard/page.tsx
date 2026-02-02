@@ -6,57 +6,164 @@ import { Card, CardHeader, CardTitle, CardContent } from '@repo/ui';
 import {
     Users, MousePointer2, MessageSquare,
     TrendingUp, ArrowUpRight, ArrowDownRight,
-    Sparkles, Camera, PlusCircle
+    Sparkles, Camera, PlusCircle, Bell, Star
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
     const supabase = createClient();
+    const [userType, setUserType] = useState<string | null>(null);
     const [hasProfile, setHasProfile] = useState<boolean | null>(null);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
-        views: 1240,
-        contacts: 42,
-        messages: 12,
-        rating: 4.8
+        views: 0,
+        contacts: 0,
+        notifications: 0,
+        rating: 0
     });
+    const [activities, setActivities] = useState<any[]>([]);
 
     useEffect(() => {
-        const checkProfile = async () => {
+        const loadDashboardData = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            const { data: listing } = await supabase
-                .from('listings')
-                .select('id')
-                .eq('user_id', user.id)
-                .single();
+            const type = user.user_metadata?.user_type || 'member';
+            setUserType(type);
 
-            setHasProfile(!!listing);
+            // Fetch Latest Activities (Notifications)
+            const { data: notificationsData } = await supabase
+                .from('notifications')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(5);
+            setActivities(notificationsData || []);
+
+            // Fetch Unread Notification Count
+            const { count: unreadCount } = await supabase
+                .from('notifications')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('is_read', false);
+
+            if (type === 'independent_model') {
+                const { data: listing } = await supabase
+                    .from('listings')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (listing) {
+                    setHasProfile(true);
+
+                    // Fetch Listing Stats
+                    const { data: statsData } = await supabase
+                        .from('listing_stats')
+                        .select('view_count, contact_count')
+                        .eq('listing_id', listing.id);
+
+                    const totalViews = statsData?.reduce((acc, curr) => acc + (curr.view_count || 0), 0) || 0;
+                    const totalContacts = statsData?.reduce((acc, curr) => acc + (curr.contact_count || 0), 0) || 0;
+
+                    // Fetch Average Rating
+                    const { data: commentsData } = await supabase
+                        .from('comments')
+                        .select('rating_stars')
+                        .eq('listing_id', listing.id)
+                        .is('parent_id', null)
+                        .not('rating_stars', 'is', null);
+
+                    const avgRating = commentsData && commentsData.length > 0
+                        ? commentsData.reduce((acc, curr) => acc + (curr.rating_stars || 0), 0) / commentsData.length
+                        : 0;
+
+                    setStats({
+                        views: totalViews,
+                        contacts: totalContacts,
+                        notifications: unreadCount || 0,
+                        rating: parseFloat(avgRating.toFixed(1))
+                    });
+                } else {
+                    setHasProfile(false);
+                }
+            } else {
+                // Member specific stats (Favorites count, reviews count etc.)
+                const { count: favoritesCount } = await supabase
+                    .from('favorites')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id);
+
+                const { count: reviewsCount } = await supabase
+                    .from('comments')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id)
+                    .is('parent_id', null);
+
+                setStats({
+                    views: favoritesCount || 0, // In member view, we can use this for favorites
+                    contacts: reviewsCount || 0, // And this for reviews
+                    notifications: unreadCount || 0,
+                    rating: 5.0
+                });
+                setHasProfile(null);
+            }
+
             setLoading(false);
         };
-        checkProfile();
+        loadDashboardData();
     }, []);
 
-    if (loading) return <div>Yükleniyor...</div>;
+    const getTimeAgo = (date: string) => {
+        const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " yıl önce";
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " ay önce";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " gün önce";
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " saat önce";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " dakika önce";
+        return "az önce";
+    };
+
+    const getIcon = (type: string) => {
+        switch (type) {
+            case 'view': return <Users className="w-5 h-5 text-blue-500" />;
+            case 'comment': return <MessageSquare className="w-5 h-5 text-purple-500" />;
+            case 'story': return <Camera className="w-5 h-5 text-pink-500" />;
+            default: return <Bell className="w-5 h-5 text-gray-500" />;
+        }
+    };
+
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="font-black text-gray-400 uppercase tracking-widest text-xs">Veriler Hazırlanıyor...</p>
+            </div>
+        </div>
+    );
 
     // If no profile, show Onboarding Call to Action
-    if (hasProfile === false) {
+    if (userType === 'independent_model' && hasProfile === false) {
         return (
             <div className="max-w-4xl mx-auto py-12">
-                <Card className="border-2 border-dashed border-primary/20 bg-primary/5 rounded-3xl overflow-hidden">
-                    <CardContent className="p-12 text-center space-y-6">
-                        <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center shadow-xl mx-auto text-primary">
+                <Card className="border-2 border-dashed border-primary/20 bg-primary/5 rounded-[3rem] overflow-hidden">
+                    <CardContent className="p-16 text-center space-y-8">
+                        <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl mx-auto text-primary animate-bounce">
                             <Sparkles className="w-12 h-12" />
                         </div>
-                        <div className="space-y-2">
-                            <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Profilinizi Henüz Oluşturmadınız!</h1>
-                            <p className="text-gray-500 font-medium max-w-md mx-auto">
+                        <div className="space-y-3">
+                            <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tighter">Profilinizi Henüz Oluşturmadınız!</h1>
+                            <p className="text-gray-500 font-bold max-w-md mx-auto leading-relaxed">
                                 Platformda öne çıkmak ve müşteri portföyünüzü oluşturmak için hemen profilinizi tamamlayın.
                             </p>
                         </div>
                         <Link href="/profile/create">
-                            <button className="h-16 px-12 rounded-2xl bg-primary text-white font-black text-xl uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-primary/20 mt-4">
+                            <button className="h-16 px-12 rounded-2xl bg-primary text-white font-black text-xl uppercase tracking-widest hover:translate-y-[-4px] transition-all shadow-2xl shadow-primary/30 mt-4 active:scale-95">
                                 PROFİLİMİ ŞİMDİ OLUŞTUR
                             </button>
                         </Link>
@@ -67,96 +174,110 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Real Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {[
-                    { label: 'Profil Görüntülenme', value: stats.views, icon: Users, color: 'text-blue-500', trend: '+12%' },
-                    { label: 'İletişim Tıklamaları', value: stats.contacts, icon: MousePointer2, color: 'text-green-500', trend: '+5%' },
-                    { label: 'Yeni Mesajlar', value: stats.messages, icon: MessageSquare, color: 'text-purple-500', trend: '-2%' },
-                    { label: 'Ortalama Puan', value: stats.rating, icon: TrendingUp, color: 'text-yellow-500', trend: '+0.1' },
+                    { label: userType === 'member' ? 'Favorilerim' : 'Profil Görüntülenme', value: stats.views, icon: Users, color: 'text-blue-500', bg: 'bg-blue-50' },
+                    { label: userType === 'member' ? 'Yorumlarım' : 'İletişim Tıklamaları', value: stats.contacts, icon: MousePointer2, color: 'text-green-500', bg: 'bg-green-50' },
+                    { label: 'Bildirimler', value: stats.notifications, icon: Bell, color: 'text-purple-500', bg: 'bg-purple-50' },
+                    { label: 'Ortalama Puan', value: stats.rating || '5.0', icon: Star, color: 'text-yellow-500', bg: 'bg-yellow-50' },
                 ].map((stat, i) => (
-                    <Card key={i} className="shadow-sm border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className={`p-3 rounded-xl bg-gray-50 ${stat.color}`}>
-                                    <stat.icon className="w-6 h-6" />
+                    <Card key={i} className="shadow-2xl shadow-gray-200/40 border-gray-100 rounded-[2rem] overflow-hidden hover:scale-[1.02] transition-all group">
+                        <CardContent className="p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
+                                    <stat.icon className="w-8 h-8" />
                                 </div>
-                                <span className={cn(
-                                    "text-xs font-bold px-2 py-1 rounded-lg flex items-center gap-1",
-                                    stat.trend.startsWith('+') ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
-                                )}>
-                                    {stat.trend.startsWith('+') ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                                    {stat.trend}
+                                <span className="bg-gray-50 text-gray-400 text-[10px] font-black px-3 py-1.5 rounded-full uppercase border border-gray-100 italic">
+                                    Canlı Veri
                                 </span>
                             </div>
-                            <div className="space-y-1">
-                                <span className="text-gray-500 text-xs font-bold uppercase tracking-widest">{stat.label}</span>
-                                <h3 className="text-3xl font-black text-gray-900 tracking-tighter">{stat.value}</h3>
+                            <div className="space-y-2">
+                                <span className="text-gray-400 text-[11px] font-black uppercase tracking-[0.2em] ml-1">{stat.label}</span>
+                                <h3 className="text-4xl font-black text-gray-900 tracking-tighter">{stat.value}</h3>
                             </div>
                         </CardContent>
                     </Card>
                 ))}
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid lg:grid-cols-12 gap-10">
                 {/* Activity Feed */}
-                <Card className="lg:col-span-2 shadow-sm border-gray-100 rounded-3xl">
-                    <CardHeader>
-                        <CardTitle className="text-lg font-black uppercase tracking-tighter">Son Etkinlikler</CardTitle>
+                <Card className="lg:col-span-8 shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[3rem] overflow-hidden bg-white">
+                    <CardHeader className="bg-gray-50/50 border-b border-gray-100 p-8">
+                        <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+                            <Sparkles className="w-6 h-6 text-primary" /> Son Etkinlikler
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="divide-y divide-gray-50">
-                            {[1, 2, 3, 4, 5].map((_, i) => (
-                                <div key={i} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                                            <Users className="w-5 h-5" />
+                            {activities.length > 0 ? activities.map((activity, i) => (
+                                <div key={i} className="p-6 flex items-center justify-between hover:bg-gray-50/80 transition-all group">
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                                            {getIcon(activity.type)}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900">Bir kullanıcı profilinizi görüntüledi</p>
-                                            <p className="text-xs text-gray-400 font-medium">{i + 1} saat önce • İstanbul</p>
+                                            <p className="text-base font-black text-gray-900 tracking-tight">{activity.title}</p>
+                                            <p className="text-sm text-gray-400 font-bold mt-0.5">{getTimeAgo(activity.created_at)}</p>
                                         </div>
                                     </div>
-                                    <button className="text-primary text-xs font-bold">Detay</button>
+                                    <Link href={activity.link || '/dashboard'}>
+                                        <button className="h-10 px-6 rounded-xl text-primary text-xs font-black uppercase tracking-widest border border-primary/10 bg-primary/5 hover:bg-primary hover:text-white transition-all">
+                                            İncele
+                                        </button>
+                                    </Link>
                                 </div>
-                            ))}
+                            )) : (
+                                <div className="p-20 text-center space-y-4">
+                                    <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto text-gray-200">
+                                        <Bell className="w-8 h-8" />
+                                    </div>
+                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Henüz bir etkinlik bulunmuyor.</p>
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* Quick Actions */}
-                <div className="space-y-6">
-                    <Card className="shadow-sm border-gray-100 rounded-3xl bg-primary text-white">
-                        <CardContent className="p-6 space-y-4">
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-black uppercase tracking-tighter">Hikaye Paylaş</h3>
-                                <p className="text-white/80 text-xs font-medium">Günlük hayatından kareler paylaş, daha fazla kişiye ulaş.</p>
+                <div className="lg:col-span-4 space-y-8">
+                    {userType === 'independent_model' && (
+                        <Card className="shadow-2xl shadow-primary/20 border-primary/10 rounded-[2.5rem] bg-gray-900 text-white relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <Camera className="w-32 h-32" />
                             </div>
-                            <Link href="/dashboard/media">
-                                <button className="w-full h-12 rounded-xl bg-white text-primary font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
-                                    <Camera className="w-4 h-4" /> PAYLAŞMAYA BAŞLA
-                                </button>
-                            </Link>
-                        </CardContent>
-                    </Card>
+                            <CardContent className="p-10 space-y-8 relative z-10">
+                                <div className="space-y-4">
+                                    <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">HİKAYE<br />PAYLAŞ</h3>
+                                    <p className="text-white/40 text-sm font-bold leading-relaxed">Günlük hayatından kareler paylaşarak keşfette daha fazla kişiye ulaşın.</p>
+                                </div>
+                                <Link href="/dashboard/media">
+                                    <button className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-widest shadow-xl shadow-primary/40 hover:translate-y-[-4px] transition-all flex items-center justify-center gap-3">
+                                        <Camera className="w-5 h-5" /> YÜKLEMEYE BAŞLA
+                                    </button>
+                                </Link>
+                            </CardContent>
+                        </Card>
+                    )}
 
-                    <Card className="shadow-sm border-gray-100 rounded-3xl">
-                        <CardHeader>
+                    <Card className="shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[2.5rem] bg-white">
+                        <CardHeader className="p-8 pb-4">
                             <CardTitle className="text-lg font-black uppercase tracking-tighter">Hızlı İpuçları</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-6 space-y-4">
-                            <div className="flex gap-4">
-                                <div className="w-8 h-8 shrink-0 rounded-lg bg-yellow-50 text-yellow-500 flex items-center justify-center">
-                                    <Sparkles className="w-4 h-4" />
+                        <CardContent className="p-8 pt-4 space-y-6">
+                            <div className="flex gap-4 group">
+                                <div className="w-10 h-10 shrink-0 rounded-xl bg-yellow-50 text-yellow-500 flex items-center justify-center group-hover:rotate-12 transition-transform">
+                                    <Sparkles className="w-5 h-5" />
                                 </div>
-                                <p className="text-xs text-gray-500 font-medium">Profil fotoğrafınızı güncelleyerek %25 daha fazla tık alabilirsiniz.</p>
+                                <p className="text-xs text-gray-400 font-bold leading-relaxed">Profil fotoğrafınızı güncelleyerek tıklanma oranınızı %25 artırabilirsiniz.</p>
                             </div>
-                            <div className="flex gap-4">
-                                <div className="w-8 h-8 shrink-0 rounded-lg bg-green-50 text-green-500 flex items-center justify-center">
-                                    <PlusCircle className="w-4 h-4" />
+                            <div className="flex gap-4 group">
+                                <div className="w-10 h-10 shrink-0 rounded-xl bg-green-50 text-green-500 flex items-center justify-center group-hover:rotate-12 transition-transform">
+                                    <PlusCircle className="w-5 h-5" />
                                 </div>
-                                <p className="text-xs text-gray-500 font-medium">Fiyatlandırma seçeneklerinize "Gecelik" eklemeyi unutmayın.</p>
+                                <p className="text-xs text-gray-400 font-bold leading-relaxed">Fiyat seçeneklerinize "Gecelik" ekleyerek VIP talepleri yakalayın.</p>
                             </div>
                         </CardContent>
                     </Card>
