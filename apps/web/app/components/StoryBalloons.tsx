@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@repo/lib/supabase/client';
-import { Sparkles, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Sparkles, ChevronLeft, ChevronRight, X, User } from 'lucide-react';
 import { cn } from '@repo/ui/src/lib/utils';
 
 export function StoryBalloons({ modelId }: { modelId?: string }) {
