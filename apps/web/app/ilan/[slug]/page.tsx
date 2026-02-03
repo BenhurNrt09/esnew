@@ -176,12 +176,12 @@ export default async function ListingPage({ params }: { params: { slug: string }
                     {/* Main Content Area */}
                     <div className="lg:col-span-8 space-y-6">
 
-                        {/* Cover Photo + Profile Summary Layout */}
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                            {/* Cover Photo */}
-                            <div className="md:col-span-4">
-                                <div className="bg-white p-3 rounded-2xl shadow-lg border border-gray-100 sticky top-4">
-                                    <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                        {/* Cover Photo + Profile Summary Layout - Mobile: Side by Side */}
+                        <div className="grid grid-cols-2 md:grid-cols-12 gap-3 md:gap-6">
+                            {/* Cover Photo - Smaller on Mobile */}
+                            <div className="col-span-1 md:col-span-4">
+                                <div className="bg-white p-2 md:p-3 rounded-xl md:rounded-2xl shadow-md md:shadow-lg border border-gray-100">
+                                    <div className="aspect-[3/4] rounded-lg md:rounded-xl overflow-hidden">
                                         <img
                                             src={listing.cover_image || allImages[0]}
                                             alt={listing.title}
@@ -191,16 +191,16 @@ export default async function ListingPage({ params }: { params: { slug: string }
                                 </div>
                             </div>
 
-                            {/* Profile Summary */}
-                            <div className="md:col-span-8">
-                                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-8 opacity-5">
+                            {/* Profile Summary - Compact on Mobile */}
+                            <div className="col-span-1 md:col-span-8">
+                                <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-6 shadow-md md:shadow-lg border border-gray-100 relative overflow-hidden">
+                                    <div className="hidden md:block absolute top-0 right-0 p-8 opacity-5">
                                         <User className="w-24 h-24 text-red-600" />
                                     </div>
-                                    <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-4 flex items-center gap-3 uppercase tracking-tighter relative z-10">
-                                        <User className="h-6 w-6 text-red-600" /> PROFİL ÖZETİ
+                                    <h2 className="text-sm md:text-xl font-black text-gray-900 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-3 uppercase tracking-tighter relative z-10">
+                                        <User className="h-4 w-4 md:h-6 md:w-6 text-red-600" /> <span className="hidden sm:inline">PROFİL</span> ÖZETİ
                                     </h2>
-                                    <p className="text-gray-700 text-sm sm:text-base font-medium leading-relaxed whitespace-pre-line relative z-10">
+                                    <p className="text-gray-700 text-xs md:text-sm lg:text-base font-medium leading-relaxed whitespace-pre-line relative z-10 line-clamp-6 md:line-clamp-none">
                                         {listing.description}
                                     </p>
                                 </div>
@@ -209,6 +209,74 @@ export default async function ListingPage({ params }: { params: { slug: string }
 
                         {/* Gallery */}
                         <ProfileGallery images={allImages} />
+
+                        {/* Mobile: Show Sidebar Sections Here (Features, Pricing, Services) */}
+                        <div className="lg:hidden space-y-4">
+                            {/* Features */}
+                            <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
+                                <h3 className="text-base font-black text-gray-900 mb-3 flex items-center gap-2 uppercase tracking-tighter">
+                                    <Info className="h-4 w-4 text-red-600" /> ÖZELLİKLER
+                                </h3>
+                                <div className="space-y-1.5">
+                                    {features.map((f, i) => (
+                                        <div key={i} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 px-2 rounded-lg transition-all">
+                                            <div className="flex items-center gap-2">
+                                                <span className="p-1 bg-gray-50 rounded-lg text-gray-400 text-xs">{f.icon}</span>
+                                                <span className="text-gray-400 font-bold text-[9px] uppercase tracking-wide">{f.label}</span>
+                                            </div>
+                                            <span className="text-gray-950 font-black text-xs">{f.value}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Pricing */}
+                            <div className="bg-white rounded-2xl p-4 shadow-lg border border-red-50">
+                                <h3 className="text-base font-black text-red-600 mb-3 flex items-center gap-2 uppercase tracking-tighter">
+                                    <DollarSign className="h-4 w-4" /> FİYATLANDIRMA
+                                </h3>
+                                <div className="space-y-2">
+                                    {listing.pricing && listing.pricing.length > 0 ? (
+                                        listing.pricing.map((p, i) => (
+                                            <div key={i} className="flex justify-between items-center bg-gray-50/50 p-3 rounded-xl border border-gray-100">
+                                                <div>
+                                                    <p className="text-[9px] font-black text-red-600 uppercase tracking-wide mb-0.5">{p.duration}</p>
+                                                    <div className="flex items-center gap-1.5 text-gray-400 text-[9px] font-bold uppercase">
+                                                        <MapPin className="w-2.5 h-2.5" /> {p.location || 'Her Yer'}
+                                                    </div>
+                                                </div>
+                                                <div className="text-base font-black text-gray-950">
+                                                    {currencySymbols[p.currency || 'TRY']} {p.price}
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="py-6 text-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 font-bold uppercase text-[9px]">Fiyat Belirtilmemiş</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Services */}
+                            <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
+                                <h3 className="text-base font-black text-gray-900 mb-3 flex items-center gap-2 uppercase tracking-tighter">
+                                    <ListChecks className="h-4 w-4 text-red-600" /> NELER VAR?
+                                </h3>
+                                <div className="grid grid-cols-1 gap-1.5">
+                                    {services.length > 0 ? (
+                                        services.map((s, i) => (
+                                            <div key={i} className="flex items-center gap-2 bg-green-50/50 p-2 rounded-lg border border-green-100/50">
+                                                <div className="w-4 h-4 rounded-md bg-green-500 flex items-center justify-center text-white shadow-sm">
+                                                    <CheckCircle2 className="w-3 h-3" />
+                                                </div>
+                                                <span className="text-[9px] font-black text-green-950 tracking-wide uppercase">{s.label}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="py-6 text-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 font-bold uppercase text-[9px]">Hizmet Belirtilmemiş</div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
 
                         {/* ADVANCED REVIEW SYSTEM */}
                         <div id="reviews" className="space-y-6">
@@ -238,33 +306,7 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             </div>
                         </div>
 
-                        {/* 2. FİYATLANDIRMA TABLE */}
-                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-red-50">
-                            <h3 className="text-lg font-black text-red-600 mb-4 flex items-center gap-2 uppercase tracking-tighter">
-                                <DollarSign className="h-5 w-5" /> FİYATLANDIRMA
-                            </h3>
-                            <div className="space-y-2">
-                                {listing.pricing && listing.pricing.length > 0 ? (
-                                    listing.pricing.map((p, i) => (
-                                        <div key={i} className="flex justify-between items-center bg-gray-50/50 p-4 rounded-xl border border-gray-100 hover:border-red-200 transition-all">
-                                            <div>
-                                                <p className="text-[9px] font-black text-red-600 uppercase tracking-wide mb-0.5">{p.duration}</p>
-                                                <div className="flex items-center gap-1.5 text-gray-400 text-[10px] font-bold uppercase">
-                                                    <MapPin className="w-2.5 h-2.5" /> {p.location || 'Her Yer'}
-                                                </div>
-                                            </div>
-                                            <div className="text-lg font-black text-gray-950">
-                                                {currencySymbols[p.currency || 'TRY']} {p.price}
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="py-8 text-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 font-bold uppercase text-[9px]">Fiyat Belirtilmemiş</div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* 3. İZİNLER / NELER VAR TABLE */}
+                        {/* 2. İZİNLER / NELER VAR TABLE */}
                         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                             <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-tighter">
                                 <ListChecks className="h-5 w-5 text-red-600" /> NELER VAR?

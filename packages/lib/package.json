@@ -7,6 +7,7 @@
         ".": "./src/index.ts",
         "./server": "./src/server.ts",
         "./supabase/client": "./src/supabase/client.ts",
+        "./supabase/server": "./src/supabase/server.ts",
         "./i18n": "./src/i18n/index.ts"
     },
     "scripts": {

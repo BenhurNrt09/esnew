@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
     LayoutDashboard, User, DollarSign, MessageSquare,
     Settings, Camera, LogOut, ChevronRight,
-    Bell, Star, BarChart3
+    Bell, Star, BarChart3, Menu, X
 } from 'lucide-react';
 import { cn } from '@repo/ui/src/lib/utils';
 
@@ -18,6 +18,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [userType, setUserType] = useState<'member' | 'independent_model' | 'agency' | null>(null);
     const [loading, setLoading] = useState(true);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const supabase = createClient();
 
     useEffect(() => {
@@ -103,6 +104,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const allMenuItems = [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['member', 'independent_model', 'agency'] },
         { name: 'Profilim', href: '/dashboard/profile', icon: User, roles: ['member', 'independent_model', 'agency'] },
+        { name: 'Favoriler', href: '/dashboard/favorites', icon: Star, roles: ['member'] },
         { name: 'Medya & Hikayeler', href: '/dashboard/media', icon: Camera, roles: ['independent_model', 'agency'] },
         { name: 'Fiyatlandırma', href: '/dashboard/pricing', icon: DollarSign, roles: ['independent_model', 'agency'] },
         { name: 'Yorumlar', href: '/dashboard/comments', icon: MessageSquare, roles: ['member', 'independent_model', 'agency'] },
@@ -123,8 +125,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
+            {/* Mobile Overlay */}
+            {isMobileMenuOpen && (
+                <div
+                    className="fixed inset-0 bg-black/60 z-[998] lg:hidden"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-72 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen">
+            <aside className={`fixed lg:sticky top-0 h-screen w-72 bg-white border-r border-gray-100 flex flex-col z-[999] transform transition-transform duration-300 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}>
+                {/* Close button for mobile */}
+                <button
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="lg:hidden absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                    <X className="w-5 h-5 text-gray-500" />
+                </button>
+
                 <div className="p-8">
                     <Link href="/" className="text-2xl font-black text-primary tracking-tighter uppercase">
                         VALORA<span className="text-gray-900">ESCORT</span>
@@ -173,8 +192,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <header className="h-20 bg-white border-b border-gray-100 px-8 flex items-center justify-between">
-                    <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter">
+                <header className="h-16 lg:h-20 bg-white border-b border-gray-100 px-4 lg:px-8 flex items-center justify-between">
+                    {/* Mobile Hamburger */}
+                    <button
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                        <Menu className="w-6 h-6 text-gray-700" />
+                    </button>
+
+                    <h2 className="text-base lg:text-xl font-black text-gray-900 uppercase tracking-tighter">
                         {menuItems.find(i => i.href === pathname)?.name || 'Panel'}
                     </h2>
 

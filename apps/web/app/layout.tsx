@@ -40,8 +40,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="tr">
-            <body className={inter.className}>
+        <html lang="tr" className="overflow-x-hidden max-w-full">
+            <body className={`${inter.className} overflow-x-hidden max-w-full w-full`}>
                 <Providers>
                     <Header />
                     {children}

@@ -30,7 +30,7 @@ export function Header() {
     }, [supabase.auth]);
 
     return (
-        <header className="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm">
+        <header className="absolute top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
             <div className="container mx-auto px-3 sm:px-4 h-14 md:h-16 flex items-center justify-between relative">
                 <div className="flex items-center">
                     {/* Mobile: Flag only, Desktop: Flag + Text */}
@@ -54,24 +54,31 @@ export function Header() {
 
                 <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
                     {user ? (
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            <Link href="/dashboard">
-                                <Button variant="ghost" size="sm" className="font-bold text-gray-700 hover:text-primary hover:bg-primary/5 truncate max-w-[6rem] sm:max-w-[8rem] text-xs sm:text-sm">
-                                    {user.email?.split('@')[0]}
+                        <>
+                            {/* Desktop: Show email + logout */}
+                            <div className="hidden sm:flex items-center gap-2">
+                                <Link href="/dashboard">
+                                    <Button variant="ghost" size="sm" className="font-bold text-gray-700 hover:text-primary hover:bg-primary/5 truncate max-w-[8rem] text-xs sm:text-sm">
+                                        {user.email?.split('@')[0]}
+                                    </Button>
+                                </Link>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="font-bold border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-300 text-xs sm:text-sm px-2 sm:px-3"
+                                    onClick={async () => {
+                                        await supabase.auth.signOut();
+                                        router.push('/');
+                                    }}
+                                >
+                                    {t.auth.logout || 'Çıkış'}
                                 </Button>
-                            </Link>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="font-bold border-gray-200 text-xs sm:text-sm px-2 sm:px-3"
-                                onClick={async () => {
-                                    await supabase.auth.signOut();
-                                    router.push('/');
-                                }}
-                            >
-                                {t.auth.logout || 'Çıkış'}
-                            </Button>
-                        </div>
+                            </div>
+                            {/* Mobile: Show avatar with slide sidebar */}
+                            <div className="sm:hidden">
+                                <AuthDropdown />
+                            </div>
+                        </>
                     ) : (
                         <>
                             {/* Desktop: Show both buttons */}

@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { MapPin, ArrowRight, Star, Sparkles, Clock, Heart } from 'lucide-react';
 import { formatPrice } from '@repo/lib';
 import { useLanguage } from '@repo/lib/i18n';
+import { createClient } from '@repo/lib/supabase/client';
 import { HeroSearch } from './HeroSearch';
 import { AdSidebar } from './AdSidebar';
 import { StoryBalloons } from './StoryBalloons';
@@ -114,10 +116,10 @@ export function HomePageContent({
                 <StoryBalloons />
             </div>
 
-            <div className="max-w-[1600px] mx-auto px-3 sm:px-4 py-8 md:py-12">
-                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-10">
-                    {/* Left Ad */}
-                    <div className="hidden xl:block w-44 shrink-0">
+            <div className="w-full mx-auto px-3 sm:px-4 py-8 md:py-12">
+                <div className="max-w-[1600px] mx-auto flex gap-6 lg:gap-8">
+                    {/* Left Ad - ONLY DESKTOP */}
+                    <div className="hidden lg:block w-44 shrink-0">
                         <div>
                             <div className="text-[9px] font-bold text-gray-400 mb-3 uppercase tracking-widest text-center">{h.sponsorAd}</div>
                             <AdSidebar ads={leftAds} />
@@ -125,7 +127,7 @@ export function HomePageContent({
                     </div>
 
                     {/* Main Content */}
-                    <main className="flex-1 space-y-20 min-w-0">
+                    <main className="flex-1 space-y-20 min-w-0 max-w-full">
                         {/* Featured (Vitrin) Listings */}
                         <section>
                             <div className="flex items-end justify-between mb-8 border-b border-gray-100 pb-4">
@@ -179,7 +181,7 @@ export function HomePageContent({
                                     </h2>
                                     <p className="text-gray-500 mt-1 font-medium">{h.latestProfilesSub}</p>
                                 </div>
-                                <Link href="/ilanlar" className="text-primary font-bold text-sm flex items-center gap-1.5 hover:gap-3 transition-all">
+                                <Link href="/ilanlar?yeni=true" className="text-primary font-bold text-sm flex items-center gap-1.5 hover:gap-3 transition-all">
                                     {h.viewAll} <ArrowRight className="h-4 w-4" />
                                 </Link>
                             </div>
@@ -208,9 +210,9 @@ export function HomePageContent({
                         </section>
                     </main>
 
-                    {/* Right Ad */}
-                    <div className="hidden xl:block w-44 shrink-0">
-                        <div>
+                    {/* Right Ad - ONLY DESKTOP */}
+                    <div className="hidden lg:block w-44 shrink-0">
+                        <div className="sticky top-4">
                             <div className="text-[9px] font-bold text-gray-400 mb-3 uppercase tracking-widest text-center">{h.sponsorAd}</div>
                             <AdSidebar ads={rightAds} />
                         </div>
@@ -223,6 +225,53 @@ export function HomePageContent({
 
 function ProfileCard({ listing, isFeatured = false, translations }: { listing: Listing, isFeatured?: boolean, translations: any }) {
     const h = translations;
+    const [isFavorited, setIsFavorited] = useState(false);
+    const [user, setUser] = useState<any>(null);
+    const supabase = createClient();
+    const router = useRouter();
+
+    useEffect(() => {
+        const checkFavorite = async () => {
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            if (!currentUser) return;
+            setUser(currentUser);
+
+            const { data } = await supabase
+                .from('favorites')
+                .select('id')
+                .eq('user_id', currentUser.id)
+                .eq('listing_id', listing.id)
+                .single();
+            setIsFavorited(!!data);
+        };
+        checkFavorite();
+    }, [listing.id]);
+
+    const toggleFavorite = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) {
+            router.push('/login');
+            return;
+        }
+
+        const userType = user.user_metadata?.user_type;
+        if (userType !== 'member') {
+            alert('Favorilere ekleme sadece üye yetkisi ile mümkündür');
+            return;
+        }
+
+        if (isFavorited) {
+            await supabase.from('favorites').delete()
+                .eq('user_id', user.id).eq('listing_id', listing.id);
+            setIsFavorited(false);
+        } else {
+            await supabase.from('favorites').insert({ user_id: user.id, listing_id: listing.id });
+            setIsFavorited(true);
+        }
+    };
+
     return (
         <Link href={`/ilan/${listing.slug}`} className="group h-full">
             <div className={`relative bg-white rounded-3xl overflow-hidden transition-all duration-300 h-full flex flex-col border border-gray-100 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/10 ${isFeatured ? 'ring-2 ring-primary/10' : ''}`}>
@@ -246,8 +295,14 @@ function ProfileCard({ listing, isFeatured = false, translations }: { listing: L
                         </span>
                     </div>
 
-                    <button className="absolute top-4 right-4 p-2.5 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-primary hover:text-white transition-all shadow-lg group/heart">
-                        <Heart className="w-4 h-4 transition-transform group-hover/heart:scale-125" />
+                    <button
+                        onClick={toggleFavorite}
+                        className={`absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-md transition-all shadow-lg group/heart ${isFavorited
+                            ? 'bg-primary text-white'
+                            : 'bg-white/20 text-white hover:bg-primary hover:text-white'
+                            }`}
+                    >
+                        <Heart className={`w-4 h-4 transition-transform group-hover/heart:scale-125 ${isFavorited ? 'fill-current' : ''}`} />
                     </button>
 
                     <div className="absolute bottom-4 left-4 right-4">
@@ -261,10 +316,12 @@ function ProfileCard({ listing, isFeatured = false, translations }: { listing: L
 
                 <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-1">
                     <div className="flex items-center justify-between mb-1 sm:mb-2 md:mb-3">
-                        <div className="flex flex-col">
-                            <span className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-widest">{h.startingFrom}</span>
-                            <span className="text-primary font-black text-base sm:text-lg md:text-xl tracking-tighter">
-                                {listing.price ? formatPrice(listing.price) : h.negotiable}
+                        <div className="flex flex-col flex-1">
+                            <span className="text-gray-900 font-black text-base sm:text-lg md:text-xl tracking-tighter truncate">
+                                {listing.title}
+                            </span>
+                            <span className="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wide mt-1">
+                                {listing.category?.name}
                             </span>
                         </div>
                         <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-primary transition-colors">

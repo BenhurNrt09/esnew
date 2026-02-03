@@ -134,14 +134,26 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
     );
 
     const OptionGrid = ({ label, options, current, setter }: any) => (
-        <div className="space-y-3">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
-            <div className="flex flex-wrap gap-2">
+        <div className="space-y-2 md:space-y-3">
+            <label className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-wider md:tracking-widest ml-1">{label}</label>
+            {/* Mobile: Dropdown */}
+            <select
+                value={current || ''}
+                onChange={(e) => setter(e.target.value)}
+                className="md:hidden w-full px-3 py-2 rounded-lg text-xs font-bold uppercase bg-white border border-gray-200 text-gray-700 focus:border-primary focus:outline-none"
+            >
+                <option value="">Seçiniz...</option>
+                {options.map((opt: string) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                ))}
+            </select>
+            {/* Desktop: Buttons */}
+            <div className="hidden md:flex flex-wrap gap-1.5 md:gap-2">
                 {options.map((opt: string) => (
                     <button
                         key={opt} type="button" onClick={() => setter(opt)}
-                        className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${current === opt
-                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                        className={`px-3 md:px-4 py-1.5 md:py-2.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all border ${current === opt
+                            ? 'bg-primary text-white border-primary shadow-md md:shadow-lg shadow-primary/20'
                             : 'bg-white text-gray-500 border-gray-100 hover:border-primary/30'
                             }`}
                     >
@@ -199,23 +211,23 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
 
     // Authenticated - show review form
     return (
-        <Card className="shadow-2xl shadow-primary/5 border-gray-100 rounded-[3rem] overflow-hidden bg-white mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <CardContent className="p-10 space-y-12">
+        <Card className="shadow-lg border-gray-100 rounded-2xl overflow-hidden bg-white mt-6">
+            <CardContent className="p-4 md:p-8 space-y-4 md:space-y-6">
                 {/* Header & Main Rating */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 border-b border-gray-50 pb-10">
-                    <div className="space-y-2">
-                        <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Deneyiminizi Detaylandırın</h3>
-                        <p className="text-gray-500 font-bold text-sm">Görüşleriniz diğer kullanıcılar için rehber niteliğindedir.</p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 border-b border-gray-50 pb-4 md:pb-6">
+                    <div className="space-y-1 md:space-y-2">
+                        <h3 className="text-lg md:text-2xl lg:text-3xl font-black text-gray-900 uppercase tracking-tighter">Deneyiminizi Detaylandırın</h3>
+                        <p className="text-gray-500 font-medium text-xs md:text-sm">Görüşleriniz diğer kullanıcılar için rehber niteliğindedir.</p>
                     </div>
-                    <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-[2rem] border border-gray-100">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">GENEL PUAN</span>
-                        <div className="flex gap-1.5">
+                    <div className="flex items-center gap-2 md:gap-4 bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-[2rem] border border-gray-100">
+                        <span className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-wider md:tracking-widest mr-1 md:mr-2">GENEL PUAN</span>
+                        <div className="flex gap-1 md:gap-1.5">
                             {[1, 2, 3, 4, 5].map((s) => (
                                 <button
                                     key={s} type="button" onClick={() => setRating(s)}
                                     className={`transition-all ${s <= rating ? 'scale-110 text-yellow-400' : 'text-gray-200 hover:text-yellow-200 hover:scale-110'}`}
                                 >
-                                    <Star className={`w-8 h-8 ${s <= rating ? 'fill-current' : ''}`} />
+                                    <Star className={`w-6 h-6 md:w-8 md:h-8 ${s <= rating ? 'fill-current' : ''}`} />
                                 </button>
                             ))}
                         </div>
