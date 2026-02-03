@@ -11,6 +11,7 @@ import {
     Heart, Globe, Smile, Languages, Shield
 } from 'lucide-react';
 import { formatPrice } from '@repo/lib';
+import { cn } from '@repo/ui/src/lib/utils';
 import { ProfileGallery } from '../../components/ProfileGallery';
 import { AdvancedReviewForm } from '../../components/AdvancedReviewForm';
 import { PublicProfileComments } from '../../components/PublicProfileComments';
@@ -23,6 +24,7 @@ interface ExtendedListing extends Listing {
     images?: string[];
     cover_image?: string;
     phone?: string;
+    phone_country_code?: string;
     metadata: any;
     pricing?: any[];
     gender?: string;
@@ -30,14 +32,23 @@ interface ExtendedListing extends Listing {
     ethnicity?: string;
     nationality?: string;
     tattoos?: boolean;
+    smoking?: boolean;
+    alcohol?: boolean;
+    breast_size?: string;
+    body_hair?: string;
+    age_value?: number;
+    height?: string;
+    weight?: string;
+    services?: any;
     badges?: string[];
+    listing_stats?: any[];
 }
 
 async function getListing(slug: string): Promise<ExtendedListing | null> {
     const supabase = createServerClient();
     const { data: listing, error } = await supabase
         .from('listings')
-        .select('*, city:cities(*), category:categories(*)')
+        .select('*, city:cities(*), category:categories(*), listing_stats(view_count, contact_count)')
         .eq('slug', slug)
         .eq('is_active', true)
         .single();
@@ -72,20 +83,21 @@ export default async function ListingPage({ params }: { params: { slug: string }
 
     const features = [
         { label: 'Cinsiyet', value: listing.gender || 'Kadın', icon: <User className="w-4 h-4" /> },
-        { label: 'Yaş', value: meta.age || '-', icon: <Calendar className="w-4 h-4" /> },
-        { label: 'Boy', value: meta.height ? `${meta.height} cm` : '-', icon: <ArrowLeft className="w-4 h-4 rotate-90" /> },
-        { label: 'Kilo', value: meta.weight ? `${meta.weight} kg` : '-', icon: <Zap className="w-4 h-4" /> },
-        { label: 'Göğüs', value: meta.breast_size || '-', icon: <Heart className="w-4 h-4" /> },
+        { label: 'Yaş', value: listing.age_value || '-', icon: <Calendar className="w-4 h-4" /> },
+        { label: 'Boy', value: listing.height ? `${listing.height} cm` : '-', icon: <ArrowLeft className="w-4 h-4 rotate-90" /> },
+        { label: 'Kilo', value: listing.weight ? `${listing.weight} kg` : '-', icon: <Zap className="w-4 h-4" /> },
+        { label: 'Göğüs', value: listing.breast_size || '-', icon: <Heart className="w-4 h-4" /> },
         { label: 'Etnik Köken', value: listing.ethnicity || 'Avrupalı', icon: <Globe className="w-4 h-4" /> },
         { label: 'Yönelim', value: listing.orientation || 'Hetero', icon: <Smile className="w-4 h-4" /> },
         { label: 'Uyruk', value: listing.nationality || '-', icon: <Shield className="w-4 h-4" /> },
         { label: 'Dövme', value: listing.tattoos ? 'Evet' : 'Hayır', icon: <Sparkles className="w-4 h-4" /> },
-        { label: 'Vücut Kılı', value: meta.body_hair === 'shaved' ? 'Pürüzsüz' : (meta.body_hair === 'trimmed' ? 'Bakımlı' : 'Doğal'), icon: <Sparkles className="w-4 h-4" /> },
-        { label: 'Sigara', value: meta.smoking ? 'Evet' : 'Hayır', icon: <Info className="w-4 h-4" /> },
-        { label: 'Alkol', value: meta.alcohol ? 'Evet' : 'Hayır', icon: <Info className="w-4 h-4" /> },
+        { label: 'Vücut Kılı', value: listing.body_hair === 'shaved' ? 'Pürüzsüz' : (listing.body_hair === 'trimmed' ? 'Bakımlı' : 'Doğal'), icon: <Sparkles className="w-4 h-4" /> },
+        { label: 'Sigara', value: listing.smoking ? 'Evet' : 'Hayır', icon: <Info className="w-4 h-4" /> },
+        { label: 'Alkol', value: listing.alcohol ? 'Evet' : 'Hayır', icon: <Info className="w-4 h-4" /> },
     ];
 
-    const services = Object.entries(meta.services || {})
+    const servicesData = listing.services || meta.services || {};
+    const services = Object.entries(servicesData)
         .filter(([_, active]) => active)
         .map(([id]) => ({
             id,
@@ -111,21 +123,22 @@ export default async function ListingPage({ params }: { params: { slug: string }
                 <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-950 to-black/90"></div>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
 
-                {/* Floating Badges */}
-                <div className="absolute top-3 right-3 z-30 flex flex-wrap gap-1.5 justify-end max-w-xs">
+                {/* Floating Back Button */}
+                <div className="absolute top-4 left-4 z-30">
+                    <Button variant="ghost" className="text-white hover:bg-white/10 rounded-full h-8 px-3 backdrop-blur-md border border-white/10 text-[10px]" asChild>
+                        <Link href="/">
+                            <ArrowLeft className="mr-1 h-3 w-3" /> Tüm İlanlar
+                        </Link>
+                    </Button>
+                </div>
+
+                {/* Floating Badges - Positioned below the back button with a safe margin */}
+                <div className="absolute top-16 left-4 z-20 flex flex-wrap gap-1 max-w-[200px]">
                     {(listing.badges || ['VIP', 'BAĞIMSIZ', 'YENİ']).map((badge) => (
-                        <span key={badge} className={`${badgeColors[badge.toUpperCase()] || 'bg-white/20 text-white'} px-3 py-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider shadow-lg border border-white/10 backdrop-blur-sm`}>
+                        <span key={badge} className={`${badgeColors[badge.toUpperCase()] || 'bg-white/20 text-white'} px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-wider shadow-lg border border-white/10 backdrop-blur-sm`}>
                             {badge}
                         </span>
                     ))}
-                </div>
-
-                <div className="absolute top-0 left-0 p-3 sm:p-4 z-20">
-                    <Button variant="ghost" className="text-white hover:bg-white/10 rounded-full h-9 px-4 backdrop-blur-md border border-white/5 text-xs" asChild>
-                        <Link href="/">
-                            <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Tüm İlanlar
-                        </Link>
-                    </Button>
                 </div>
 
                 <div className="absolute bottom-0 left-0 w-full p-4 sm:p-6 z-20">
@@ -187,6 +200,26 @@ export default async function ListingPage({ params }: { params: { slug: string }
                                             alt={listing.title}
                                             className="w-full h-full object-cover"
                                         />
+                                    </div>
+
+                                    {/* Sub-Cover Rating display */}
+                                    <div className="mt-3 flex flex-col items-center gap-1">
+                                        <div className="flex items-center gap-1">
+                                            {[1, 2, 3, 4, 5].map((s) => (
+                                                <Star
+                                                    key={s}
+                                                    className={cn(
+                                                        "w-4 h-4",
+                                                        s <= 5
+                                                            ? "text-yellow-400 fill-yellow-400"
+                                                            : "text-gray-200"
+                                                    )}
+                                                />
+                                            ))}
+                                        </div>
+                                        <span className="text-[10px] font-black text-gray-900 uppercase tracking-tighter">
+                                            Ortalama: 5.0 / 5.0
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -285,8 +318,8 @@ export default async function ListingPage({ params }: { params: { slug: string }
                         </div>
                     </div>
 
-                    {/* Sidebar Area */}
-                    <div className="lg:col-span-4 space-y-4">
+                    {/* Sidebar Area - ONLY DESKTOP */}
+                    <div className="hidden lg:block lg:col-span-4 space-y-4">
 
                         {/* 1. ÖZELLİKLER TABLE */}
                         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 relative overflow-hidden">

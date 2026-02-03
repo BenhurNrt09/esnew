@@ -12,6 +12,7 @@ import { AdSidebar } from './AdSidebar';
 import { StoryBalloons } from './StoryBalloons';
 import { HorizontalFilterBar } from './HorizontalFilterBar';
 import { Button } from '@repo/ui';
+import { ProfileCard } from './ProfileCard';
 import type { City, Listing, Category } from '@repo/types';
 
 interface HomePageContentProps {
@@ -47,7 +48,10 @@ export function HomePageContent({
 
     const filteredLatest = latestListings.filter(listing => {
         const l = listing as any;
-        if (filters.race !== 'all' && l.race !== filters.race) return false;
+        if (filters.race !== 'all') {
+            const val = l.race || l.ethnicity;
+            if (val !== filters.race) return false;
+        }
 
         if (filters.breast !== 'all') {
             const size = l.breast_size?.toLowerCase();
@@ -154,22 +158,6 @@ export function HomePageContent({
                                     <p className="text-gray-400 font-bold">{h.noFeatured}</p>
                                 </div>
                             )}
-
-                            {/* Mobile Inline Ad */}
-                            {leftAds.length > 0 && (
-                                <div className="block xl:hidden mt-8">
-                                    <div className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest text-center">{h.sponsorAd}</div>
-                                    <div className="max-w-sm mx-auto">
-                                        <div className="aspect-[16/9] w-full overflow-hidden bg-gray-50 flex items-center justify-center rounded-xl border border-gray-100">
-                                            <img
-                                                src={leftAds[0].image_url}
-                                                alt="Reklam"
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                         </section>
 
                         {/* Recent Listings */}
@@ -220,116 +208,5 @@ export function HomePageContent({
                 </div>
             </div>
         </div>
-    );
-}
-
-function ProfileCard({ listing, isFeatured = false, translations }: { listing: Listing, isFeatured?: boolean, translations: any }) {
-    const h = translations;
-    const [isFavorited, setIsFavorited] = useState(false);
-    const [user, setUser] = useState<any>(null);
-    const supabase = createClient();
-    const router = useRouter();
-
-    useEffect(() => {
-        const checkFavorite = async () => {
-            const { data: { user: currentUser } } = await supabase.auth.getUser();
-            if (!currentUser) return;
-            setUser(currentUser);
-
-            const { data } = await supabase
-                .from('favorites')
-                .select('id')
-                .eq('user_id', currentUser.id)
-                .eq('listing_id', listing.id)
-                .single();
-            setIsFavorited(!!data);
-        };
-        checkFavorite();
-    }, [listing.id]);
-
-    const toggleFavorite = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!user) {
-            router.push('/login');
-            return;
-        }
-
-        const userType = user.user_metadata?.user_type;
-        if (userType !== 'member') {
-            alert('Favorilere ekleme sadece üye yetkisi ile mümkündür');
-            return;
-        }
-
-        if (isFavorited) {
-            await supabase.from('favorites').delete()
-                .eq('user_id', user.id).eq('listing_id', listing.id);
-            setIsFavorited(false);
-        } else {
-            await supabase.from('favorites').insert({ user_id: user.id, listing_id: listing.id });
-            setIsFavorited(true);
-        }
-    };
-
-    return (
-        <Link href={`/ilan/${listing.slug}`} className="group h-full">
-            <div className={`relative bg-white rounded-3xl overflow-hidden transition-all duration-300 h-full flex flex-col border border-gray-100 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/10 ${isFeatured ? 'ring-2 ring-primary/10' : ''}`}>
-                <div className="relative aspect-[3/4] overflow-hidden">
-                    <img
-                        src={listing.cover_image || (listing.images && listing.images[0]) || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600'}
-                        alt={listing.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
-
-                    {/* Badges */}
-                    <div className="absolute top-4 left-4 flex flex-col gap-2">
-                        {isFeatured && (
-                            <span className="bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg flex items-center gap-1 animate-pulse">
-                                <Sparkles className="w-3 h-3" /> {h.vitrinBadge}
-                            </span>
-                        )}
-                        <span className="bg-white/90 backdrop-blur-md text-gray-900 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-primary" /> {listing.city?.name}
-                        </span>
-                    </div>
-
-                    <button
-                        onClick={toggleFavorite}
-                        className={`absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-md transition-all shadow-lg group/heart ${isFavorited
-                            ? 'bg-primary text-white'
-                            : 'bg-white/20 text-white hover:bg-primary hover:text-white'
-                            }`}
-                    >
-                        <Heart className={`w-4 h-4 transition-transform group-hover/heart:scale-125 ${isFavorited ? 'fill-current' : ''}`} />
-                    </button>
-
-                    <div className="absolute bottom-4 left-4 right-4">
-                        <h3 className="text-white text-sm sm:text-base md:text-lg font-black leading-tight uppercase tracking-tighter drop-shadow-md group-hover:text-primary transition-colors truncate">{listing.title}</h3>
-                        <p className="text-white/70 text-[10px] sm:text-[11px] font-bold mt-1 uppercase tracking-widest flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span>
-                            {listing.category?.name}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-1">
-                    <div className="flex items-center justify-between mb-1 sm:mb-2 md:mb-3">
-                        <div className="flex flex-col flex-1">
-                            <span className="text-gray-900 font-black text-base sm:text-lg md:text-xl tracking-tighter truncate">
-                                {listing.title}
-                            </span>
-                            <span className="text-[10px] sm:text-xs text-gray-400 font-medium uppercase tracking-wide mt-1">
-                                {listing.category?.name}
-                            </span>
-                        </div>
-                        <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-primary transition-colors">
-                            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300 group-hover:text-white transition-colors" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </Link>
     );
 }

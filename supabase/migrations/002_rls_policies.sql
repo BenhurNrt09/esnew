@@ -311,3 +311,34 @@ DROP POLICY IF EXISTS "Admins can delete seo pages" ON seo_pages;
 CREATE POLICY "Admins can delete seo pages"
   ON seo_pages FOR DELETE
   USING (is_admin());
+-- ============================================
+-- FAVORITES TABLE POLICIES
+-- ============================================
+
+ALTER TABLE favorites ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view own favorites" ON favorites;
+CREATE POLICY "Users can view own favorites"
+  ON favorites FOR SELECT
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Members can manage own favorites" ON favorites;
+CREATE POLICY "Members can manage own favorites"
+  ON favorites FOR ALL
+  USING (auth.uid() = user_id);
+
+-- ================= ===========================
+-- COMMENTS TABLE POLICIES (Updates)
+-- ============================================
+
+ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can view approved comments" ON comments;
+CREATE POLICY "Public can view approved comments"
+  ON comments FOR SELECT
+  USING (is_approved = true);
+
+DROP POLICY IF EXISTS "Users can insert comments" ON comments;
+CREATE POLICY "Users can insert comments"
+  ON comments FOR INSERT
+  WITH CHECK (auth.uid() = user_id);

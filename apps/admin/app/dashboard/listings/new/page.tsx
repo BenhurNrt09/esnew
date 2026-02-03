@@ -233,6 +233,21 @@ export default function NewProfilePage() {
                     is_active: formData.is_active,
                     is_featured: formData.is_featured,
                     details: formData.details,
+                    // New standardized columns
+                    gender: formData.details['gender'] || 'woman',
+                    orientation: formData.details['orientation'] || 'straight',
+                    ethnicity: formData.details['ethnicity'] || 'european',
+                    race: formData.details['ethnicity'] || 'european', // Map to race for homepage filter
+                    nationality: formData.details['nationality'] || '',
+                    breast_size: formData.details['breast_size'] || '',
+                    body_hair: formData.details['body_hair'] || 'shaved',
+                    age_value: formData.details['age'] ? parseInt(formData.details['age']) : null,
+                    height: formData.details['height'] || '',
+                    weight: formData.details['weight'] || '',
+                    smoking: formData.details['smoking'] === 'true',
+                    alcohol: formData.details['alcohol'] === 'true',
+                    tattoos: formData.details['tattoos'] === 'true',
+                    services: formData.details['services'] || {}
                 }])
                 .select()
                 .single();
@@ -439,6 +454,47 @@ export default function NewProfilePage() {
                                     onChange={e => handleFeatureChange('weight', e.target.value)}
                                     className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
                                 />
+                            </div>
+
+                            {/* Explicit Standard Attributes */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700">Cinsiyet</label>
+                                <select
+                                    className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:border-red-500 outline-none"
+                                    value={formData.details['gender'] || 'woman'}
+                                    onChange={e => handleFeatureChange('gender', e.target.value)}
+                                >
+                                    <option value="woman">Kadın</option>
+                                    <option value="man">Erkek</option>
+                                    <option value="trans">Trans</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700">Göğüs Ölçüsü</label>
+                                <select
+                                    className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:border-red-500 outline-none"
+                                    value={formData.details['breast_size'] || ''}
+                                    onChange={e => handleFeatureChange('breast_size', e.target.value)}
+                                >
+                                    <option value="">Seçiniz</option>
+                                    <option value="a">A</option>
+                                    <option value="b">B</option>
+                                    <option value="c">C</option>
+                                    <option value="d">D</option>
+                                    <option value="dd">DD</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700">Vücut Kılı</label>
+                                <select
+                                    className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:border-red-500 outline-none"
+                                    value={formData.details['body_hair'] || 'shaved'}
+                                    onChange={e => handleFeatureChange('body_hair', e.target.value)}
+                                >
+                                    <option value="shaved">Tıraşlı / Pürüzsüz</option>
+                                    <option value="trimmed">Bakımlı</option>
+                                    <option value="natural">Doğal</option>
+                                </select>
                             </div>
 
                             {/* Dinamik Combobox'lar */}

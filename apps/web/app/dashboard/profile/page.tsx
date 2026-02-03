@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, useToast } from '@repo/ui';
-import { User, Phone, MapPin, Info, Save, Sparkles, Smile, Star, Zap, ShieldCheck, Heart, Languages } from 'lucide-react';
+import { User, Phone, MapPin, Info, Save, Sparkles, Smile, Star, Zap, ShieldCheck, Heart, Languages, ChevronDown } from 'lucide-react';
 
 const cities = [
     { id: 'istanbul', name: 'İstanbul' },
@@ -68,30 +68,32 @@ export default function ProfileEditPage() {
 
                 if (listing) {
                     setListingId(listing.id);
-                    const meta = listing.metadata || {};
                     setFormData({
                         title: listing.title || '',
                         phone: listing.phone || '',
+                        phone_country_code: listing.phone_country_code || '+90',
                         city_id: listing.city_id || '',
                         description: listing.description || '',
-                        breast_size: meta.breast_size || '',
-                        body_hair: meta.body_hair || 'shaved',
-                        smoking: meta.smoking || false,
-                        alcohol: meta.alcohol || false,
+                        breast_size: listing.breast_size || '',
+                        body_hair: listing.body_hair || 'shaved',
+                        smoking: listing.smoking || false,
+                        alcohol: listing.alcohol || false,
                         gender: listing.gender || 'woman',
                         orientation: listing.orientation || 'straight',
                         ethnicity: listing.ethnicity || 'european',
                         nationality: listing.nationality || '',
                         tattoos: listing.tattoos || false,
-                        services: meta.services || {}
+                        services: listing.services || {}
                     });
                 }
             } else if (type === 'member') {
-                const { data: member } = await supabase
+                // Try to get as many columns as possible individually to avoid complete failure if one is missing
+                const { data: member, error: memberError } = await supabase
                     .from('members')
                     .select('*')
                     .eq('id', user.id)
                     .single();
+
                 if (member) {
                     setFormData({
                         username: member.username || '',
@@ -100,6 +102,13 @@ export default function ProfileEditPage() {
                         phone: member.phone || '',
                         phone_country_code: member.phone_country_code || '+90'
                     });
+                } else if (memberError) {
+                    console.error('Member profile load error:', memberError);
+                    // Fallback to basic email name
+                    setFormData((prev: any) => ({
+                        ...prev,
+                        username: user.email?.split('@')[0] || 'User'
+                    }));
                 }
             }
             setLoading(false);
@@ -128,32 +137,44 @@ export default function ProfileEditPage() {
                     const { error } = await supabase.from('listings').update({
                         title: formData.title,
                         phone: formData.phone,
+                        phone_country_code: formData.phone_country_code,
                         city_id: formData.city_id,
                         description: formData.description,
                         gender: formData.gender,
                         orientation: formData.orientation,
                         ethnicity: formData.ethnicity,
+                        race: formData.ethnicity, // Keep race in sync for filters
                         nationality: formData.nationality,
                         tattoos: formData.tattoos,
-                        metadata: {
-                            breast_size: formData.breast_size,
-                            body_hair: formData.body_hair,
-                            smoking: formData.smoking,
-                            alcohol: formData.alcohol,
-                            services: formData.services
-                        }
+                        breast_size: formData.breast_size,
+                        body_hair: formData.body_hair,
+                        smoking: formData.smoking,
+                        alcohol: formData.alcohol,
+                        services: formData.services,
+                        updated_at: new Date().toISOString()
                     }).eq('id', listingId);
                     if (error) throw error;
                 }
             } else {
-                const { error } = await supabase.from('members').update({
-                    username: formData.username,
+                // Use upsert to handle cases where the member record might be missing
+                const { error } = await supabase.from('members').upsert({
+                    id: user.id,
+                    email: user.email,
+                    username: formData.username || user.email?.split('@')[0],
                     first_name: formData.first_name,
                     last_name: formData.last_name,
                     phone: formData.phone,
-                    phone_country_code: formData.phone_country_code
-                }).eq('id', user.id);
-                if (error) throw error;
+                    phone_country_code: formData.phone_country_code,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'id' });
+
+                if (error) {
+                    console.error('Member upsert error:', error);
+                    if (error.code === '23505') {
+                        throw new Error('Bu kullanıcı adı zaten alınmış. Lütfen başka bir kullanıcı adı belirleyin.');
+                    }
+                    throw new Error(`Profile update failed: ${error.message}`);
+                }
             }
 
             toast.success('Profil başarıyla güncellendi!');
@@ -193,53 +214,67 @@ export default function ProfileEditPage() {
                             </div>
                         </div>
 
-                        {/* Phone Number with Country Code */}
-                        <div className="space-y-3 bg-gradient-to-br from-primary/5 via-primary/2 to-transparent rounded-3xl p-8 border border-primary/20 shadow-lg shadow-primary/5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
-                            <label className="text-[10px] font-black text-gray-600 uppercase tracking-widest flex items-center gap-2 ml-1">
-                                <Phone className="w-4 h-4 text-primary animate-pulse" /> Telefon Numarası
-                            </label>
-                            <div className="flex gap-3 items-end">
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/5 rounded-2xl pointer-events-none"></div>
-                                    <select
-                                        value={formData.phone_country_code}
-                                        onChange={(e) => setFormData({ ...formData, phone_country_code: e.target.value })}
-                                        className="relative w-32 h-14 rounded-2xl border-2 border-primary/40 bg-white font-bold text-gray-900 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 cursor-pointer hover:border-primary/60 appearance-none bg-no-repeat bg-right bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22%23ea580c%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208l4%204%204-4%22/%3E%3C/svg%3E')] bg-[calc(100%-8px)_center] pr-10"
-                                    >
-                                        <option value="+90">🇹🇷 +90</option>
-                                        <option value="+1">🇺🇸 +1</option>
-                                        <option value="+44">🇬🇧 +44</option>
-                                        <option value="+33">🇫🇷 +33</option>
-                                        <option value="+49">🇩🇪 +49</option>
-                                        <option value="+39">🇮🇹 +39</option>
-                                        <option value="+34">🇪🇸 +34</option>
-                                        <option value="+31">🇳🇱 +31</option>
-                                        <option value="+41">🇨🇭 +41</option>
-                                        <option value="+43">🇦🇹 +43</option>
-                                        <option value="+32">🇧🇪 +32</option>
-                                        <option value="+46">🇸🇪 +46</option>
-                                        <option value="+45">🇩🇰 +45</option>
-                                        <option value="+47">🇳🇴 +47</option>
-                                        <option value="+358">🇫🇮 +358</option>
-                                        <option value="+48">🇵🇱 +48</option>
-                                        <option value="+30">🇬🇷 +30</option>
-                                        <option value="+359">🇧🇬 +359</option>
-                                        <option value="+40">🇷🇴 +40</option>
-                                        <option value="+36">🇭🇺 +36</option>
-                                    </select>
+                        {/* Modernized Phone Number Section */}
+                        <div className="space-y-4">
+                            <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2 ml-1">
+                                <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                                    <Phone className="w-3.5 h-3.5 text-primary" />
                                 </div>
-                                <Input 
-                                    type="tel"
-                                    value={formData.phone} 
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })} 
-                                    placeholder="5XXXXXXXXX"
-                                    className="flex-1 h-14 rounded-2xl border-2 border-primary/30 bg-gradient-to-r from-white to-primary/2 font-bold text-gray-900 placeholder:text-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none transition-all duration-200 hover:border-primary/50"
-                                />
-                            </div>
-                            <div className="pt-2 px-4 rounded-xl bg-primary/5 border border-primary/10">
-                                <p className="text-xs text-gray-600 font-bold">
-                                    📱 Tam numara: <span className="text-primary font-black">{formData.phone_country_code} {formData.phone || '(boş)'}</span>
-                                </p>
+                                İletişim Numarası
+                            </label>
+
+                            <div className="relative group">
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    {/* Custom Styled Country Code Dropdown */}
+                                    <div className="relative min-w-[140px]">
+                                        <select
+                                            value={formData.phone_country_code}
+                                            onChange={(e) => setFormData({ ...formData, phone_country_code: e.target.value })}
+                                            className="w-full h-15 rounded-2xl border-2 border-gray-100 bg-white font-black text-gray-900 px-5 py-4 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer hover:border-primary/30 shadow-sm"
+                                        >
+                                            <option value="+90">🇹🇷 TR +90</option>
+                                            <option value="+1">🇺🇸 US +1</option>
+                                            <option value="+44">🇬🇧 GB +44</option>
+                                            <option value="+33">🇫🇷 FR +33</option>
+                                            <option value="+49">🇩🇪 DE +49</option>
+                                            <option value="+39">🇮🇹 IT +39</option>
+                                            <option value="+34">🇪🇸 ES +34</option>
+                                            <option value="+31">🇳🇱 NL +31</option>
+                                            <option value="+41">🇨🇭 CH +41</option>
+                                            <option value="+43">🇦🇹 AT +43</option>
+                                            <option value="+48">🇵🇱 PL +48</option>
+                                            <option value="+30">🇬🇷 GR +30</option>
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-primary">
+                                            <ChevronDown className="w-4 h-4" />
+                                        </div>
+                                    </div>
+
+                                    {/* Premium Input Field */}
+                                    <div className="relative flex-1">
+                                        <Input
+                                            type="tel"
+                                            value={formData.phone}
+                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                            placeholder="5XXXXXXXXX"
+                                            className="h-15 rounded-2xl border-2 border-gray-100 bg-white font-black text-lg text-gray-900 placeholder:text-gray-300 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 pl-4 shadow-sm"
+                                        />
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity">
+                                            <Zap className="w-5 h-5 text-primary/30 animate-pulse" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Dynamic Preview Badge */}
+                                <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-transparent border border-primary/5 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                                        <span className="text-[10px] font-black text-primary uppercase tracking-widest">Aktif Numara Önizleme</span>
+                                    </div>
+                                    <span className="text-sm font-black text-gray-900 tracking-tighter">
+                                        {formData.phone_country_code} <span className="text-primary">{formData.phone || '000 000 00 00'}</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -254,46 +289,71 @@ export default function ProfileEditPage() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tighter">İlan Yönetimi</h1>
-                    <p className="text-gray-500 font-bold">Profilinizi ve hizmetlerinizi en detaylı şekilde optimize edin.</p>
+                    <h1 className="text-2xl lg:text-4xl font-black text-gray-900 uppercase tracking-tighter">İlan Yönetimi</h1>
+                    <p className="text-gray-500 font-bold text-xs lg:text-base">Profilinizi ve hizmetlerinizi en detaylı şekilde optimize edin.</p>
                 </div>
-                <Button onClick={handleSave} disabled={saving} className="h-16 px-12 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
+                <Button onClick={handleSave} disabled={saving} className="w-full lg:w-auto h-14 lg:h-16 px-12 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
                     <Save className="w-5 h-5 mr-3" /> {saving ? 'GÜNCELLENİYOR...' : 'DEĞİŞİKLİKLERİ YAYINLA'}
                 </Button>
             </div>
 
-            <div className="grid lg:grid-cols-12 gap-10">
-                <div className="lg:col-span-8 space-y-10">
+            <div className="grid lg:grid-cols-12 gap-6 lg:gap-10">
+                <div className="lg:col-span-8 space-y-6 lg:space-y-10">
                     {/* Basic Info */}
-                    <Card className="shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[3rem] overflow-hidden">
-                        <CardHeader className="p-8 border-b border-gray-50 bg-gray-50/30">
-                            <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
-                                <Info className="w-6 h-6 text-primary" /> Temel İlan Bilgileri
+                    <Card className="shadow-xl lg:shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[2rem] lg:rounded-[3rem] overflow-hidden">
+                        <CardHeader className="p-5 lg:p-8 border-b border-gray-50 bg-gray-50/30">
+                            <CardTitle className="text-base lg:text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+                                <Info className="w-5 h-5 lg:w-6 lg:h-6 text-primary" /> Temel İlan Bilgileri
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="p-10 space-y-8">
+                        <CardContent className="p-6 lg:p-10 space-y-6 lg:space-y-8">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">İlan Başlığı</label>
-                                <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" placeholder="Örn: Maslak'ta Exclusive Deneyim" />
+                                <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="h-12 lg:h-14 rounded-xl lg:rounded-2xl border-gray-100 bg-gray-50/50 font-bold" placeholder="Örn: Maslak'ta Exclusive Deneyim" />
                             </div>
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">İletişim Numarası</label>
-                                    <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" placeholder="+90 5XX XXX XX XX" />
+
+                            {/* Modernized Phone Number Section for Models */}
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                    İletişim Numarası
+                                </label>
+
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <div className="relative min-w-[120px]">
+                                        <select
+                                            value={formData.phone_country_code}
+                                            onChange={(e) => setFormData({ ...formData, phone_country_code: e.target.value })}
+                                            className="w-full h-12 lg:h-14 rounded-xl lg:rounded-2xl border border-gray-100 bg-gray-50/50 font-black text-gray-900 px-4 appearance-none cursor-pointer"
+                                        >
+                                            <option value="+90">🇹🇷 +90</option>
+                                            <option value="+1">🇺🇸 +1</option>
+                                            <option value="+44">🇬🇧 +44</option>
+                                            <option value="+49">🇩🇪 +49</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none" />
+                                    </div>
+                                    <Input
+                                        type="tel"
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        placeholder="5XXXXXXXXX"
+                                        className="h-12 lg:h-14 rounded-xl lg:rounded-2xl border-gray-100 bg-gray-50/50 font-black text-lg shadow-sm"
+                                    />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Bulunduğunuz Şehir</label>
-                                    <select value={formData.city_id} onChange={(e) => setFormData({ ...formData, city_id: e.target.value })} className="w-full h-14 rounded-2xl border border-gray-100 bg-gray-50/50 px-6 font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all">
-                                        <option value="">Şehir Seçin</option>
-                                        {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
-                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Bulunduğunuz Şehir</label>
+                                <select value={formData.city_id} onChange={(e) => setFormData({ ...formData, city_id: e.target.value })} className="w-full h-12 lg:h-14 rounded-xl lg:rounded-2xl border border-gray-100 bg-gray-50/50 px-6 font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                                    <option value="">Şehir Seçin</option>
+                                    {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Kişisel Açıklama</label>
-                                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full h-40 rounded-[2rem] border border-gray-100 bg-gray-50/50 p-8 font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm leading-relaxed" placeholder="Kendinizden ve sunduğunuz ayrıcalıklardan bahsedin..." />
+                                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full h-32 lg:h-40 rounded-xl lg:rounded-[2rem] border border-gray-100 bg-gray-50/50 p-6 lg:p-8 font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm leading-relaxed" placeholder="Kendinizden ve sunduğunuz ayrıcalıklardan bahsedin..." />
                             </div>
                         </CardContent>
                     </Card>
@@ -311,8 +371,8 @@ export default function ProfileEditPage() {
                                     <button
                                         key={service} onClick={() => toggleService(service)}
                                         className={`flex items-center gap-3 p-4 rounded-xl border text-[11px] font-black uppercase tracking-tight transition-all text-left ${formData.services[service]
-                                                ? 'bg-primary/5 border-primary text-primary shadow-lg shadow-primary/5'
-                                                : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
+                                            ? 'bg-primary/5 border-primary text-primary shadow-lg shadow-primary/5'
+                                            : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
                                             }`}
                                     >
                                         <div className={`w-5 h-5 rounded-md flex items-center justify-center border-2 transition-colors ${formData.services[service] ? 'bg-primary border-primary text-white' : 'border-gray-200'}`}>

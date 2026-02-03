@@ -11,7 +11,11 @@ export default async function DashboardLayout({
     try {
         await requireAdmin();
     } catch (err: any) {
-        console.error('Admin check failed:', err);
+        console.error('CRITICAL: Admin access denied in DashboardLayout:', err.message || err);
+        // Special case: if it's a specific auth error, maybe log more
+        if (err.status === 401 || err.message === 'Unauthorized') {
+            console.error('Debug: User session invalid or expired');
+        }
         redirect('/login');
     }
 

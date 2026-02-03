@@ -19,18 +19,17 @@ export default async function IlanlarPage({
         .select(`
             *,
             city:cities(id, name),
-            category:categories(id, name)
+            category:categories(id, name),
+            model_pricing(*)
         `)
-        .eq('status', 'active');
+        .eq('is_active', true);
 
     // Apply filters
     if (isVitrinOnly) {
         query = query.eq('is_featured', true);
     } else if (isYeniOnly) {
-        // Show only recent listings (last 7 days)
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        query = query.gte('created_at', sevenDaysAgo.toISOString());
+        // Sorted by created_at DESC is already handled below
+        // No additional filter needed, just show all active in order
     }
 
     query = query.order('created_at', { ascending: false });
@@ -121,44 +120,63 @@ export default async function IlanlarPage({
 
             {/* Listings Grid */}
             <div className="container mx-auto px-4 py-12">
-                {!isVitrinOnly && featuredListings.length > 0 && (
-                    <section className="mb-16">
-                        <div className="flex items-center gap-3 mb-6">
-                            <Sparkles className="h-6 w-6 text-primary animate-pulse" />
-                            <h2 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tighter">
-                                Vitrin Profiller
-                            </h2>
-                        </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                            {featuredListings.map((listing: any) => (
-                                <ProfileCard key={listing.id} listing={listing} isFeatured translations={{}} />
-                            ))}
-                        </div>
-                    </section>
-                )}
-
-                {!isVitrinOnly && regularListings.length > 0 && (
+                {/* Unified view for "Yeni Eklenenler" filter */}
+                {isYeniOnly ? (
                     <section>
-                        <div className="flex items-center gap-3 mb-6">
-                            <Clock className="h-6 w-6 text-gray-600" />
+                        <div className="flex items-center gap-3 mb-8">
+                            <Clock className="h-7 w-7 text-primary" />
                             <h2 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tighter">
-                                Diğer Profiller
+                                En Yeni İlanlar (Son 7 Gün)
                             </h2>
                         </div>
                         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                            {regularListings.map((listing: any) => (
+                            {listings?.map((listing: any) => (
                                 <ProfileCard key={listing.id} listing={listing} translations={{}} />
                             ))}
                         </div>
                     </section>
-                )}
+                ) : (
+                    <>
+                        {!isVitrinOnly && featuredListings.length > 0 && (
+                            <section className="mb-16">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+                                    <h2 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tighter">
+                                        Vitrin Profiller
+                                    </h2>
+                                </div>
+                                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                    {featuredListings.map((listing: any) => (
+                                        <ProfileCard key={listing.id} listing={listing} isFeatured translations={{}} />
+                                    ))}
+                                </div>
+                            </section>
+                        )}
 
-                {isVitrinOnly && featuredListings.length > 0 && (
-                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                        {featuredListings.map((listing: any) => (
-                            <ProfileCard key={listing.id} listing={listing} isFeatured translations={{}} />
-                        ))}
-                    </div>
+                        {!isVitrinOnly && regularListings.length > 0 && (
+                            <section>
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Clock className="h-6 w-6 text-gray-600" />
+                                    <h2 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tighter">
+                                        Diğer Profiller
+                                    </h2>
+                                </div>
+                                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                    {regularListings.map((listing: any) => (
+                                        <ProfileCard key={listing.id} listing={listing} translations={{}} />
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {isVitrinOnly && featuredListings.length > 0 && (
+                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                {featuredListings.map((listing: any) => (
+                                    <ProfileCard key={listing.id} listing={listing} isFeatured translations={{}} />
+                                ))}
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {listings?.length === 0 && (

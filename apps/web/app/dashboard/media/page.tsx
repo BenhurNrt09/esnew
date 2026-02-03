@@ -76,12 +76,19 @@ export default function MediaPage() {
                 if (type === 'photo') {
                     // Add to listing images
                     const newImages = [...(listing.images || []), publicUrl];
+                    const updateData: any = { images: newImages };
+
+                    // If no cover_image exists, set the first one as cover
+                    if (!listing.cover_image) {
+                        updateData.cover_image = publicUrl;
+                    }
+
                     const { error: updateError } = await supabase
                         .from('listings')
-                        .update({ images: newImages })
+                        .update(updateData)
                         .eq('id', listing.id);
                     if (updateError) throw updateError;
-                    setListing({ ...listing, images: newImages });
+                    setListing({ ...listing, ...updateData });
                 } else {
                     // Add to stories
                     if (!listing?.id) throw new Error('İlan bulunamadı. Lütfen önce profilinizi oluşturun.');

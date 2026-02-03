@@ -8,8 +8,8 @@ async function getData() {
 
     const [citiesRes, featuredRes, latestRes, categoriesRes, adsRes] = await Promise.all([
         supabase.from('cities').select('*').eq('is_active', true).order('name').limit(81),
-        supabase.from('listings').select('*, city:cities(*), category:categories(*)').eq('is_active', true).eq('is_featured', true).order('created_at', { ascending: false }).limit(8),
-        supabase.from('listings').select('*, city:cities(*), category:categories(*)').eq('is_active', true).eq('is_featured', false).order('created_at', { ascending: false }).limit(8),
+        supabase.from('listings').select('*, city:cities(*), category:categories(*), model_pricing(*)').eq('is_active', true).eq('is_featured', true).order('created_at', { ascending: false }).limit(8),
+        supabase.from('listings').select('*, city:cities(*), category:categories(*), model_pricing(*)').eq('is_active', true).eq('is_featured', false).order('created_at', { ascending: false }).limit(8),
         supabase.from('categories').select('*').eq('is_active', true).is('parent_id', null).order('order'),
         supabase.from('banners').select('*').eq('is_active', true).order('order', { ascending: true }),
     ]);

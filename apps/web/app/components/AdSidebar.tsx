@@ -20,7 +20,7 @@ export const AdSidebar = ({ ads, className }: AdSidebarProps) => {
     if (ads.length === 0) return null;
 
     return (
-        <div className={cn("flex flex-col gap-3", className)}>
+        <div className={cn("hidden lg:flex flex-col gap-3", className)}>
             {ads.map((ad) => (
                 <div
                     key={ad.id}

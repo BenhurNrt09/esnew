@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@repo/lib/i18n';
-import { LayoutDashboard, MapPin, Layers, Users, Star, Image as ImageIcon } from 'lucide-react';
+import { LayoutDashboard, MapPin, Layers, Users, Star, Image as ImageIcon, BarChart3 } from 'lucide-react';
 import { cn } from '@repo/ui';
 
 export function Sidebar() {
@@ -13,6 +13,7 @@ export function Sidebar() {
     const menuItems = [
         { href: '/dashboard', label: t.nav.dashboard, icon: LayoutDashboard },
         { href: '/dashboard/listings', label: t.nav.listings, icon: Users },
+        { href: '/dashboard/stats', label: 'İstatistikler', icon: BarChart3 },
         { href: '/dashboard/categories', label: t.nav.categories, icon: Layers },
         { href: '/dashboard/cities', label: t.nav.cities, icon: MapPin },
         { href: '/dashboard/features', label: t.nav.features, icon: Star },

@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { MapPin, Calendar, Heart, ArrowRight, Tag, Layers } from 'lucide-react';
 import { formatPrice } from '@repo/lib';
+import { ProfileCard } from '../../components/ProfileCard';
 
 export const revalidate = 3600;
 
@@ -23,17 +24,12 @@ async function getCategory(slug: string): Promise<Category | null> {
 }
 
 // Recursively get all subcategory IDs if needed, but for now simple match
-async function getListings(category_id: string): Promise<(Listing & { city?: City })[]> {
+async function getListings(category_id: string): Promise<any[]> {
     const supabase = createServerClient();
-
-    // First, find if this category has children to include their listings too?
-    // For simplicity, let's just match exact category for now or use the view strategy if we had one.
-    // If it's a parent category (e.g. "Sac Rengi"), maybe we want to show all subs?
-    // Let's stick to simple ID match for now to be safe.
 
     const { data, error } = await supabase
         .from('listings')
-        .select('*, city:cities(*)')
+        .select('*, city:cities(*), category:categories(*), model_pricing(*), listing_stats(view_count, contact_count)')
         .eq('category_id', category_id)
         .eq('is_active', true)
         .order('is_featured', { ascending: false })
@@ -103,58 +99,9 @@ export default async function CategoryPage({ params }: { params: { slug: string 
                             </Button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
                             {listings.map((listing) => (
-                                <Link
-                                    key={listing.id}
-                                    href={`/ilan/${listing.slug}`}
-                                    className="group block"
-                                >
-                                    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-red-900/10 hover:-translate-y-1 transition-all duration-300 border border-gray-100 h-full flex flex-col relative">
-                                        {/* Image */}
-                                        <div className="aspect-[3/4] bg-gray-200 relative overflow-hidden">
-                                            {listing.cover_image ? (
-                                                <img src={listing.cover_image} alt={listing.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                            ) : (
-                                                <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-300">
-                                                    <span className="text-4xl opacity-40 grayscale group-hover:grayscale-0 transition-all">📸</span>
-                                                </div>
-                                            )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
-
-                                            {/* Badges */}
-                                            <div className="absolute top-3 left-3 flex flex-col gap-2">
-                                                {listing.is_featured && (
-                                                    <span className="bg-amber-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 uppercase tracking-tight">
-                                                        ★ VİTRİN
-                                                    </span>
-                                                )}
-                                                <span className="bg-white/90 backdrop-blur text-gray-800 text-[10px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1 uppercase tracking-tight">
-                                                    <MapPin className="h-3 w-3 text-red-500" /> {listing.city?.name || 'Konum'}
-                                                </span>
-                                            </div>
-
-                                            <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                                                <h3 className="text-base font-bold leading-tight mb-1 truncate">{listing.title}</h3>
-                                                <p className="text-[10px] text-gray-300 line-clamp-1">{listing.description}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Content */}
-                                        <div className="p-3 flex items-center justify-between mt-auto border-t border-gray-50 bg-white">
-                                            <div>
-                                                <p className="text-[10px] text-gray-400">Fiyat</p>
-                                                <div className="text-red-600 font-black text-sm">
-                                                    {listing.price ? formatPrice(listing.price) : 'Görüşülür'}
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-[10px] text-gray-400">Tarih</p>
-                                                <span className="text-[10px] text-gray-500">{new Date(listing.created_at).toLocaleDateString('tr-TR')}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Link>
+                                <ProfileCard key={listing.id} listing={listing} isFeatured={listing.is_featured} />
                             ))}
                         </div>
                     )}

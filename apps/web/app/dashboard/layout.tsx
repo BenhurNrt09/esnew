@@ -34,6 +34,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             let displayName = user.email?.split('@')[0];
 
+            const { data: userData } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', user.id)
+                .single();
+
+            const isAdmin = userData?.role === 'admin';
+
             if (type === 'independent_model') {
                 const { data: profile } = await supabase
                     .from('independent_models')
@@ -62,7 +70,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 }
             }
 
-            setUser({ ...user, displayName });
+            if (isAdmin && type === 'member' && !displayName) {
+                // If it's an admin member and we couldn't find a display name, 
+                // we'll keep the email part but maybe capitalize it.
+                displayName = user.email?.split('@')[0];
+            }
+
+            setUser({ ...user, displayName, isAdmin });
 
             // Initial unread count
             const { count } = await supabase
@@ -93,12 +107,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 .subscribe();
 
             setLoading(false);
-
-            return () => {
-                supabase.removeChannel(channel);
-            };
         };
+
         checkUser();
+
+        return () => {
+            // Need a way to unsubscribe, but we can't easily access 'channel' here
+            // because it's defined inside the async function.
+            // For now, let's keep it simple or use a ref.
+            supabase.removeAllChannels();
+        };
     }, []);
 
     const allMenuItems = [
@@ -144,13 +162,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <X className="w-5 h-5 text-gray-500" />
                 </button>
 
-                <div className="p-8">
-                    <Link href="/" className="text-2xl font-black text-primary tracking-tighter uppercase">
+                <div className="p-4 sm:p-6 lg:p-8">
+                    <Link href="/" className="text-lg sm:text-2xl font-black text-primary tracking-tighter uppercase">
                         VALORA<span className="text-gray-900">ESCORT</span>
                     </Link>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-1">
+                <nav className="flex-1 px-2 sm:px-4 space-y-0.5 sm:space-y-1">
                     {menuItems.map((item) => {
                         const isActive = pathname === item.href;
                         return (
@@ -158,22 +176,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 key={item.href}
                                 href={item.href}
                                 className={cn(
-                                    "flex items-center justify-between px-4 py-3 rounded-xl transition-all group",
+                                    "flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:xl transition-all group",
                                     isActive
-                                        ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                        ? "bg-primary text-white shadow-md sm:shadow-lg shadow-primary/20"
                                         : "text-gray-500 hover:bg-gray-50 hover:text-primary"
                                 )}
                             >
-                                <div className="flex items-center gap-3">
-                                    <item.icon className={cn("w-5 h-5", isActive ? "text-white" : "text-gray-400 group-hover:text-primary")} />
-                                    <span className="font-bold text-sm tracking-tight">{item.name}</span>
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <item.icon className={cn("w-4 h-4 sm:w-5 sm:h-5", isActive ? "text-white" : "text-gray-400 group-hover:text-primary")} />
+                                    <span className="font-bold text-xs sm:text-sm tracking-tight">{item.name}</span>
                                 </div>
                                 {item.href === '/dashboard/notifications' && unreadCount > 0 && (
-                                    <span className="bg-white text-primary text-[10px] font-black px-1.5 py-0.5 rounded-full ring-2 ring-primary">
+                                    <span className="bg-white text-primary text-[8px] sm:text-[9px] font-bold px-1 py-0.5 rounded-full ring-1 sm:ring-2 ring-primary">
                                         {unreadCount}
                                     </span>
                                 )}
-                                {isActive && <ChevronRight className="w-4 h-4" />}
+                                {isActive && <ChevronRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
                             </Link>
                         );
                     })}
@@ -216,7 +234,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </Link>
                         <div className="flex flex-col items-end">
                             <span className="text-sm font-black text-gray-900">{user.displayName}</span>
-                            <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{roleLabels[userType as keyof typeof roleLabels]}</span>
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
+                                {roleLabels[userType as keyof typeof roleLabels]}
+                            </span>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-bold">
                             {user.displayName[0].toUpperCase()}
@@ -224,7 +244,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-y-auto p-8">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                     {children}
                 </div>
             </main>

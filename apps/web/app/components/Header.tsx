@@ -18,19 +18,89 @@ export function Header() {
     useEffect(() => {
         const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
+            if (user) {
+                const type = user.user_metadata?.user_type || 'member';
+                let displayName = user.email?.split('@')[0];
+
+                if (type === 'independent_model') {
+                    const { data: profile } = await supabase
+                        .from('independent_models')
+                        .select('username, display_name')
+                        .eq('id', user.id)
+                        .single();
+
+                    const { data: listing } = await supabase
+                        .from('listings')
+                        .select('title')
+                        .eq('user_id', user.id)
+                        .single();
+
+                    displayName = listing?.title || profile?.display_name || profile?.username || displayName;
+                } else {
+                    const { data: profile } = await supabase
+                        .from('members')
+                        .select('username, first_name, last_name')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (profile) {
+                        displayName = (profile.first_name && profile.last_name)
+                            ? `${profile.first_name} ${profile.last_name}`
+                            : (profile.username || displayName);
+                    }
+                }
+
+                setUser({ ...user, displayName });
+            } else {
+                setUser(null);
+            }
         };
         getUser();
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            if (session?.user) {
+                // Re-run the name fetching logic on auth change
+                const type = session.user.user_metadata?.user_type || 'member';
+                let displayName = session.user.email?.split('@')[0];
+
+                if (type === 'independent_model') {
+                    const { data: profile } = await supabase
+                        .from('independent_models')
+                        .select('username, display_name')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    const { data: listing } = await supabase
+                        .from('listings')
+                        .select('title')
+                        .eq('user_id', session.user.id)
+                        .single();
+
+                    displayName = listing?.title || profile?.display_name || profile?.username || displayName;
+                } else {
+                    const { data: profile } = await supabase
+                        .from('members')
+                        .select('username, first_name, last_name')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (profile) {
+                        displayName = (profile.first_name && profile.last_name)
+                            ? `${profile.first_name} ${profile.last_name}`
+                            : (profile.username || displayName);
+                    }
+                }
+                setUser({ ...session.user, displayName });
+            } else {
+                setUser(null);
+            }
         });
 
         return () => subscription.unsubscribe();
-    }, [supabase.auth]);
+    }, [supabase]);
 
     return (
-        <header className="absolute top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
             <div className="container mx-auto px-3 sm:px-4 h-14 md:h-16 flex items-center justify-between relative">
                 <div className="flex items-center">
                     {/* Mobile: Flag only, Desktop: Flag + Text */}
@@ -59,7 +129,7 @@ export function Header() {
                             <div className="hidden sm:flex items-center gap-2">
                                 <Link href="/dashboard">
                                     <Button variant="ghost" size="sm" className="font-bold text-gray-700 hover:text-primary hover:bg-primary/5 truncate max-w-[8rem] text-xs sm:text-sm">
-                                        {user.email?.split('@')[0]}
+                                        {user.displayName || user.email?.split('@')[0]}
                                     </Button>
                                 </Link>
                                 <Button
@@ -76,7 +146,7 @@ export function Header() {
                             </div>
                             {/* Mobile: Show avatar with slide sidebar */}
                             <div className="sm:hidden">
-                                <AuthDropdown />
+                                <AuthDropdown user={user} />
                             </div>
                         </>
                     ) : (
@@ -92,7 +162,7 @@ export function Header() {
                             </div>
                             {/* Mobile: Show dropdown */}
                             <div className="block sm:hidden">
-                                <AuthDropdown />
+                                <AuthDropdown user={user} />
                             </div>
                         </>
                     )}

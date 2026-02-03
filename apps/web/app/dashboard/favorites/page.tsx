@@ -29,7 +29,7 @@ export default function FavoritesPage() {
                         is_featured,
                         city:cities(name),
                         category:categories(name),
-                        pricing
+                        model_pricing(*)
                     )
                 `)
                 .eq('user_id', user.id)
@@ -48,8 +48,10 @@ export default function FavoritesPage() {
 
     const formatPrice = (pricing: any[]) => {
         if (!pricing || pricing.length === 0) return 'Fiyat Belirtilmemiş';
-        const minPrice = Math.min(...pricing.map((p: any) => p.price));
-        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(minPrice);
+        const prices = pricing.map((p: any) => p.incall_price || p.price).filter(p => p != null);
+        if (prices.length === 0) return 'Fiyat Belirtilmemiş';
+        const minPrice = Math.min(...prices);
+        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(minPrice);
     };
 
     if (loading) {
@@ -135,7 +137,7 @@ export default function FavoritesPage() {
                                             Başlangıç
                                         </span>
                                         <p className="text-primary font-black text-lg tracking-tighter">
-                                            {formatPrice(favorite.listing.pricing)}
+                                            {formatPrice(favorite.listing.model_pricing)}
                                         </p>
                                     </div>
                                     <Link href={`/ilan/${favorite.listing.slug}`}>
