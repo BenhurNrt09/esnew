@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input, useToast, Card, CardContent } from '@repo/ui';
-import { Star, ShieldCheck, Heart, Info, Camera, Sparkles, Send, Calendar, Clock, MapPin, Smile, Zap, MessageCircle } from 'lucide-react';
+import { Star, ShieldCheck, Heart, Info, Camera, Sparkles, Send, Calendar, Clock, MapPin, Smile, Zap, MessageCircle, LogIn } from 'lucide-react';
+import Link from 'next/link';
 
 interface AdvancedReviewFormProps {
     listingId: string;
@@ -14,6 +15,7 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
     const supabase = createClient();
     const toast = useToast();
     const [submitting, setSubmitting] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
     // Core
     const [rating, setRating] = useState(0);
@@ -39,6 +41,15 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
     const [sessions, setSessions] = useState(''); // 'Tek sefer', 'Birden fazla'
     const [ejaculation, setEjaculation] = useState(''); // 'Yüze', 'İçeri', 'Yutma'
     const [photoAccuracy, setPhotoAccuracy] = useState('');
+
+    // Check authentication on mount
+    useEffect(() => {
+        const checkAuth = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setIsAuthenticated(!!user);
+        };
+        checkAuth();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -130,8 +141,8 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
                     <button
                         key={opt} type="button" onClick={() => setter(opt)}
                         className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${current === opt
-                                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
-                                : 'bg-white text-gray-500 border-gray-100 hover:border-primary/30'
+                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                            : 'bg-white text-gray-500 border-gray-100 hover:border-primary/30'
                             }`}
                     >
                         {opt}
@@ -141,6 +152,52 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
         </div>
     );
 
+    // Loading state
+    if (isAuthenticated === null) {
+        return (
+            <Card className="shadow-2xl shadow-primary/5 border-gray-100 rounded-[3rem] overflow-hidden bg-white mt-12">
+                <CardContent className="p-20 text-center">
+                    <div className="animate-pulse">
+                        <div className="h-8 bg-gray-200 rounded-lg w-1/3 mx-auto mb-4"></div>
+                        <div className="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    // Not authenticated - show login prompt
+    if (!isAuthenticated) {
+        return (
+            <Card className="shadow-lg border-gray-100 rounded-2xl overflow-hidden bg-white mt-6">
+                <CardContent className="p-8 text-center space-y-4">
+                    <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-full mb-2">
+                        <LogIn className="w-7 h-7 text-primary" />
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">Üye Girişi Gerekli</h3>
+                        <p className="text-gray-500 font-medium text-sm max-w-md mx-auto">
+                            Değerlendirme yapabilmek için üye girişi yapmanız gerekmektedir.
+                        </p>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 pt-2">
+                        <Link href="/login">
+                            <Button className="h-10 px-6 bg-primary text-white font-bold uppercase tracking-wide rounded-xl shadow-lg shadow-primary/20 hover:translate-y-[-1px] transition-all text-xs">
+                                Giriş Yap
+                            </Button>
+                        </Link>
+                        <Link href="/register">
+                            <Button variant="outline" className="h-10 px-6 font-bold uppercase tracking-wide rounded-xl border-2 hover:border-primary/50 text-xs">
+                                Kayıt Ol
+                            </Button>
+                        </Link>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    // Authenticated - show review form
     return (
         <Card className="shadow-2xl shadow-primary/5 border-gray-100 rounded-[3rem] overflow-hidden bg-white mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
             <CardContent className="p-10 space-y-12">

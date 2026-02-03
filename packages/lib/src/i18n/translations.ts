@@ -228,6 +228,23 @@ export interface Translations {
         real: string;
         aiOrFilter: string;
     };
+
+    // Filters
+    filters: {
+        race: string;
+        age: string;
+        height: string;
+        weight: string;
+        hair: string;
+        breast: string;
+        all: string;
+        turkish: string;
+        russian: string;
+        latin: string;
+        blonde: string;
+        brunette: string;
+        brown: string;
+    };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -438,6 +455,21 @@ export const translations: Record<Language, Translations> = {
             real: 'Gerçek',
             aiOrFilter: 'AI / Filtre',
         },
+        filters: {
+            race: 'IRK',
+            age: 'YAŞ',
+            height: 'BOY',
+            weight: 'KİLO',
+            hair: 'SAÇ',
+            breast: 'MEME',
+            all: 'Hepsi',
+            turkish: 'Türk',
+            russian: 'Rus',
+            latin: 'Lat',
+            blonde: 'Sar',
+            brunette: 'Esmer',
+            brown: 'Kum',
+        },
     },
     en: {
         common: {
@@ -645,6 +677,21 @@ export const translations: Record<Language, Translations> = {
             photoAccuracy: 'Photo Accuracy:',
             real: 'Real',
             aiOrFilter: 'AI / Filter',
+        },
+        filters: {
+            race: 'RACE',
+            age: 'AGE',
+            height: 'HEIGHT',
+            weight: 'WEIGHT',
+            hair: 'HAIR',
+            breast: 'BREAST',
+            all: 'All',
+            turkish: 'Turkish',
+            russian: 'Russian',
+            latin: 'Latin',
+            blonde: 'Blonde',
+            brunette: 'Brunette',
+            brown: 'Brown',
         },
     },
 };

@@ -106,62 +106,62 @@ export default async function ListingPage({ params }: { params: { slug: string }
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
-            {/* HER0 */}
-            <div className="relative h-[320px] sm:h-[420px] md:h-[650px] w-full bg-red-950 overflow-hidden group">
+            {/* COMPACT HERO */}
+            <div className="relative h-[200px] sm:h-[250px] w-full bg-red-950 overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-950 to-black/90"></div>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
 
                 {/* Floating Badges */}
-                <div className="absolute top-4 right-4 z-30 flex flex-wrap gap-2 justify-end max-w-xs">
+                <div className="absolute top-3 right-3 z-30 flex flex-wrap gap-1.5 justify-end max-w-xs">
                     {(listing.badges || ['VIP', 'BAĞIMSIZ', 'YENİ']).map((badge) => (
-                        <span key={badge} className={`${badgeColors[badge.toUpperCase()] || 'bg-white/20 text-white'} px-3 sm:px-6 py-1.5 rounded-2xl text-[10px] sm:text-[11px] font-black uppercase tracking-[0.12em] shadow-2xl border border-white/10 backdrop-blur-sm animate-in fade-in slide-in-from-right-4 duration-500`}>
+                        <span key={badge} className={`${badgeColors[badge.toUpperCase()] || 'bg-white/20 text-white'} px-3 py-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider shadow-lg border border-white/10 backdrop-blur-sm`}>
                             {badge}
                         </span>
                     ))}
                 </div>
 
-                <div className="absolute top-0 left-0 p-4 sm:p-8 z-20">
-                    <Button variant="ghost" className="text-white hover:bg-white/10 rounded-full h-10 sm:h-12 px-3 sm:px-6 backdrop-blur-md border border-white/5" asChild>
+                <div className="absolute top-0 left-0 p-3 sm:p-4 z-20">
+                    <Button variant="ghost" className="text-white hover:bg-white/10 rounded-full h-9 px-4 backdrop-blur-md border border-white/5 text-xs" asChild>
                         <Link href="/">
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Tüm İlanlar
+                            <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Tüm İlanlar
                         </Link>
                     </Button>
                 </div>
 
-                <div className="absolute bottom-0 left-0 w-full p-4 sm:p-8 md:p-20 z-20">
+                <div className="absolute bottom-0 left-0 w-full p-4 sm:p-6 z-20">
                     <div className="container mx-auto">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-12">
-                            <div className="space-y-6">
-                                <div className="flex flex-wrap items-center gap-4">
-                                    <span className="bg-white/10 backdrop-blur-md text-white px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/20">
+                        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                            <div className="space-y-2">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="bg-white/10 backdrop-blur-md text-white px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider border border-white/20">
                                         {listing.category?.name}
                                     </span>
-                                    <span className="bg-red-500/90 backdrop-blur-md text-white px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2.5 shadow-xl shadow-red-900/20 border border-red-400/30">
-                                        <ShieldCheck className="w-4 h-4" /> Kimlik Doğrulanmış
+                                    <span className="bg-red-500/90 backdrop-blur-md text-white px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-red-900/20 border border-red-400/30">
+                                        <ShieldCheck className="w-3 h-3" /> Kimlik Doğrulanmış
                                     </span>
                                 </div>
-                                <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-white tracking-tighter leading-none drop-shadow-2xl">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tighter leading-none drop-shadow-2xl">
                                     {listing.title}
                                 </h1>
-                                <div className="flex items-center gap-6 text-white/50 text-sm font-bold uppercase tracking-widest">
-                                    <span className="flex items-center gap-3">
-                                        <MapPin className="h-5 w-5 text-red-500" /> {listing.city?.name}
+                                <div className="flex items-center gap-3 text-white/50 text-xs font-bold uppercase tracking-wide">
+                                    <span className="flex items-center gap-1.5">
+                                        <MapPin className="h-3.5 w-3.5 text-red-500" /> {listing.city?.name}
                                     </span>
-                                    <span className="w-1.5 h-1.5 bg-white/20 rounded-full"></span>
-                                    <span className="flex items-center gap-3">
-                                        <Calendar className="h-5 w-5 text-red-500" /> {new Date(listing.created_at).toLocaleDateString('tr-TR')}
+                                    <span className="w-1 h-1 bg-white/20 rounded-full"></span>
+                                    <span className="flex items-center gap-1.5">
+                                        <Calendar className="h-3.5 w-3.5 text-red-500" /> {new Date(listing.created_at).toLocaleDateString('tr-TR')}
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
                                 <Button
-                                    size="lg"
-                                    className="bg-green-600 hover:bg-green-700 text-white gap-3 rounded-full h-12 sm:h-16 px-4 sm:px-10 shadow-2xl shadow-green-900/40 text-sm sm:text-lg font-black uppercase tracking-wider transition-all hover:scale-105 active:scale-95 group"
+                                    size="sm"
+                                    className="bg-green-600 hover:bg-green-700 text-white gap-2 rounded-full h-10 sm:h-11 px-4 sm:px-6 shadow-xl shadow-green-900/40 text-xs sm:text-sm font-black uppercase tracking-wide transition-all hover:scale-105 active:scale-95 group"
                                     asChild
                                 >
-                                    <a href={`https://wa.me/${listing.phone?.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
-                                        <MessageCircle className="h-5 w-5 sm:h-7 sm:w-7 group-hover:rotate-12 transition-transform" /> WHATSAPP MESAJ
+                                    <a href={`https://wa.me/${listing.phone?.replace(/\\D/g, '')}`} target="_blank" rel="noopener noreferrer">
+                                        <MessageCircle className="h-4 w-4 group-hover:rotate-12 transition-transform" /> WHATSAPP
                                     </a>
                                 </Button>
                             </div>
@@ -170,118 +170,128 @@ export default async function ListingPage({ params }: { params: { slug: string }
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 -mt-12 sm:-mt-16 relative z-30">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="container mx-auto px-4 py-8 relative z-30">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                     {/* Main Content Area */}
-                    <div className="lg:col-span-8 space-y-12">
+                    <div className="lg:col-span-8 space-y-6">
+
+                        {/* Cover Photo + Profile Summary Layout */}
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                            {/* Cover Photo */}
+                            <div className="md:col-span-4">
+                                <div className="bg-white p-3 rounded-2xl shadow-lg border border-gray-100 sticky top-4">
+                                    <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                                        <img
+                                            src={listing.cover_image || allImages[0]}
+                                            alt={listing.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Profile Summary */}
+                            <div className="md:col-span-8">
+                                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-8 opacity-5">
+                                        <User className="w-24 h-24 text-red-600" />
+                                    </div>
+                                    <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-4 flex items-center gap-3 uppercase tracking-tighter relative z-10">
+                                        <User className="h-6 w-6 text-red-600" /> PROFİL ÖZETİ
+                                    </h2>
+                                    <p className="text-gray-700 text-sm sm:text-base font-medium leading-relaxed whitespace-pre-line relative z-10">
+                                        {listing.description}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
                         {/* Gallery */}
-                        <div className="bg-white p-4 sm:p-6 rounded-[2rem] sm:rounded-[3.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100">
-                            <ProfileGallery images={allImages} />
-                        </div>
-
-                        {/* About */}
-                        <div className="bg-white rounded-[2rem] sm:rounded-[3.5rem] p-6 sm:p-12 shadow-2xl shadow-gray-200/50 border border-gray-100 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-12 opacity-5">
-                                <User className="w-40 h-40 text-red-600" />
-                            </div>
-                            <h2 className="text-2xl sm:text-4xl font-black text-gray-900 mb-6 sm:mb-10 flex items-center gap-5 uppercase tracking-tighter relative z-10">
-                                <User className="h-10 w-10 text-red-600" /> PROFİL ÖZETİ
-                            </h2>
-                            <p className="text-gray-700 text-base sm:text-xl font-medium leading-relaxed sm:leading-[2.2] whitespace-pre-line relative z-10 antialiased">
-                                {listing.description}
-                            </p>
-                        </div>
+                        <ProfileGallery images={allImages} />
 
                         {/* ADVANCED REVIEW SYSTEM */}
-                        <div id="reviews" className="space-y-12">
-                            <AdvancedReviewForm listingId={listing.id} />
+                        <div id="reviews" className="space-y-6">
                             <PublicProfileComments listingId={listing.id} />
+                            <AdvancedReviewForm listingId={listing.id} />
                         </div>
                     </div>
 
                     {/* Sidebar Area */}
-                        <div className="lg:col-span-4 space-y-6">
+                    <div className="lg:col-span-4 space-y-4">
 
                         {/* 1. ÖZELLİKLER TABLE */}
-                        <div className="bg-white rounded-[1.5rem] sm:rounded-[3rem] p-4 sm:p-10 shadow-2xl shadow-gray-200/50 border border-gray-100 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <Sparkles className="w-32 h-32 text-red-600" />
-                            </div>
-                            <h3 className="text-xl sm:text-2xl font-black text-gray-900 mb-4 sm:mb-8 flex items-center gap-4 uppercase tracking-tighter">
-                                <Info className="h-7 w-7 text-red-600" /> ÖZELLİKLER
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 relative overflow-hidden">
+                            <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-tighter">
+                                <Info className="h-5 w-5 text-red-600" /> ÖZELLİKLER
                             </h3>
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 {features.map((f, i) => (
-                                    <div key={i} className="flex justify-between items-center py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 px-3 rounded-2xl transition-all group/item">
-                                        <div className="flex items-center gap-4">
-                                            <span className="p-2.5 bg-gray-50 rounded-xl text-gray-400 group-hover/item:text-red-500 group-hover/item:bg-red-50 transition-colors">{f.icon}</span>
-                                            <span className="text-gray-400 font-black text-[11px] uppercase tracking-widest">{f.label}</span>
+                                    <div key={i} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 px-2 rounded-lg transition-all">
+                                        <div className="flex items-center gap-2">
+                                            <span className="p-1.5 bg-gray-50 rounded-lg text-gray-400">{f.icon}</span>
+                                            <span className="text-gray-400 font-bold text-[10px] uppercase tracking-wide">{f.label}</span>
                                         </div>
-                                        <span className="text-gray-950 font-black text-sm tracking-tight">{f.value}</span>
+                                        <span className="text-gray-950 font-black text-xs">{f.value}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {/* 2. FİYATLANDIRMA TABLE */}
-                        <div className="bg-white rounded-[1.5rem] sm:rounded-[3rem] p-4 sm:p-10 shadow-2xl shadow-red-900/5 border border-red-50 relative overflow-hidden">
-                            <h3 className="text-2xl font-black text-red-600 mb-8 flex items-center gap-4 uppercase tracking-tighter">
-                                <DollarSign className="h-7 w-7" /> FİYATLANDIRMA
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-red-50">
+                            <h3 className="text-lg font-black text-red-600 mb-4 flex items-center gap-2 uppercase tracking-tighter">
+                                <DollarSign className="h-5 w-5" /> FİYATLANDIRMA
                             </h3>
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 {listing.pricing && listing.pricing.length > 0 ? (
                                     listing.pricing.map((p, i) => (
-                                        <div key={i} className="group relative flex justify-between items-center bg-gray-50/50 p-4 sm:p-6 rounded-[1rem] sm:rounded-[2rem] border border-gray-100 hover:border-red-200 hover:bg-red-50/10 transition-all">
+                                        <div key={i} className="flex justify-between items-center bg-gray-50/50 p-4 rounded-xl border border-gray-100 hover:border-red-200 transition-all">
                                             <div>
-                                                <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">{p.duration}</p>
-                                                <div className="flex items-center gap-2 text-gray-400 text-[11px] font-bold uppercase tracking-widest">
-                                                    <MapPin className="w-3 h-3" /> {p.location || 'Her Yer'}
+                                                <p className="text-[9px] font-black text-red-600 uppercase tracking-wide mb-0.5">{p.duration}</p>
+                                                <div className="flex items-center gap-1.5 text-gray-400 text-[10px] font-bold uppercase">
+                                                    <MapPin className="w-2.5 h-2.5" /> {p.location || 'Her Yer'}
                                                 </div>
                                             </div>
-                                            <div className="text-2xl font-black text-gray-950 tracking-tighter">
+                                            <div className="text-lg font-black text-gray-950">
                                                 {currencySymbols[p.currency || 'TRY']} {p.price}
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="py-12 text-center bg-gray-50/50 rounded-[2rem] border-2 border-dashed border-gray-200 text-gray-400 font-black uppercase tracking-widest text-[10px]">Fiyat Belirtilmemiş</div>
+                                    <div className="py-8 text-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 font-bold uppercase text-[9px]">Fiyat Belirtilmemiş</div>
                                 )}
                             </div>
                         </div>
 
-                        {/* 3. İZİNLER / NELER VAR TABLE (Massive List) */}
-                        <div className="bg-white rounded-[1.5rem] sm:rounded-[3rem] p-4 sm:p-10 shadow-2xl shadow-gray-200/50 border border-gray-100">
-                            <h3 className="text-2xl font-black text-gray-900 mb-8 flex items-center gap-4 uppercase tracking-tighter">
-                                <ListChecks className="h-7 w-7 text-red-600" /> NELER VAR?
+                        {/* 3. İZİNLER / NELER VAR TABLE */}
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                            <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-tighter">
+                                <ListChecks className="h-5 w-5 text-red-600" /> NELER VAR?
                             </h3>
-                            <div className="grid grid-cols-1 gap-2.5">
+                            <div className="grid grid-cols-1 gap-1.5">
                                 {services.length > 0 ? (
                                     services.map((s, i) => (
-                                        <div key={i} className="flex items-center gap-3 bg-green-50/50 p-3 rounded-xl border border-green-100/50 hover:scale-[1.02] transition-transform cursor-default">
-                                            <div className="w-6 h-6 rounded-lg bg-green-500 flex items-center justify-center text-white shadow-lg shadow-green-500/20">
-                                                <CheckCircle2 className="w-4 h-4" />
+                                        <div key={i} className="flex items-center gap-2 bg-green-50/50 p-2 rounded-lg border border-green-100/50 hover:scale-[1.01] transition-transform">
+                                            <div className="w-4 h-4 rounded-md bg-green-500 flex items-center justify-center text-white shadow-sm">
+                                                <CheckCircle2 className="w-3 h-3" />
                                             </div>
-                                            <span className="text-[11px] font-black text-green-950 tracking-widest uppercase">{s.label}</span>
+                                            <span className="text-[10px] font-black text-green-950 tracking-wide uppercase">{s.label}</span>
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="py-12 text-center bg-gray-50/50 rounded-[2rem] border-2 border-dashed border-gray-200 text-gray-400 font-black uppercase tracking-widest text-[10px]">Hizmet Belirtilmemiş</div>
+                                    <div className="py-8 text-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 font-bold uppercase text-[9px]">Hizmet Belirtilmemiş</div>
                                 )}
                             </div>
                         </div>
 
                         {/* Security Notice */}
-                        <div className="bg-gray-950 rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 text-white shadow-2xl shadow-black/20 relative overflow-hidden group">
-                            <div className="absolute bottom-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <ShieldCheck className="w-32 h-32" />
-                            </div>
-                            <div className="relative z-10 space-y-4">
-                                <p className="text-red-500 font-black uppercase tracking-[0.12em] text-xs sm:text-sm flex items-center gap-3">
-                                    <AlertCircle className="w-5 h-5" /> GÜVENLİK PROTOKOLÜ
+                        <div className="bg-gray-950 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                            <div className="relative z-10 space-y-3">
+                                <p className="text-red-500 font-black uppercase tracking-wider text-[10px] flex items-center gap-2">
+                                    <AlertCircle className="w-4 h-4" /> GÜVENLİK PROTOKOLÜ
                                 </p>
-                                <p className="text-gray-400 text-sm sm:text-xs font-bold leading-relaxed">
+                                <p className="text-gray-400 text-[10px] font-bold leading-relaxed">
                                     ValoraEscort sadece dijital bir rehberdir. Modellerle yapacağınız görüşmelerde kişisel güvenliğiniz için onaylı profilleri tercih ediniz.
                                 </p>
                             </div>

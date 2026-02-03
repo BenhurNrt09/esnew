@@ -4,7 +4,11 @@ import { useLanguage } from '@repo/lib/i18n';
 import { Button } from '@repo/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+    showText?: boolean;
+}
+
+export function LanguageSwitcher({ showText = true }: LanguageSwitcherProps) {
     const { language, setLanguage } = useLanguage();
 
     const toggleLanguage = () => {
@@ -16,7 +20,7 @@ export function LanguageSwitcher() {
             variant="outline"
             size="sm"
             onClick={toggleLanguage}
-            className="w-20 relative overflow-hidden group border-primary/20 hover:border-primary/50 bg-background/50 backdrop-blur-sm"
+            className={`${showText ? 'w-20' : 'w-10'} relative overflow-hidden group border-primary/20 hover:border-primary/50 bg-background/50 backdrop-blur-sm`}
         >
             <AnimatePresence mode="wait">
                 <motion.div
@@ -35,7 +39,7 @@ export function LanguageSwitcher() {
                                 <circle cx="475" cy="400" r="160" fill="#E30A17" />
                                 <path fill="#fff" d="M583.334 400l180.901 63.603-107.755-164.293v201.38l107.755-164.293z" />
                             </svg>
-                            <span className="font-bold text-xs tracking-wide">TR</span>
+                            {showText && <span className="font-bold text-xs tracking-wide">TR</span>}
                         </>
                     ) : (
                         <>
@@ -47,7 +51,7 @@ export function LanguageSwitcher() {
                                 <path d="M30 0v30M0 15h60" stroke="#fff" strokeWidth="10" />
                                 <path d="M30 0v30M0 15h60" stroke="#c8102e" strokeWidth="6" />
                             </svg>
-                            <span className="font-bold text-xs tracking-wide">EN</span>
+                            {showText && <span className="font-bold text-xs tracking-wide">EN</span>}
                         </>
                     )}
                 </motion.div>

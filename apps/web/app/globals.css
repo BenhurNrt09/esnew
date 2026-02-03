@@ -65,21 +65,40 @@
     /* Fluid / clamped base font size for better mobile scaling */
     font-size: clamp(14px, 1.6vw + 12px, 18px);
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
 
-  img, video {
+  img,
+  video {
     max-width: 100%;
     height: auto;
   }
 
-  input, button, textarea, select {
+  input,
+  button,
+  textarea,
+  select {
     font-size: 1rem;
   }
 
-  /* Tighter default container spacing on small screens */
+  /* Responsive container spacing */
   .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
   }
 }
 
@@ -122,5 +141,10 @@
   .animate-gradient-xy {
     background-size: 200% 200%;
     animation: gradient-xy 3s ease infinite;
+  }
+
+  /* Hide header when lightbox is open */
+  .lightbox-open header {
+    display: none !important;
   }
 }

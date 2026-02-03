@@ -20,15 +20,15 @@ export const AdSidebar = ({ ads, className }: AdSidebarProps) => {
     if (ads.length === 0) return null;
 
     return (
-        <div className={cn("flex flex-col gap-6", className)}>
+        <div className={cn("flex flex-col gap-3", className)}>
             {ads.map((ad) => (
                 <div
                     key={ad.id}
-                    className="w-full relative group overflow-hidden rounded-2xl shadow-sm border border-gray-100 bg-white hover:shadow-xl transition-all duration-300"
+                    className="w-full relative group overflow-hidden rounded-lg shadow-sm border border-gray-100 bg-white hover:shadow-md transition-all duration-300"
                 >
                     {ad.link ? (
                         <Link href={ad.link} target="_blank" rel="follow" className="block w-full">
-                            <div className="aspect-[3/4] sm:aspect-[4/5] w-full overflow-hidden bg-gray-50 flex items-center justify-center">
+                            <div className="aspect-[2/3] w-full overflow-hidden bg-gray-50 flex items-center justify-center">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={ad.image_url}
@@ -38,7 +38,7 @@ export const AdSidebar = ({ ads, className }: AdSidebarProps) => {
                             </div>
                         </Link>
                     ) : (
-                        <div className="aspect-[3/4] sm:aspect-[4/5] w-full overflow-hidden bg-gray-50 flex items-center justify-center">
+                        <div className="aspect-[2/3] w-full overflow-hidden bg-gray-50 flex items-center justify-center">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={ad.image_url}

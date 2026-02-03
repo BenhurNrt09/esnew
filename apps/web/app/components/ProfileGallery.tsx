@@ -14,11 +14,13 @@ export const ProfileGallery = ({ images }: ProfileGalleryProps) => {
     const openLightbox = (index: number) => {
         setSelectedIdx(index);
         document.body.style.overflow = 'hidden';
+        document.documentElement.classList.add('lightbox-open');
     };
 
     const closeLightbox = () => {
         setSelectedIdx(null);
         document.body.style.overflow = 'auto';
+        document.documentElement.classList.remove('lightbox-open');
     };
 
     const nextImage = (e: React.MouseEvent) => {
@@ -36,20 +38,25 @@ export const ProfileGallery = ({ images }: ProfileGalleryProps) => {
     if (images.length === 0) return null;
 
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-lg shadow-gray-200/50 border border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Maximize2 className="h-6 w-6 text-primary" /> Galeri
+        <div className="bg-white rounded-xl p-3 shadow-md border border-gray-100">
+            <h2 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+                <Maximize2 className="h-3.5 w-3.5 text-primary" /> Galeri
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                 {images.map((img, idx) => (
                     <div
                         key={idx}
-                        className="aspect-[3/4] rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-all border border-gray-100 relative group shadow-sm bg-gray-50 flex items-center justify-center"
+                        className="aspect-[3/4] rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-all border border-gray-100 relative group shadow-sm bg-gray-50 flex items-center justify-center"
                         onClick={() => openLightbox(idx)}
                     >
-                        <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        <img
+                            src={img}
+                            alt={`Gallery ${idx}`}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="eager"
+                        />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                            <Maximize2 className="text-white opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 drop-shadow-md" />
+                            <Maximize2 className="text-white opacity-0 group-hover:opacity-100 transition-opacity h-5 w-5 drop-shadow-lg" />
                         </div>
                     </div>
                 ))}
@@ -58,14 +65,14 @@ export const ProfileGallery = ({ images }: ProfileGalleryProps) => {
             {/* Lightbox Overlay */}
             {selectedIdx !== null && (
                 <div
-                    className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center animate-in fade-in duration-300"
+                    className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center animate-in fade-in duration-300"
                     onClick={closeLightbox}
                 >
                     <button
-                        className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-[110]"
-                        onClick={closeLightbox}
+                        className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 sm:p-3 backdrop-blur-md transition-all z-[110] shadow-2xl"
+                        onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
                     >
-                        <X className="h-10 w-10" />
+                        <X className="h-6 w-6 sm:h-8 sm:w-8" />
                     </button>
 
                     <button
@@ -82,11 +89,11 @@ export const ProfileGallery = ({ images }: ProfileGalleryProps) => {
                         <ChevronRight className="h-8 w-8" />
                     </button>
 
-                    <div className="w-full h-full p-10 flex items-center justify-center">
+                    <div className="w-full h-full p-4 flex items-center justify-center">
                         <img
                             src={images[selectedIdx]}
                             alt="Full Screen"
-                            className="max-w-full max-h-full object-contain select-none animate-in zoom-in-95 duration-300 shadow-2xl rounded-lg"
+                            className="w-full h-full object-contain select-none animate-in zoom-in-95 duration-300 rounded-2xl"
                             onClick={(e) => e.stopPropagation()}
                         />
                     </div>

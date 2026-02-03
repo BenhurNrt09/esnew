@@ -83,10 +83,10 @@ export function HomePageContent({
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Hero Section */}
-            <section className="relative bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-white overflow-hidden pb-12">
+            <section className="relative bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-white overflow-hidden pb-8 md:pb-12">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
 
-                <div className="container mx-auto px-4 py-16 md:py-24 relative z-10 text-center">
+                <div className="container mx-auto px-4 py-10 md:py-16 lg:py-24 relative z-10 text-center">
                     <h1 className="text-3xl sm:text-4xl md:text-6xl font-black mb-6 tracking-tight leading-none drop-shadow-sm animate-in fade-in slide-in-from-bottom-6 duration-1000">
                         {h.heroTitle}<br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">{h.heroTitleHighlight}</span>
@@ -114,12 +114,12 @@ export function HomePageContent({
                 <StoryBalloons />
             </div>
 
-            <div className="max-w-[1600px] mx-auto px-4 py-12">
-                <div className="flex flex-col lg:flex-row gap-8 xl:gap-12">
+            <div className="max-w-[1600px] mx-auto px-3 sm:px-4 py-8 md:py-12">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-10">
                     {/* Left Ad */}
-                    <div className="hidden xl:block w-64 shrink-0">
-                        <div className="sticky top-40">
-                            <div className="text-[10px] font-bold text-gray-400 mb-4 uppercase tracking-widest text-center">{h.sponsorAd}</div>
+                    <div className="hidden xl:block w-44 shrink-0">
+                        <div>
+                            <div className="text-[9px] font-bold text-gray-400 mb-3 uppercase tracking-widest text-center">{h.sponsorAd}</div>
                             <AdSidebar ads={leftAds} />
                         </div>
                     </div>
@@ -141,7 +141,7 @@ export function HomePageContent({
                             </div>
 
                             {featuredListings.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-5 md:gap-6">
                                     {featuredListings.map((listing) => (
                                         <ProfileCard key={listing.id} listing={listing} isFeatured={true} translations={h} />
                                     ))}
@@ -150,6 +150,22 @@ export function HomePageContent({
                                 <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
                                     <Sparkles className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                                     <p className="text-gray-400 font-bold">{h.noFeatured}</p>
+                                </div>
+                            )}
+
+                            {/* Mobile Inline Ad */}
+                            {leftAds.length > 0 && (
+                                <div className="block xl:hidden mt-8">
+                                    <div className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest text-center">{h.sponsorAd}</div>
+                                    <div className="max-w-sm mx-auto">
+                                        <div className="aspect-[16/9] w-full overflow-hidden bg-gray-50 flex items-center justify-center rounded-xl border border-gray-100">
+                                            <img
+                                                src={leftAds[0].image_url}
+                                                alt="Reklam"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </section>
@@ -169,7 +185,7 @@ export function HomePageContent({
                             </div>
 
                             {filteredLatest.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-5 md:gap-6">
                                     {filteredLatest.map((listing) => (
                                         <ProfileCard key={listing.id} listing={listing} translations={h} />
                                     ))}
@@ -193,9 +209,9 @@ export function HomePageContent({
                     </main>
 
                     {/* Right Ad */}
-                    <div className="hidden xl:block w-64 shrink-0">
-                        <div className="sticky top-40">
-                            <div className="text-[10px] font-bold text-gray-400 mb-4 uppercase tracking-widest text-center">{h.sponsorAd}</div>
+                    <div className="hidden xl:block w-44 shrink-0">
+                        <div>
+                            <div className="text-[9px] font-bold text-gray-400 mb-3 uppercase tracking-widest text-center">{h.sponsorAd}</div>
                             <AdSidebar ads={rightAds} />
                         </div>
                     </div>
@@ -210,7 +226,7 @@ function ProfileCard({ listing, isFeatured = false, translations }: { listing: L
     return (
         <Link href={`/ilan/${listing.slug}`} className="group h-full">
             <div className={`relative bg-white rounded-3xl overflow-hidden transition-all duration-300 h-full flex flex-col border border-gray-100 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/10 ${isFeatured ? 'ring-2 ring-primary/10' : ''}`}>
-                <div className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden">
+                <div className="relative aspect-[3/4] overflow-hidden">
                     <img
                         src={listing.cover_image || (listing.images && listing.images[0]) || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600'}
                         alt={listing.title}
@@ -235,7 +251,7 @@ function ProfileCard({ listing, isFeatured = false, translations }: { listing: L
                     </button>
 
                     <div className="absolute bottom-4 left-4 right-4">
-                        <h3 className="text-white text-base sm:text-lg font-black leading-tight uppercase tracking-tighter drop-shadow-md group-hover:text-primary transition-colors truncate">{listing.title}</h3>
+                        <h3 className="text-white text-sm sm:text-base md:text-lg font-black leading-tight uppercase tracking-tighter drop-shadow-md group-hover:text-primary transition-colors truncate">{listing.title}</h3>
                         <p className="text-white/70 text-[10px] sm:text-[11px] font-bold mt-1 uppercase tracking-widest flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span>
                             {listing.category?.name}
@@ -243,11 +259,11 @@ function ProfileCard({ listing, isFeatured = false, translations }: { listing: L
                     </div>
                 </div>
 
-                <div className="p-3 sm:p-4 flex flex-col flex-1">
-                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-1">
+                    <div className="flex items-center justify-between mb-1 sm:mb-2 md:mb-3">
                         <div className="flex flex-col">
-                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{h.startingFrom}</span>
-                            <span className="text-primary font-black text-lg sm:text-xl tracking-tighter">
+                            <span className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-widest">{h.startingFrom}</span>
+                            <span className="text-primary font-black text-base sm:text-lg md:text-xl tracking-tighter">
                                 {listing.price ? formatPrice(listing.price) : h.negotiable}
                             </span>
                         </div>
