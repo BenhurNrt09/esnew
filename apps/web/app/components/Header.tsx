@@ -23,19 +23,13 @@ export function Header() {
                 let displayName = user.email?.split('@')[0];
 
                 if (type === 'independent_model') {
-                    const { data: profile } = await supabase
-                        .from('independent_models')
-                        .select('username, display_name')
-                        .eq('id', user.id)
-                        .single();
-
                     const { data: listing } = await supabase
                         .from('listings')
                         .select('title')
                         .eq('user_id', user.id)
-                        .single();
+                        .maybeSingle();
 
-                    displayName = listing?.title || profile?.display_name || profile?.username || displayName;
+                    displayName = listing?.title || displayName;
                 } else {
                     const { data: profile } = await supabase
                         .from('members')
@@ -64,19 +58,13 @@ export function Header() {
                 let displayName = session.user.email?.split('@')[0];
 
                 if (type === 'independent_model') {
-                    const { data: profile } = await supabase
-                        .from('independent_models')
-                        .select('username, display_name')
-                        .eq('id', session.user.id)
-                        .single();
-
                     const { data: listing } = await supabase
                         .from('listings')
                         .select('title')
                         .eq('user_id', session.user.id)
-                        .single();
+                        .maybeSingle();
 
-                    displayName = listing?.title || profile?.display_name || profile?.username || displayName;
+                    displayName = listing?.title || displayName;
                 } else {
                     const { data: profile } = await supabase
                         .from('members')

@@ -22,102 +22,101 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const supabase = createClient();
 
     useEffect(() => {
+        let isMounted = true;
+
         const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                router.push('/login');
-                return;
-            }
-
-            const type = user.user_metadata?.user_type || 'member';
-            setUserType(type);
-
-            let displayName = user.email?.split('@')[0];
-
-            const { data: userData } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', user.id)
-                .single();
-
-            const isAdmin = userData?.role === 'admin';
-
-            if (type === 'independent_model') {
-                const { data: profile } = await supabase
-                    .from('independent_models')
-                    .select('username, display_name')
-                    .eq('id', user.id)
-                    .single();
-
-                const { data: listing } = await supabase
-                    .from('listings')
-                    .select('title')
-                    .eq('user_id', user.id)
-                    .single();
-
-                displayName = listing?.title || profile?.display_name || profile?.username || displayName;
-            } else if (type === 'member') {
-                const { data: profile } = await supabase
-                    .from('members')
-                    .select('username, first_name, last_name')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profile) {
-                    displayName = profile.first_name && profile.last_name
-                        ? `${profile.first_name} ${profile.last_name}`
-                        : profile.username || displayName;
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    router.push('/login');
+                    return;
                 }
-            }
 
-            if (isAdmin && type === 'member' && !displayName) {
-                // If it's an admin member and we couldn't find a display name, 
-                // we'll keep the email part but maybe capitalize it.
-                displayName = user.email?.split('@')[0];
-            }
+                const type = user.user_metadata?.user_type || 'member';
+                if (isMounted) setUserType(type);
 
-            setUser({ ...user, displayName, isAdmin });
+                let displayName = user.email?.split('@')[0] || 'Kullanıcı';
 
-            // Initial unread count
-            const { count } = await supabase
-                .from('notifications')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .eq('is_read', false);
+                // Run queries in parallel for better performance
+                const [userDataRes, notificationRes] = await Promise.all([
+                    supabase.from('users').select('role').eq('id', user.id).maybeSingle(),
+                    supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false)
+                ]);
 
-            setUnreadCount(count || 0);
+                const isAdmin = userDataRes.data?.role === 'admin';
 
-            // Real-time subscription
-            const channel = supabase
-                .channel(`dashboard_notifications_${user.id}`)
-                .on('postgres_changes', {
-                    event: '*',
-                    schema: 'public',
-                    table: 'notifications',
-                    filter: `user_id=eq.${user.id}`
-                }, () => {
-                    // Refetch count on any change
-                    supabase
-                        .from('notifications')
-                        .select('*', { count: 'exact', head: true })
+                // Get profile name based on user type (only if needed)
+                if (type === 'independent_model' || type === 'agency_owner') {
+                    const { data: listing } = await supabase
+                        .from('listings')
+                        .select('title')
                         .eq('user_id', user.id)
-                        .eq('is_read', false)
-                        .then(({ count }) => setUnreadCount(count || 0));
-                })
-                .subscribe();
+                        .maybeSingle();
 
-            setLoading(false);
+                    if (listing?.title) displayName = listing.title;
+                } else if (type === 'member') {
+                    const { data: profile } = await supabase
+                        .from('members')
+                        .select('username, first_name, last_name')
+                        .eq('id', user.id)
+                        .maybeSingle();
+
+                    if (profile?.first_name && profile?.last_name) {
+                        displayName = `${profile.first_name} ${profile.last_name}`;
+                    } else if (profile?.username) {
+                        displayName = profile.username;
+                    }
+                }
+
+                if (isMounted) {
+                    setUser({ ...user, displayName, isAdmin });
+                    setUnreadCount(notificationRes.count || 0);
+                    setLoading(false);
+                }
+
+                // Real-time subscription (non-blocking)
+                const channel = supabase
+                    .channel(`dashboard_notifications_${user.id}`)
+                    .on('postgres_changes', {
+                        event: '*',
+                        schema: 'public',
+                        table: 'notifications',
+                        filter: `user_id=eq.${user.id}`
+                    }, () => {
+                        supabase
+                            .from('notifications')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('user_id', user.id)
+                            .eq('is_read', false)
+                            .then(({ count }) => {
+                                if (isMounted) setUnreadCount(count || 0);
+                            });
+                    })
+                    .subscribe();
+
+            } catch (err) {
+                console.error('Dashboard layout error:', err);
+                if (isMounted) setLoading(false);
+            }
         };
+
+        // Add timeout protection - if loading takes more than 5s, show content anyway
+        const timeout = setTimeout(() => {
+            if (isMounted && loading) {
+                console.warn('Dashboard layout timeout - forcing render');
+                setLoading(false);
+            }
+        }, 5000);
 
         checkUser();
 
         return () => {
-            // Need a way to unsubscribe, but we can't easily access 'channel' here
-            // because it's defined inside the async function.
-            // For now, let's keep it simple or use a ref.
+            isMounted = false;
+            clearTimeout(timeout);
             supabase.removeAllChannels();
         };
     }, []);
+
 
     const allMenuItems = [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['member', 'independent_model', 'agency'] },
@@ -133,7 +132,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const menuItems = allMenuItems.filter(item => userType && item.roles.includes(userType));
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
+    if (loading || !user) return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
 
     const roleLabels = {
         member: 'Üye',
