@@ -8,13 +8,14 @@ import {
     MapPin, Calendar, Share2, Phone, CheckCircle2,
     User, Info, ArrowLeft, MessageCircle, Star,
     ShieldCheck, Zap, Sparkles, DollarSign, ListChecks,
-    Heart, Globe, Smile, Languages, Shield, AlignRight
+    Heart, Globe, Smile, Languages, Shield, AlignRight, Clock
 } from 'lucide-react';
 import { formatPrice } from '@repo/lib';
 import { cn } from '@repo/ui/src/lib/utils';
 import { ProfileGallery } from '../../components/ProfileGallery';
 import { AdvancedReviewForm } from '../../components/AdvancedReviewForm';
 import { PublicProfileComments } from '../../components/PublicProfileComments';
+import { StoryBalloons } from '../../components/StoryBalloons';
 
 export const revalidate = 0;
 
@@ -269,6 +270,12 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             </div>
                         </div>
 
+
+                        {/* Stories for this profile */}
+                        <div className="mb-4">
+                            <StoryBalloons modelId={listing.user_id} />
+                        </div>
+
                         {/* Gallery */}
                         <ProfileGallery images={allImages} />
 
@@ -368,7 +375,41 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             </div>
                         </div>
 
-                        {/* 2. İZİNLER / NELER VAR TABLE */}
+                        {/* 2. FİYATLANDIRMA TABLE */}
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-red-50 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <DollarSign className="w-16 h-16 text-red-600" />
+                            </div>
+                            <h3 className="text-lg font-black text-red-600 mb-4 flex items-center gap-2 uppercase tracking-tighter relative z-10">
+                                <DollarSign className="h-5 w-5" /> FİYATLANDIRMA
+                            </h3>
+                            <div className="space-y-3 relative z-10">
+                                {listing.pricing && listing.pricing.length > 0 ? (
+                                    listing.pricing.map((p, i) => (
+                                        <div key={i} className="flex justify-between items-center bg-gray-50/80 p-3 rounded-xl border border-gray-100/50 hover:bg-white hover:shadow-md transition-all">
+                                            <div>
+                                                <p className="text-[10px] font-black text-red-600 uppercase tracking-wide mb-0.5 flex items-center gap-1">
+                                                    <Clock className="w-3 h-3" /> {p.duration}
+                                                </p>
+                                                <div className="flex items-center gap-1.5 text-gray-400 text-[10px] font-bold uppercase">
+                                                    <MapPin className="w-3 h-3" /> {p.location || 'Her Yer'}
+                                                </div>
+                                            </div>
+                                            <div className="text-lg font-black text-gray-900 bg-white px-3 py-1 rounded-lg border border-gray-100 shadow-sm">
+                                                {currencySymbols[p.currency || 'TRY']} {p.price}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-8 text-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 font-bold uppercase text-[10px] flex flex-col items-center gap-2">
+                                        <DollarSign className="w-6 h-6 opacity-20" />
+                                        Fiyat Belirtilmemiş
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* 3. İZİNLER / NELER VAR TABLE */}
                         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                             <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-tighter">
                                 <ListChecks className="h-5 w-5 text-red-600" /> NELER VAR?

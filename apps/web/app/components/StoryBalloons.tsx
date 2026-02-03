@@ -5,7 +5,7 @@ import { createClient } from '@repo/lib/supabase/client';
 import { Sparkles, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { cn } from '@repo/ui/src/lib/utils';
 
-export function StoryBalloons() {
+export function StoryBalloons({ modelId }: { modelId?: string }) {
     const supabase = createClient();
     const [modelsWithStories, setModelsWithStories] = useState<any[]>([]);
     const [selectedModel, setSelectedModel] = useState<any>(null);
@@ -13,7 +13,7 @@ export function StoryBalloons() {
 
     useEffect(() => {
         const loadStories = async () => {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('stories')
                 .select(`
                     id,
@@ -32,51 +32,85 @@ export function StoryBalloons() {
                 .gt('expires_at', new Date().toISOString())
                 .order('created_at', { ascending: false });
 
-            if (data) {
+            if (modelId) {
+                query = query.eq('model_id', modelId);
+            }
+
+            const { data, error } = await query;
+
+            if (data && data.length > 0) {
                 // Group by model
                 const grouped = data.reduce((acc: any, story: any) => {
-                    const modelId = story.model_id;
-                    if (!acc[modelId]) {
-                        acc[modelId] = {
+                    const mId = story.model_id;
+                    if (!acc[mId]) {
+                        acc[mId] = {
                             model: story.independent_models,
-                            stories: []
+                            stories: [],
+                            photo: null
                         };
                     }
-                    acc[modelId].stories.push(story);
+                    acc[mId].stories.push(story);
                     return acc;
                 }, {});
 
+                // Fetch listing photos (real profile photos)
+                const modelIds = Object.keys(grouped);
+                const { data: listings } = await supabase
+                    .from('listings')
+                    .select('user_id, cover_image, images')
+                    .in('user_id', modelIds);
+
+                if (listings) {
+                    listings.forEach((l: any) => {
+                        if (grouped[l.user_id]) {
+                            // Use cover_image or first image
+                            grouped[l.user_id].photo = l.cover_image || (l.images && l.images[0]) || null;
+                        }
+                    });
+                }
+
                 setModelsWithStories(Object.values(grouped));
+            } else {
+                setModelsWithStories([]);
             }
             setLoading(false);
         };
         loadStories();
-    }, []);
+    }, [modelId]);
 
     if (loading || modelsWithStories.length === 0) return null;
 
     return (
         <>
-            <div className="container mx-auto px-4 mt-8">
-                <div className="flex items-center gap-4 overflow-x-auto pb-4 no-scrollbar">
+            <div className={cn("container mx-auto px-4 mt-4", modelId ? "px-0 mt-0" : "")}>
+                <div className={cn("flex items-center overflow-x-auto pb-2 no-scrollbar", modelId ? "justify-start" : "gap-3")}>
                     {modelsWithStories.map((item: any) => (
                         <button
                             key={item.model.id}
                             onClick={() => setSelectedModel(item)}
-                            className="flex flex-col items-center gap-2 shrink-0 group"
+                            className="flex flex-col items-center gap-1.5 shrink-0 group"
                         >
-                            <div className="w-20 h-20 rounded-full p-1 bg-gradient-to-tr from-primary via-primary/50 to-pink-500 animate-gradient-xy group-hover:scale-110 transition-transform">
-                                <div className="w-full h-full rounded-full border-4 border-white overflow-hidden bg-gray-100">
-                                    <img
-                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.model.username}`}
-                                        alt={item.model.full_name}
-                                        className="w-full h-full object-cover"
-                                    />
+                            <div className={cn(
+                                "rounded-full p-[2px] bg-gradient-to-tr from-primary via-primary/50 to-pink-500 animate-gradient-xy group-hover:scale-105 transition-transform",
+                                modelId ? "w-20 h-20" : "w-16 h-16" // Larger on profile page, smaller on homepage
+                            )}>
+                                <div className="w-full h-full rounded-full border-[2px] border-white overflow-hidden bg-gray-100 flex items-center justify-center">
+                                    {item.photo ? (
+                                        <img
+                                            src={item.photo}
+                                            alt={item.model.full_name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="text-xs font-bold text-gray-400">FPS</span>
+                                    )}
                                 </div>
                             </div>
-                            <span className="text-[10px] font-black text-gray-900 uppercase tracking-tighter truncate w-20 text-center">
-                                {item.model.full_name || item.model.username}
-                            </span>
+                            {!modelId && (
+                                <span className="text-[9px] font-black text-gray-700 uppercase tracking-tighter truncate w-16 text-center">
+                                    {item.model.full_name || item.model.username}
+                                </span>
+                            )}
                         </button>
                     ))}
                 </div>
@@ -128,8 +162,12 @@ function StoryViewer({ item, onClose }: { item: any, onClose: () => void }) {
                 {/* Header */}
                 <div className="absolute top-8 left-4 right-4 z-10 flex items-center justify-between text-white">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
-                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.model.username}`} alt="" />
+                        <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-gray-800">
+                            {item.photo ? (
+                                <img src={item.photo} className="w-full h-full object-cover" alt="" />
+                            ) : (
+                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.model.username}`} alt="" />
+                            )}
                         </div>
                         <span className="font-black uppercase tracking-tighter text-sm">{item.model.full_name}</span>
                     </div>
