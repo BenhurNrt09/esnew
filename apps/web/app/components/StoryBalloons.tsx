@@ -102,7 +102,7 @@ export function StoryBalloons({ modelId }: { modelId?: string }) {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <span className="text-xs font-bold text-gray-400">FPS</span>
+                                        <User className="w-1/2 h-1/2 text-gray-400" />
                                     )}
                                 </div>
                             </div>
