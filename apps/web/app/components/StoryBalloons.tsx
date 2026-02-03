@@ -143,12 +143,15 @@ function StoryViewer({ item, onClose }: { item: any, onClose: () => void }) {
     }, [currentIdx, item.stories.length, onClose]);
 
     return (
-        <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center">
-            <div className="relative w-full max-w-lg aspect-[9/16] bg-gray-900 overflow-hidden md:rounded-3xl shadow-2xl">
+        <div className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex items-center justify-center p-4" onClick={onClose}>
+            <div
+                className="relative w-full max-w-sm sm:max-w-md max-h-[85vh] aspect-[9/16] bg-gray-900 overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl flex flex-col border border-white/10"
+                onClick={e => e.stopPropagation()}
+            >
                 {/* Progress Bars */}
-                <div className="absolute top-4 left-4 right-4 z-10 flex gap-1">
+                <div className="absolute top-3 left-3 right-3 z-30 flex gap-1">
                     {item.stories.map((_: any, i: number) => (
-                        <div key={i} className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+                        <div key={i} className="flex-1 h-0.5 sm:h-1 bg-white/20 rounded-full overflow-hidden">
                             <div
                                 className={cn(
                                     "h-full bg-white transition-all duration-5000 linear",
@@ -160,53 +163,66 @@ function StoryViewer({ item, onClose }: { item: any, onClose: () => void }) {
                 </div>
 
                 {/* Header */}
-                <div className="absolute top-8 left-4 right-4 z-10 flex items-center justify-between text-white">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-gray-800">
+                <div className="absolute top-6 left-3 right-3 z-30 flex items-center justify-between text-white">
+                    <div className="flex items-center gap-2.5 bg-black/20 backdrop-blur-sm p-1.5 pr-4 rounded-full border border-white/5">
+                        <div className="w-8 h-8 rounded-full border border-white/50 overflow-hidden bg-gray-800">
                             {item.photo ? (
                                 <img src={item.photo} className="w-full h-full object-cover" alt="" />
                             ) : (
                                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.model.username}`} alt="" />
                             )}
                         </div>
-                        <span className="font-black uppercase tracking-tighter text-sm">{item.model.full_name}</span>
+                        <span className="font-bold text-shadow uppercase tracking-tight text-xs shadow-black truncate max-w-[120px]">{item.model.full_name}</span>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full transition-colors">
-                        <X className="w-6 h-6" />
-                    </button>
                 </div>
 
-                {/* Media */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-2xl">
-                    {/* Blurred Background */}
+                {/* External Close Button (PC) */}
+                <button
+                    onClick={onClose}
+                    className="absolute top-6 right-3 z-40 p-2 bg-black/40 hover:bg-red-500/80 rounded-full transition-all backdrop-blur-md border border-white/10 group"
+                >
+                    <X className="w-5 h-5 text-white drop-shadow-md group-hover:rotate-90 transition-transform" />
+                </button>
+
+                {/* Media Container */}
+                <div className="flex-1 relative flex items-center justify-center bg-black w-full h-full">
+                    {/* Blurred Background Layer */}
                     {story.media_type !== 'video' && (
-                        <div className="absolute inset-0 opacity-30 blur-2xl scale-110">
+                        <div className="absolute inset-0 opacity-40 blur-3xl scale-125">
                             <img src={story.media_url} className="w-full h-full object-cover" alt="" />
                         </div>
                     )}
 
+                    {/* Main Content */}
                     {story.media_type === 'video' ? (
                         <video
                             src={story.media_url}
                             autoPlay
                             muted
                             playsInline
-                            className="w-full h-full max-h-full object-contain relative z-10"
+                            className="w-full h-full max-h-full object-contain relative z-20"
                         />
                     ) : (
-                        <img src={story.media_url} className="w-full h-full max-h-full object-contain relative z-10" alt="" />
+                        <img src={story.media_url} className="w-full h-full max-h-full object-contain relative z-20" alt="" />
                     )}
                 </div>
 
-                {/* Controls */}
+                {/* Touch/Click Controls */}
                 <button
                     onClick={() => currentIdx > 0 && setCurrentIdx(currentIdx - 1)}
-                    className="absolute left-0 top-0 bottom-0 w-1/4 z-20"
+                    className="absolute left-0 top-0 bottom-0 w-1/3 z-20 outline-none focus:outline-none cursor-pointer"
+                    aria-label="Previous story"
                 />
                 <button
                     onClick={() => currentIdx < item.stories.length - 1 ? setCurrentIdx(currentIdx + 1) : onClose()}
-                    className="absolute right-0 top-0 bottom-0 w-1/4 z-20"
+                    className="absolute right-0 top-0 bottom-0 w-1/3 z-20 outline-none focus:outline-none cursor-pointer"
+                    aria-label="Next story"
                 />
+            </div>
+
+            {/* Desktop Hint - Outside Modal */}
+            <div className="absolute top-6 right-6 hidden md:flex items-center gap-2 text-white/50 text-xs font-bold pointer-events-none select-none">
+                <span className="bg-white/10 px-2 py-1 rounded border border-white/5">ESC</span> veya boşluğa tıkla
             </div>
         </div>
     );
