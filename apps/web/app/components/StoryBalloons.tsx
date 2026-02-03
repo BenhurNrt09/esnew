@@ -177,17 +177,26 @@ function StoryViewer({ item, onClose }: { item: any, onClose: () => void }) {
                 </div>
 
                 {/* Media */}
-                {story.media_type === 'video' ? (
-                    <video
-                        src={story.media_url}
-                        autoPlay
-                        muted
-                        playsInline
-                        className="w-full h-full object-cover"
-                    />
-                ) : (
-                    <img src={story.media_url} className="w-full h-full object-cover" alt="" />
-                )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-2xl">
+                    {/* Blurred Background */}
+                    {story.media_type !== 'video' && (
+                        <div className="absolute inset-0 opacity-30 blur-2xl scale-110">
+                            <img src={story.media_url} className="w-full h-full object-cover" alt="" />
+                        </div>
+                    )}
+
+                    {story.media_type === 'video' ? (
+                        <video
+                            src={story.media_url}
+                            autoPlay
+                            muted
+                            playsInline
+                            className="w-full h-full max-h-full object-contain relative z-10"
+                        />
+                    ) : (
+                        <img src={story.media_url} className="w-full h-full max-h-full object-contain relative z-10" alt="" />
+                    )}
+                </div>
 
                 {/* Controls */}
                 <button

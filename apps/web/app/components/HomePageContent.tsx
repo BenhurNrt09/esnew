@@ -116,7 +116,7 @@ export function HomePageContent({
 
             <HorizontalFilterBar filters={filters} setFilters={setFilters} />
 
-            <HorizontalFilterBar filters={filters} setFilters={setFilters} />
+
 
             <div className="mt-4 mb-2">
                 <StoryBalloons />
