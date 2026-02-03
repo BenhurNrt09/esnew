@@ -14,9 +14,9 @@
         "lint": "tsc --noEmit"
     },
     "dependencies": {
-        "@supabase/supabase-js": "^2.39.3",
-        "@supabase/ssr": "^0.1.0",
-        "@repo/types": "*"
+        "@repo/types": "*",
+        "@supabase/ssr": "^0.8.0",
+        "@supabase/supabase-js": "^2.39.3"
     },
     "devDependencies": {
         "typescript": "^5.3.3"

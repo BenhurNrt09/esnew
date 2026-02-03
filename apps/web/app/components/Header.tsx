@@ -8,84 +8,13 @@ import { useRouter } from 'next/navigation';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { AuthDropdown } from './AuthDropdown';
 import { Button } from '@repo/ui';
+import { useAuth } from '../components/AuthProvider';
 
 export function Header() {
     const router = useRouter();
     const { t } = useLanguage();
-    const [user, setUser] = useState<any>(null);
+    const { user } = useAuth();
     const supabase = createClient();
-
-    useEffect(() => {
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const type = user.user_metadata?.user_type || 'member';
-                let displayName = user.email?.split('@')[0];
-
-                if (type === 'independent_model') {
-                    const { data: listing } = await supabase
-                        .from('listings')
-                        .select('title')
-                        .eq('user_id', user.id)
-                        .maybeSingle();
-
-                    displayName = listing?.title || displayName;
-                } else {
-                    const { data: profile } = await supabase
-                        .from('members')
-                        .select('username, first_name, last_name')
-                        .eq('id', user.id)
-                        .single();
-
-                    if (profile) {
-                        displayName = (profile.first_name && profile.last_name)
-                            ? `${profile.first_name} ${profile.last_name}`
-                            : (profile.username || displayName);
-                    }
-                }
-
-                setUser({ ...user, displayName });
-            } else {
-                setUser(null);
-            }
-        };
-        getUser();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            if (session?.user) {
-                // Re-run the name fetching logic on auth change
-                const type = session.user.user_metadata?.user_type || 'member';
-                let displayName = session.user.email?.split('@')[0];
-
-                if (type === 'independent_model') {
-                    const { data: listing } = await supabase
-                        .from('listings')
-                        .select('title')
-                        .eq('user_id', session.user.id)
-                        .maybeSingle();
-
-                    displayName = listing?.title || displayName;
-                } else {
-                    const { data: profile } = await supabase
-                        .from('members')
-                        .select('username, first_name, last_name')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    if (profile) {
-                        displayName = (profile.first_name && profile.last_name)
-                            ? `${profile.first_name} ${profile.last_name}`
-                            : (profile.username || displayName);
-                    }
-                }
-                setUser({ ...session.user, displayName });
-            } else {
-                setUser(null);
-            }
-        });
-
-        return () => subscription.unsubscribe();
-    }, [supabase]);
 
     return (
         <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">

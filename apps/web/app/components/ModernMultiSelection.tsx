@@ -11,25 +11,33 @@ interface Option {
     icon?: React.ReactNode;
 }
 
-interface ModernSelectionProps {
+interface ModernMultiSelectionProps {
     options: Option[];
-    value: string;
-    onChange: (value: string) => void;
+    values: string[];
+    onChange: (values: string[]) => void;
     label?: string;
     className?: string;
 }
 
-export function ModernSelection({ options, value, onChange, label, className }: ModernSelectionProps) {
+export function ModernMultiSelection({ options, values = [], onChange, label, className }: ModernMultiSelectionProps) {
+    const toggleOption = (val: string) => {
+        if (values.includes(val)) {
+            onChange(values.filter(v => v !== val));
+        } else {
+            onChange([...values, val]);
+        }
+    };
+
     return (
         <div className={cn("space-y-2", className)}>
             {label && <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{label}</label>}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {options.map((option) => {
-                    const isActive = value === option.value;
+                    const isActive = values.includes(option.value);
                     return (
                         <div
                             key={option.value}
-                            onClick={() => onChange(option.value)}
+                            onClick={() => toggleOption(option.value)}
                             className={cn(
                                 "relative flex items-center p-2.5 cursor-pointer rounded-xl border-2 transition-all duration-200 group",
                                 isActive

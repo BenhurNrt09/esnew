@@ -8,7 +8,7 @@ import {
     MapPin, Calendar, Share2, Phone, CheckCircle2,
     User, Info, ArrowLeft, MessageCircle, Star,
     ShieldCheck, Zap, Sparkles, DollarSign, ListChecks,
-    Heart, Globe, Smile, Languages, Shield
+    Heart, Globe, Smile, Languages, Shield, AlignRight
 } from 'lucide-react';
 import { formatPrice } from '@repo/lib';
 import { cn } from '@repo/ui/src/lib/utils';
@@ -81,6 +81,35 @@ export default async function ListingPage({ params }: { params: { slug: string }
     const allImages = listing.cover_image ? [listing.cover_image, ...gallery] : gallery;
     const meta = listing.metadata || {};
 
+    const orientationLabels: Record<string, string> = {
+        'straight': 'Heteroseksüel',
+        'bisexual': 'Biseksüel',
+        'lesbian': 'Lezbiyen',
+        'gay': 'Gey',
+        'fetish': 'Fetişist'
+    };
+
+    const bodyHairLabels: Record<string, string> = {
+        'trasli': 'Tıraşlı',
+        'degil': 'Doğal',
+        'arasira': 'Bakımlı'
+    };
+
+    const getOrientationDisplay = (val: any) => {
+        const values = Array.isArray(val) ? val : [val];
+        const translated = values.map(v => orientationLabels[v] || v);
+
+        if (translated.length <= 1) return translated[0] || 'Hetero';
+
+        return (
+            <div className="flex flex-col items-end gap-0">
+                {translated.map((t, idx) => (
+                    <span key={idx} className="text-[9px] leading-tight">{t}</span>
+                ))}
+            </div>
+        );
+    };
+
     const features = [
         { label: 'Cinsiyet', value: listing.gender || 'Kadın', icon: <User className="w-4 h-4" /> },
         { label: 'Yaş', value: listing.age_value || '-', icon: <Calendar className="w-4 h-4" /> },
@@ -88,10 +117,10 @@ export default async function ListingPage({ params }: { params: { slug: string }
         { label: 'Kilo', value: listing.weight ? `${listing.weight} kg` : '-', icon: <Zap className="w-4 h-4" /> },
         { label: 'Göğüs', value: listing.breast_size || '-', icon: <Heart className="w-4 h-4" /> },
         { label: 'Etnik Köken', value: listing.ethnicity || 'Avrupalı', icon: <Globe className="w-4 h-4" /> },
-        { label: 'Yönelim', value: listing.orientation || 'Hetero', icon: <Smile className="w-4 h-4" /> },
+        { label: 'Yönelim', value: getOrientationDisplay(listing.orientation), icon: <Smile className="w-4 h-4" /> },
         { label: 'Uyruk', value: listing.nationality || '-', icon: <Shield className="w-4 h-4" /> },
         { label: 'Dövme', value: listing.tattoos ? 'Evet' : 'Hayır', icon: <Sparkles className="w-4 h-4" /> },
-        { label: 'Vücut Kılı', value: listing.body_hair === 'shaved' ? 'Pürüzsüz' : (listing.body_hair === 'trimmed' ? 'Bakımlı' : 'Doğal'), icon: <Sparkles className="w-4 h-4" /> },
+        { label: 'Vücut Kılı', value: bodyHairLabels[listing.body_hair || ''] || 'Doğal', icon: <Sparkles className="w-4 h-4" /> },
         { label: 'Sigara', value: listing.smoking ? 'Evet' : 'Hayır', icon: <Info className="w-4 h-4" /> },
         { label: 'Alkol', value: listing.alcohol ? 'Evet' : 'Hayır', icon: <Info className="w-4 h-4" /> },
     ];

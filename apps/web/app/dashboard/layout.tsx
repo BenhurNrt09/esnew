@@ -10,72 +10,54 @@ import {
     Bell, Star, BarChart3, Menu, X
 } from 'lucide-react';
 import { cn } from '@repo/ui/src/lib/utils';
+import { useAuth } from '../components/AuthProvider';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
-    const [user, setUser] = useState<any>(null);
-    const [userType, setUserType] = useState<'member' | 'independent_model' | 'agency' | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { user, loading: authLoading } = useAuth();
     const [unreadCount, setUnreadCount] = useState(0);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [layoutReady, setLayoutReady] = useState(false);
     const supabase = createClient();
 
     useEffect(() => {
+        const failsafe = setTimeout(() => {
+            if (!layoutReady) {
+                console.warn('DashboardLayout failsafe triggered');
+                setLayoutReady(true);
+            }
+        }, 5000);
+
+        if (!authLoading) {
+            if (!user) {
+                router.push('/login');
+            } else {
+                setLayoutReady(true);
+            }
+        }
+
+        return () => clearTimeout(failsafe);
+    }, [user, authLoading]);
+
+    useEffect(() => {
+        if (!user) return;
+
         let isMounted = true;
+        let channel: any = null;
 
-        const checkUser = async () => {
+        const loadNotifications = async () => {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    router.push('/login');
-                    return;
-                }
+                const { count } = await supabase
+                    .from('notifications')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id)
+                    .eq('is_read', false);
 
-                const type = user.user_metadata?.user_type || 'member';
-                if (isMounted) setUserType(type);
+                if (isMounted) setUnreadCount(count || 0);
 
-                let displayName = user.email?.split('@')[0] || 'Kullanıcı';
-
-                // Run queries in parallel for better performance
-                const [userDataRes, notificationRes] = await Promise.all([
-                    supabase.from('users').select('role').eq('id', user.id).maybeSingle(),
-                    supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false)
-                ]);
-
-                const isAdmin = userDataRes.data?.role === 'admin';
-
-                // Get profile name based on user type (only if needed)
-                if (type === 'independent_model' || type === 'agency_owner') {
-                    const { data: listing } = await supabase
-                        .from('listings')
-                        .select('title')
-                        .eq('user_id', user.id)
-                        .maybeSingle();
-
-                    if (listing?.title) displayName = listing.title;
-                } else if (type === 'member') {
-                    const { data: profile } = await supabase
-                        .from('members')
-                        .select('username, first_name, last_name')
-                        .eq('id', user.id)
-                        .maybeSingle();
-
-                    if (profile?.first_name && profile?.last_name) {
-                        displayName = `${profile.first_name} ${profile.last_name}`;
-                    } else if (profile?.username) {
-                        displayName = profile.username;
-                    }
-                }
-
-                if (isMounted) {
-                    setUser({ ...user, displayName, isAdmin });
-                    setUnreadCount(notificationRes.count || 0);
-                    setLoading(false);
-                }
-
-                // Real-time subscription (non-blocking)
-                const channel = supabase
+                // Real-time subscription
+                channel = supabase
                     .channel(`dashboard_notifications_${user.id}`)
                     .on('postgres_changes', {
                         event: '*',
@@ -93,30 +75,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             });
                     })
                     .subscribe();
-
             } catch (err) {
-                console.error('Dashboard layout error:', err);
-                if (isMounted) setLoading(false);
+                console.error('Error loading notifications:', err);
             }
         };
 
-        // Add timeout protection - if loading takes more than 5s, show content anyway
-        const timeout = setTimeout(() => {
-            if (isMounted && loading) {
-                console.warn('Dashboard layout timeout - forcing render');
-                setLoading(false);
-            }
-        }, 5000);
-
-        checkUser();
+        loadNotifications();
 
         return () => {
             isMounted = false;
-            clearTimeout(timeout);
-            supabase.removeAllChannels();
+            if (channel) supabase.removeChannel(channel);
         };
-    }, []);
+    }, [user]);
 
+    const userType = (user as any)?.userType || 'member';
+    const isAdmin = (user as any)?.isAdmin === true;
 
     const allMenuItems = [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['member', 'independent_model', 'agency'] },
@@ -130,9 +103,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { name: 'Ayarlar', href: '/dashboard/settings', icon: Settings, roles: ['member', 'independent_model', 'agency'] },
     ];
 
-    const menuItems = allMenuItems.filter(item => userType && item.roles.includes(userType));
+    const menuItems = allMenuItems.filter(item =>
+        isAdmin || (userType && item.roles.includes(userType as string))
+    );
 
-    if (loading || !user) return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
+    if (!layoutReady) return <div className="min-h-screen flex items-center justify-center font-black text-gray-400 uppercase tracking-widest text-xs animate-pulse">Yükleniyor...</div>;
+
+    if (!user) return null; // Avoid rendering content if redirecting
 
     const roleLabels = {
         member: 'Üye',
@@ -142,108 +119,135 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
-            {/* Mobile Overlay */}
-            {isMobileMenuOpen && (
-                <div
-                    className="fixed inset-0 bg-black/60 z-[998] lg:hidden"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                />
-            )}
-
-            {/* Sidebar */}
-            <aside className={`fixed lg:sticky top-0 h-screen w-72 bg-white border-r border-gray-100 flex flex-col z-[999] transform transition-transform duration-300 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-                }`}>
-                {/* Close button for mobile */}
-                <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="lg:hidden absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                    <X className="w-5 h-5 text-gray-500" />
-                </button>
-
-                <div className="p-4 sm:p-6 lg:p-8">
-                    <Link href="/" className="text-lg sm:text-2xl font-black text-primary tracking-tighter uppercase">
-                        VALORA<span className="text-gray-900">ESCORT</span>
+            {/* Sidebar Desktop */}
+            <aside className="hidden lg:flex w-80 bg-white border-r border-gray-100 flex-col sticky top-0 h-screen transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
+                <div className="p-10">
+                    <Link href="/" className="flex items-center gap-3 group">
+                        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-primary/20">
+                            <LayoutDashboard className="text-white w-6 h-6" />
+                        </div>
+                        <span className="text-2xl font-black uppercase tracking-tighter">Panel</span>
                     </Link>
                 </div>
 
-                <nav className="flex-1 px-2 sm:px-4 space-y-0.5 sm:space-y-1">
+                <nav className="flex-1 px-6 space-y-2 mt-4">
                     {menuItems.map((item) => {
                         const isActive = pathname === item.href;
+                        const Icon = item.icon;
                         return (
                             <Link
-                                key={item.href}
+                                key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:xl transition-all group",
+                                    "flex items-center justify-between px-6 py-4 rounded-2xl transition-all duration-300 group",
                                     isActive
-                                        ? "bg-primary text-white shadow-md sm:shadow-lg shadow-primary/20"
-                                        : "text-gray-500 hover:bg-gray-50 hover:text-primary"
+                                        ? "bg-primary text-white shadow-xl shadow-primary/30 -translate-y-0.5"
+                                        : "text-gray-400 hover:bg-gray-50 hover:text-gray-900"
                                 )}
                             >
-                                <div className="flex items-center gap-2 sm:gap-3">
-                                    <item.icon className={cn("w-4 h-4 sm:w-5 sm:h-5", isActive ? "text-white" : "text-gray-400 group-hover:text-primary")} />
-                                    <span className="font-bold text-xs sm:text-sm tracking-tight">{item.name}</span>
+                                <div className="flex items-center gap-4">
+                                    <Icon className={cn("w-5 h-5", isActive ? "text-white" : "group-hover:text-primary transition-colors")} />
+                                    <span className="font-bold text-sm tracking-tight uppercase">{item.name}</span>
                                 </div>
-                                {item.href === '/dashboard/notifications' && unreadCount > 0 && (
-                                    <span className="bg-white text-primary text-[8px] sm:text-[9px] font-bold px-1 py-0.5 rounded-full ring-1 sm:ring-2 ring-primary">
+                                {item.name === 'Bildirimler' && unreadCount > 0 && (
+                                    <span className={cn(
+                                        "w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black",
+                                        isActive ? "bg-white text-primary" : "bg-primary text-white"
+                                    )}>
                                         {unreadCount}
                                     </span>
                                 )}
-                                {isActive && <ChevronRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
+                                {isActive && <ChevronRight className="w-4 h-4" />}
                             </Link>
                         );
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-gray-100">
-                    <button
-                        onClick={() => supabase.auth.signOut().then(() => router.push('/'))}
-                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all font-bold text-sm"
-                    >
-                        <LogOut className="w-5 h-5" />
-                        Çıkış Yap
-                    </button>
+                <div className="p-8 border-t border-gray-50">
+                    <div className="bg-gray-50 rounded-3xl p-6 flex items-center gap-4 group cursor-pointer hover:bg-white hover:shadow-xl transition-all">
+                        <div className="w-12 h-12 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black uppercase tracking-widest text-xs">
+                                {user.displayName?.[0] || user.email?.[0] || 'U'}
+                            </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="font-black text-gray-900 truncate tracking-tight text-sm uppercase">{user.displayName || 'Kullanıcı'}</p>
+                            <p className="text-[10px] font-black text-primary uppercase tracking-widest opacity-60">
+                                {user.isAdmin ? 'Yönetici' : (roleLabels[userType as keyof typeof roleLabels] || 'Üye')}
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => supabase.auth.signOut()}
+                            className="w-10 h-10 rounded-xl hover:bg-red-50 hover:text-red-500 transition-colors flex items-center justify-center text-gray-300"
+                        >
+                            <LogOut className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <header className="h-16 lg:h-20 bg-white border-b border-gray-100 px-4 lg:px-8 flex items-center justify-between">
-                    {/* Mobile Hamburger */}
+            {/* Mobile Menu Overlay */}
+            <div className={cn(
+                "lg:hidden fixed inset-0 z-[60] bg-gray-900/60 backdrop-blur-sm transition-opacity duration-300",
+                isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+            )} onClick={() => setIsMobileMenuOpen(false)} />
+
+            {/* Mobile Menu Drawer */}
+            <aside className={cn(
+                "lg:hidden fixed inset-y-0 left-0 z-[70] w-80 bg-white shadow-2xl transition-transform duration-500 ease-out flex flex-col",
+                isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            )}>
+                <div className="p-8 flex items-center justify-between">
+                    <Link href="/" className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                            <LayoutDashboard className="text-white w-6 h-6" />
+                        </div>
+                        <span className="text-xl font-black uppercase tracking-tighter">Panel</span>
+                    </Link>
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-gray-50 rounded-xl">
+                        <X className="w-6 h-6" />
+                    </button>
+                </div>
+
+                <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+                    {menuItems.map((item) => {
+                        const isActive = pathname === item.href;
+                        const Icon = item.icon;
+                        return (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className={cn(
+                                    "flex items-center gap-4 px-6 py-4 rounded-xl font-bold uppercase tracking-widest text-[10px]",
+                                    isActive ? "bg-primary text-white" : "text-gray-400"
+                                )}
+                            >
+                                <Icon className="w-4 h-4" />
+                                {item.name}
+                            </Link>
+                        );
+                    })}
+                </nav>
+            </aside>
+
+            {/* Main Content Area */}
+            <main className="flex-1 flex flex-col min-w-0 relative">
+                {/* Header Mobile */}
+                <header className="lg:hidden h-20 bg-white border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-50">
                     <button
                         onClick={() => setIsMobileMenuOpen(true)}
-                        className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-3 bg-gray-50 rounded-2xl hover:bg-primary hover:text-white transition-all shadow-sm"
                     >
-                        <Menu className="w-6 h-6 text-gray-700" />
+                        <Menu className="w-6 h-6" />
                     </button>
-
-                    <h2 className="text-base lg:text-xl font-black text-gray-900 uppercase tracking-tighter">
-                        {menuItems.find(i => i.href === pathname)?.name || 'Panel'}
-                    </h2>
-
-                    <div className="flex items-center gap-6">
-                        <Link href="/dashboard/notifications" className="relative p-2 text-gray-400 hover:text-primary transition-colors">
-                            <Bell className="w-6 h-6" />
-                            {unreadCount > 0 && (
-                                <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[10px] font-black flex items-center justify-center rounded-full ring-2 ring-white">
-                                    {unreadCount}
-                                </span>
-                            )}
-                        </Link>
-                        <div className="flex flex-col items-end">
-                            <span className="text-sm font-black text-gray-900">{user.displayName}</span>
-                            <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
-                                {roleLabels[userType as keyof typeof roleLabels]}
-                            </span>
-                        </div>
-                        <div className="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-bold">
-                            {user.displayName[0].toUpperCase()}
-                        </div>
+                    <Link href="/dashboard" className="text-xl font-black uppercase tracking-tighter">Panel</Link>
+                    <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary font-black uppercase tracking-widest text-xs">
+                        {user.displayName?.[0] || user.email?.[0] || 'U'}
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                <div className="flex-1 p-6 lg:p-12 overflow-y-auto">
                     {children}
                 </div>
             </main>

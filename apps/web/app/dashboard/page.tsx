@@ -9,12 +9,14 @@ import {
     Sparkles, Camera, PlusCircle, Bell, Star
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '../components/AuthProvider';
 
 export default function DashboardPage() {
     const supabase = createClient();
+    const { user, loading: authLoading } = useAuth();
+    const [loading, setLoading] = useState(true);
     const [userType, setUserType] = useState<string | null>(null);
     const [hasProfile, setHasProfile] = useState<boolean | null>(null);
-    const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
         views: 0,
         contacts: 0,
@@ -25,86 +27,60 @@ export default function DashboardPage() {
 
     useEffect(() => {
         const loadDashboardData = async () => {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) return;
+            if (!user) return;
 
-                const type = user.user_metadata?.user_type || 'member';
+            try {
+                const type = (user as any).userType || 'member';
                 setUserType(type);
 
-                // Fetch Latest Activities (Notifications)
-                const { data: notificationsData } = await supabase
-                    .from('notifications')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false })
-                    .limit(5);
-                setActivities(notificationsData || []);
+                // Run primary queries in parallel: Notifications, Unread Count, and Profile/Stats
+                const [notificationsData, unreadRes, profileRes] = await Promise.all([
+                    supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
+                    supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false),
+                    type === 'independent_model' || type === 'agency_owner'
+                        ? supabase.from('listings').select(`
+                            id,
+                            listing_stats(view_count, contact_count),
+                            comments(rating_stars)
+                          `).eq('user_id', user.id).maybeSingle()
+                        : Promise.all([
+                            supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+                            supabase.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', user.id).is('parent_id', null)
+                        ])
+                ]);
 
-                // Fetch Unread Notification Count
-                const { count: unreadCount } = await supabase
-                    .from('notifications')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', user.id)
-                    .eq('is_read', false);
+                setActivities(notificationsData.data || []);
+                const unreadCount = unreadRes.count || 0;
 
                 if (type === 'independent_model' || type === 'agency_owner') {
-                    const { data: listing } = await supabase
-                        .from('listings')
-                        .select('id')
-                        .eq('user_id', user.id)
-                        .maybeSingle();
-
+                    const listing = (profileRes as any).data;
                     if (listing) {
                         setHasProfile(true);
 
-                        // Fetch Listing Stats
-                        const { data: statsData } = await supabase
-                            .from('listing_stats')
-                            .select('view_count, contact_count')
-                            .eq('listing_id', listing.id);
+                        const totalViews = listing.listing_stats?.reduce((acc: number, curr: any) => acc + (curr.view_count || 0), 0) || 0;
+                        const totalContacts = listing.listing_stats?.reduce((acc: number, curr: any) => acc + (curr.contact_count || 0), 0) || 0;
 
-                        const totalViews = statsData?.reduce((acc, curr) => acc + (curr.view_count || 0), 0) || 0;
-                        const totalContacts = statsData?.reduce((acc, curr) => acc + (curr.contact_count || 0), 0) || 0;
-
-                        // Fetch Average Rating
-                        const { data: commentsData } = await supabase
-                            .from('comments')
-                            .select('rating_stars')
-                            .eq('listing_id', listing.id)
-                            .is('parent_id', null)
-                            .not('rating_stars', 'is', null);
-
-                        const avgRating = commentsData && commentsData.length > 0
-                            ? commentsData.reduce((acc, curr) => acc + (curr.rating_stars || 0), 0) / commentsData.length
+                        const validRatings = listing.comments?.filter((c: any) => c.rating_stars !== null) || [];
+                        const avgRating = validRatings.length > 0
+                            ? validRatings.reduce((acc: number, curr: any) => acc + (curr.rating_stars || 0), 0) / validRatings.length
                             : 0;
 
                         setStats({
                             views: totalViews,
                             contacts: totalContacts,
-                            notifications: unreadCount || 0,
+                            notifications: unreadCount,
                             rating: parseFloat(avgRating.toFixed(1))
                         });
                     } else {
                         setHasProfile(false);
+                        setStats(prev => ({ ...prev, notifications: unreadCount }));
                     }
                 } else {
-                    // Member specific stats (Favorites count, reviews count etc.)
-                    const { count: favoritesCount } = await supabase
-                        .from('favorites')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('user_id', user.id);
-
-                    const { count: reviewsCount } = await supabase
-                        .from('comments')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('user_id', user.id)
-                        .is('parent_id', null);
-
+                    const [favRes, reviewRes] = profileRes as any;
                     setStats({
-                        views: favoritesCount || 0,
-                        contacts: reviewsCount || 0,
-                        notifications: unreadCount || 0,
+                        views: favRes.count || 0,
+                        contacts: reviewRes.count || 0,
+                        notifications: unreadCount,
                         rating: 5.0
                     });
                     setHasProfile(null);
@@ -115,8 +91,11 @@ export default function DashboardPage() {
                 setLoading(false);
             }
         };
-        loadDashboardData();
-    }, []);
+
+        if (!authLoading) {
+            loadDashboardData();
+        }
+    }, [user, authLoading]);
 
 
     const getTimeAgo = (date: string) => {

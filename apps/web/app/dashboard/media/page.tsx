@@ -40,11 +40,11 @@ export default function MediaPage() {
         if (listingData) {
             setListing(listingData);
 
-            // Get stories using listing ID
+            // Get stories using USER ID (which is the model_id in stories table)
             const { data: storiesData } = await supabase
                 .from('stories')
                 .select('*')
-                .eq('model_id', listingData.id)
+                .eq('model_id', user.id)
                 .order('created_at', { ascending: false });
 
             if (storiesData) setStories(storiesData);
@@ -96,7 +96,7 @@ export default function MediaPage() {
                     const { error: storyError } = await supabase
                         .from('stories')
                         .insert({
-                            model_id: listing.id,
+                            model_id: user.id, // Use auth.uid() which is user.id
                             media_url: publicUrl,
                             media_type: file.type.startsWith('video') ? 'video' : 'image',
                         });

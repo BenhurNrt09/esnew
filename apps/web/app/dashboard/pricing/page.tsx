@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, useToast } from '@repo/ui';
 import { Plus, Trash2, DollarSign, Clock, Save, Info, MapPin, Globe } from 'lucide-react';
+import { useAuth } from '../../components/AuthProvider';
 
 const durationOptions = [
     '30 Dakika', '45 Dakika', '1 Saat', '1.5 Saat',
@@ -21,6 +22,7 @@ const currencies = [
 export default function PricingPage() {
     const toast = useToast();
     const supabase = createClient();
+    const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [listingId, setListingId] = useState<string | null>(null);
@@ -28,7 +30,6 @@ export default function PricingPage() {
 
     useEffect(() => {
         const loadPricing = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
             const { data: listing } = await supabase.from('listings').select('id').eq('user_id', user.id).single();
@@ -55,8 +56,11 @@ export default function PricingPage() {
             }
             setLoading(false);
         };
-        loadPricing();
-    }, []);
+
+        if (!authLoading) {
+            loadPricing();
+        }
+    }, [user, authLoading]);
 
     const addTier = () => {
         setPricing([...pricing, { duration: '1 Saat', price: '', location: '', currency: 'TRY' }]);
@@ -102,7 +106,7 @@ export default function PricingPage() {
         }
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center font-black text-gray-400 animate-pulse">YÜKLENİYOR...</div>;
+    if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center font-black text-gray-400 animate-pulse">YÜKLENİYOR...</div>;
 
     return (
         <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
