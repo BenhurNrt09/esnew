@@ -9,8 +9,17 @@ export const createClient = () => {
     }
 
 
+    // During SSR (build time), we need to provide dummy cookie methods to prevent crashes.
+    // In the browser, we let createBrowserClient handle document.cookie automatically by NOT passing the cookies object.
+    const isBrowser = () => typeof window !== 'undefined';
+
     return createBrowserClient(supabaseUrl, supabaseAnonKey, {
-        cookies: {} as any,
+        ...(isBrowser() ? {} : {
+            cookies: {
+                getAll() { return []; },
+                setAll() { }
+            }
+        }),
         cookieOptions: {
             name: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
         },
