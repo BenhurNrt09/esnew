@@ -42,6 +42,9 @@ export function StoryBalloons({ modelId }: { modelId?: string }) {
                 // Group by model
                 const grouped = data.reduce((acc: any, story: any) => {
                     const mId = story.model_id;
+                    // Filter out stories where the model relation is missing (deleted user)
+                    if (!story.independent_models) return acc;
+
                     if (!acc[mId]) {
                         acc[mId] = {
                             model: story.independent_models,
