@@ -10,7 +10,7 @@ export const createClient = () => {
 
 
     return createBrowserClient(supabaseUrl, supabaseAnonKey, {
-        cookies: {},
+        cookies: {} as any,
         cookieOptions: {
             name: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
         },
