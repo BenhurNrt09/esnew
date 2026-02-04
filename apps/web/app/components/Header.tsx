@@ -34,8 +34,9 @@ export function Header() {
                         href="/"
                         className="text-lg sm:text-2xl md:text-3xl font-black tracking-tighter hover:opacity-90 transition-opacity uppercase inline-block"
                     >
-                        <span className="text-primary">Valora</span>
+                        <span className="text-primary">Velora</span>
                         <span className="text-black">Escort</span>
+                        <span className="text-primary">World</span>
                     </Link>
                 </div>
 

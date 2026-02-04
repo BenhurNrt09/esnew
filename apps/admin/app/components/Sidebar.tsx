@@ -22,10 +22,11 @@ export function Sidebar() {
 
     return (
         <aside className="w-64 bg-card border-r hidden md:flex flex-col h-full bg-red-950 text-red-100 shadow-xl z-20">
-            <div className="h-16 flex items-center px-6 border-b border-red-900/30 bg-red-950">
-                <Link href="/dashboard" className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    <span className="bg-white text-red-950 p-1 rounded-md text-sm font-black shadow-sm">VE</span>
-                    Valora Panel
+            <div className="h-16 flex items-center px-6 border-b border-gray-200 bg-white">
+                <Link href="/dashboard" className="text-lg font-black tracking-tighter flex items-center uppercase gap-0.5">
+                    <span className="text-red-600">Velora</span>
+                    <span className="text-black">Escort</span>
+                    <span className="text-red-600">World</span>
                 </Link>
             </div>
 

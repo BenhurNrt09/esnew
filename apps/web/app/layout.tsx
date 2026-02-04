@@ -8,14 +8,14 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: {
-        template: '%s | ValoraEscort',
-        default: 'ValoraEscort - İlan ve Profil Platformu',
+        template: '%s | VeloraEscortWorld',
+        default: 'VeloraEscortWorld - İlan ve Profil Platformu',
     },
     description: 'Türkiye\'nin en kapsamlı ilan ve profil platformu',
     keywords: ['ilan', 'profil', 'hizmet', 'kategori', 'şehir'],
-    authors: [{ name: 'ValoraEscort' }],
-    creator: 'ValoraEscort',
-    publisher: 'ValoraEscort',
+    authors: [{ name: 'VeloraEscortWorld' }],
+    creator: 'VeloraEscortWorld',
+    publisher: 'VeloraEscortWorld',
     robots: {
         index: true,
         follow: true,
