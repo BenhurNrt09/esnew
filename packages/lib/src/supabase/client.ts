@@ -13,15 +13,18 @@ export const createClient = () => {
     // In the browser, we let createBrowserClient handle document.cookie automatically by NOT passing the cookies object.
     const isBrowser = () => typeof window !== 'undefined';
 
-    return createBrowserClient(supabaseUrl, supabaseAnonKey, {
-        ...(isBrowser() ? {} : {
-            cookies: {
-                getAll() { return []; },
-                setAll() { }
-            }
-        }),
+    const options: any = {
         cookieOptions: {
             name: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
         },
-    });
+    };
+
+    if (!isBrowser()) {
+        options.cookies = {
+            getAll() { return []; },
+            setAll() { }
+        };
+    }
+
+    return createBrowserClient(supabaseUrl, supabaseAnonKey, options);
 };
