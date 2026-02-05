@@ -20,10 +20,17 @@ export const createClient = () => {
         {
             cookies: {
                 getAll() {
-                    return cookieStore.getAll().map((cookie) => ({
-                        name: cookie.name.replace(`${appPrefix}-`, ''),
-                        value: cookie.value,
-                    }));
+                    const allCookies = cookieStore.getAll();
+                    if (!appPrefix) return allCookies;
+
+                    // Only return cookies that have the app-specific prefix OR are not Supabase cookies
+                    // This prevents session confusion between apps in a monorepo
+                    return allCookies
+                        .filter(c => c.name.startsWith(`${appPrefix}-`) || !c.name.startsWith('sb-'))
+                        .map((cookie) => ({
+                            name: cookie.name.replace(`${appPrefix}-`, ''),
+                            value: cookie.value,
+                        }));
                 },
                 setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
                     try {

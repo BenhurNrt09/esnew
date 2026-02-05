@@ -21,11 +21,20 @@ export const createClient = () => {
             cookies: {
                 getAll() {
                     if (!isBrowser) return [];
-                    return document.cookie.split('; ').filter(Boolean).map(str => {
+                    const allCookies = document.cookie.split('; ').filter(Boolean).map(str => {
                         const [name, ...value] = str.split('=');
-                        const decodedName = name.replace(`${appPrefix}-`, '');
-                        return { name: decodedName, value: decodeURIComponent(value.join('=')) };
+                        return { name, value: decodeURIComponent(value.join('=')) };
                     });
+
+                    if (!appPrefix) return allCookies;
+
+                    // Filter and transform
+                    return allCookies
+                        .filter(c => c.name.startsWith(`${appPrefix}-`) || !c.name.startsWith('sb-'))
+                        .map(c => ({
+                            name: c.name.replace(`${appPrefix}-`, ''),
+                            value: c.value
+                        }));
                 },
                 setAll(cookiesToSet: { name: string; value: string; options: any }[]) {
                     if (!isBrowser) return;

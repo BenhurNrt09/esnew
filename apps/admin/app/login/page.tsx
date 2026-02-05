@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@repo/lib/supabase/client';
+import { createAdminClient } from '@repo/lib/supabase/admin';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent } from '@repo/ui';
 import { useRouter } from 'next/navigation';
 import { ShieldCheck, Lock, Mail, ArrowRight } from 'lucide-react';
@@ -28,12 +29,28 @@ export default function LoginPage() {
 
             if (error) throw error;
 
-            // Check or create user in database
-            const { data: existingUser, error: selectError } = await supabase
+            // 1. First check with regular client (respects RLS)
+            let { data: existingUser, error: selectError } = await supabase
                 .from('users')
                 .select('role')
                 .eq('id', data.user.id)
                 .maybeSingle();
+
+            // 2. If not found or error, try with ADMIN client (bypasses RLS)
+            // This handles cases where the session might not be fully propagated to RLS yet
+            if (!existingUser || selectError) {
+                const adminSupabase = createAdminClient();
+                const { data: adminCheckedUser } = await adminSupabase
+                    .from('users')
+                    .select('role')
+                    .eq('id', data.user.id)
+                    .maybeSingle();
+
+                if (adminCheckedUser) {
+                    existingUser = adminCheckedUser;
+                    selectError = null;
+                }
+            }
 
             if (selectError) {
                 console.error('Login DB Error:', selectError);
@@ -43,12 +60,12 @@ export default function LoginPage() {
             // If user doesn't exist in DB, it might be a sync problem or non-admin
             if (!existingUser) {
                 await supabase.auth.signOut();
-                setError('Hata: Hesabınız veritabanında bulunamadı. Lütfen sistem yöneticisine başvurun veya migration scriptlerini kontrol edin.');
+                setError('Hata: Hesabınız veritabanı kayıtlarında bulunamadı. Lütfen 900_fix_admin_auth_final.sql dosyasını çalıştırdığınızdan emin olun.');
                 return;
             } else if (existingUser.role !== 'admin') {
                 // If user exists but isn't admin, deny access
                 await supabase.auth.signOut();
-                setError('Erişim reddedildi. Bu e-posta adresi yönetici yetkisine sahip değil.');
+                setError('Erişim reddedildi. Bu e-posta adresi yönetici yetkisine sahip değil. (Rol: ' + (existingUser.role || 'yok') + ')');
                 return;
             }
 
