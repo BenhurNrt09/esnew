@@ -78,8 +78,8 @@ export default async function StatsPage() {
 
             <div className="grid lg:grid-cols-2 gap-8">
                 {/* Top Listings Table */}
-                <Card className="border-red-50 shadow-sm">
-                    <CardHeader className="bg-red-50/30 border-b border-red-50">
+                <Card className="border-amber-50 shadow-sm">
+                    <CardHeader className="bg-amber-50/30 border-b border-amber-50">
                         <CardTitle className="text-lg font-black uppercase tracking-tighter flex items-center gap-2">
                             <BarChart3 className="w-5 h-5 text-primary" /> En Çok Tıklanan Profiller
                         </CardTitle>
@@ -114,8 +114,8 @@ export default async function StatsPage() {
                 </Card>
 
                 {/* System Activity Summary */}
-                <Card className="border-red-50 shadow-sm">
-                    <CardHeader className="bg-red-50/30 border-b border-red-50">
+                <Card className="border-amber-50 shadow-sm">
+                    <CardHeader className="bg-amber-50/30 border-b border-amber-50">
                         <CardTitle className="text-lg font-black uppercase tracking-tighter flex items-center gap-2">
                             <Users className="w-5 h-5 text-primary" /> Sistem Özeti
                         </CardTitle>

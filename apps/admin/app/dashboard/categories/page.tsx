@@ -30,7 +30,7 @@ export default async function CategoriesPage() {
                         {mainCategories.length} ana kategori, {subCategories.length} alt kategori
                     </p>
                 </div>
-                <Button asChild className="bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-red-200">
+                <Button asChild className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-amber-200">
                     <Link href="/dashboard/categories/new">
                         Yeni Kategori Ekle
                     </Link>
@@ -41,22 +41,22 @@ export default async function CategoriesPage() {
                 {mainCategories.map((mainCat) => {
                     const subs = subCategories.filter(s => s.parent_id === mainCat.id);
                     return (
-                        <Card key={mainCat.id} className="border-red-100 shadow-sm">
-                            <CardHeader className="bg-red-50/50 border-b border-red-50">
+                        <Card key={mainCat.id} className="border-amber-100 shadow-sm">
+                            <CardHeader className="bg-amber-50/50 border-b border-amber-50">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <CardTitle className="text-red-900">{mainCat.name}</CardTitle>
-                                        <p className="text-sm text-red-400 mt-1">
+                                        <CardTitle className="text-amber-900">{mainCat.name}</CardTitle>
+                                        <p className="text-sm text-amber-400 mt-1">
                                             Slug: {mainCat.slug} • Sıra: {mainCat.order}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <Button variant="ghost" size="sm" asChild className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                                        <Button variant="ghost" size="sm" asChild className="text-amber-600 hover:text-amber-700 hover:bg-amber-50">
                                             <Link href={`/dashboard/categories/${mainCat.id}/edit`}>
                                                 Düzenle
                                             </Link>
                                         </Button>
-                                        <Button variant="outline" size="sm" asChild className="text-red-600 border-red-200 hover:bg-red-50">
+                                        <Button variant="outline" size="sm" asChild className="text-amber-600 border-amber-200 hover:bg-amber-50">
                                             <Link href={`/dashboard/categories/new?parent=${mainCat.id}`}>
                                                 Alt Kategori Ekle
                                             </Link>
@@ -71,7 +71,7 @@ export default async function CategoriesPage() {
                                         {subs.map((sub) => (
                                             <div
                                                 key={sub.id}
-                                                className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-red-200 hover:bg-red-50/30 transition-all bg-white"
+                                                className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-amber-200 hover:bg-amber-50/30 transition-all bg-white"
                                             >
                                                 <div>
                                                     <p className="font-medium text-gray-800">{sub.name}</p>
@@ -79,7 +79,7 @@ export default async function CategoriesPage() {
                                                         /{sub.slug}
                                                     </p>
                                                 </div>
-                                                <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-0 text-gray-400 hover:text-red-600">
+                                                <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-0 text-gray-400 hover:text-amber-600">
                                                     <Link href={`/dashboard/categories/${sub.id}/edit`}>
                                                         ✏️
                                                     </Link>
@@ -107,7 +107,7 @@ export default async function CategoriesPage() {
                             <p className="text-gray-500 mb-4">
                                 Henüz kategori eklenmemiş.
                             </p>
-                            <Button asChild className="bg-red-600 hover:bg-red-700">
+                            <Button asChild className="bg-amber-600 hover:bg-amber-700">
                                 <Link href="/dashboard/categories/new">
                                     İlk Kategoriyi Ekle
                                 </Link>

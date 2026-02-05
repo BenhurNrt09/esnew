@@ -57,7 +57,7 @@ export function Combobox({
             <button
                 type="button"
                 onClick={() => !disabled && setOpen(!open)}
-                className={`flex h-11 w-full items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all ${open ? 'border-red-500 ring-2 ring-red-500/10' : 'border-gray-200 hover:border-gray-300'
+                className={`flex h-11 w-full items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all ${open ? 'border-amber-500 ring-2 ring-amber-500/10' : 'border-gray-200 hover:border-gray-300'
                     } ${disabled ? 'bg-gray-100' : ''}`}
                 disabled={disabled}
             >
@@ -89,7 +89,7 @@ export function Combobox({
                                 <div
                                     key={option.value}
                                     className={`relative flex cursor-pointer select-none items-center rounded-sm px-2 py-2.5 text-sm outline-none transition-colors ${option.value === value
-                                            ? 'bg-red-50 text-red-900 font-medium'
+                                            ? 'bg-amber-50 text-amber-900 font-medium'
                                             : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                                         }`}
                                     onClick={() => {
@@ -99,7 +99,7 @@ export function Combobox({
                                     }}
                                 >
                                     <Check
-                                        className={`mr-2 h-4 w-4 ${option.value === value ? 'opacity-100 text-red-600' : 'opacity-0'
+                                        className={`mr-2 h-4 w-4 ${option.value === value ? 'opacity-100 text-amber-600' : 'opacity-0'
                                             }`}
                                     />
                                     {option.label}

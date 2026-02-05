@@ -106,7 +106,7 @@ export default function NewAdPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="max-w-2xl mx-auto">
-                <Button variant="ghost" className="mb-4 pl-0 hover:bg-transparent hover:text-red-600 text-gray-500" asChild>
+                <Button variant="ghost" className="mb-4 pl-0 hover:bg-transparent hover:text-amber-600 text-gray-500" asChild>
                     <Link href="/dashboard/ads">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Geri Dön
@@ -116,7 +116,7 @@ export default function NewAdPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                            <ImageIcon className="h-6 w-6 text-red-600" />
+                            <ImageIcon className="h-6 w-6 text-amber-600" />
                             Yeni Reklam Ekle
                         </CardTitle>
                     </CardHeader>
@@ -126,7 +126,7 @@ export default function NewAdPage() {
                             {/* Image Upload Area */}
                             <div className="space-y-4">
                                 <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                    <ImageIcon className="h-4 w-4 text-red-600" />
+                                    <ImageIcon className="h-4 w-4 text-amber-600" />
                                     Reklam Görseli
                                 </label>
 
@@ -152,8 +152,8 @@ export default function NewAdPage() {
                                         {/* Overlay when uploading */}
                                         {uploading && (
                                             <div className="absolute inset-0 bg-white/95 flex flex-col items-center justify-center z-20">
-                                                <Loader2 className="h-12 w-12 animate-spin text-red-600 mb-4" />
-                                                <p className="text-xl font-black text-red-900 animate-pulse">YÜKLENİYOR...</p>
+                                                <Loader2 className="h-12 w-12 animate-spin text-amber-600 mb-4" />
+                                                <p className="text-xl font-black text-amber-900 animate-pulse">YÜKLENİYOR...</p>
                                             </div>
                                         )}
 
@@ -185,14 +185,14 @@ export default function NewAdPage() {
                                     </div>
                                 ) : (
                                     <div
-                                        className="w-full py-20 flex flex-col items-center justify-center border-4 border-dashed border-red-200 rounded-3xl bg-white hover:bg-red-50/50 hover:border-red-400 transition-all cursor-pointer group"
+                                        className="w-full py-20 flex flex-col items-center justify-center border-4 border-dashed border-amber-200 rounded-3xl bg-white hover:bg-amber-50/50 hover:border-amber-400 transition-all cursor-pointer group"
                                         onClick={() => document.getElementById('ad-image-upload')?.click()}
                                     >
-                                        <div className="bg-red-50 p-6 rounded-full mb-6 shadow-sm border border-red-100 group-hover:scale-110 transition-transform duration-300">
+                                        <div className="bg-amber-50 p-6 rounded-full mb-6 shadow-sm border border-amber-100 group-hover:scale-110 transition-transform duration-300">
                                             {uploading ? (
-                                                <Loader2 className="h-12 w-12 animate-spin text-red-600" />
+                                                <Loader2 className="h-12 w-12 animate-spin text-amber-600" />
                                             ) : (
-                                                <Upload className="h-12 w-12 text-red-500" />
+                                                <Upload className="h-12 w-12 text-amber-500" />
                                             )}
                                         </div>
                                         <div className="text-center px-4">
@@ -201,7 +201,7 @@ export default function NewAdPage() {
                                                 Reklam görselini buraya sürükleyebilir veya dosyalarınız arasından seçebilirsiniz.
                                             </p>
                                         </div>
-                                        <div className="mt-8 px-8 py-4 bg-red-600 text-white rounded-xl font-black shadow-lg shadow-red-600/20 group-hover:bg-red-700 transition-all uppercase tracking-tight">
+                                        <div className="mt-8 px-8 py-4 bg-amber-600 text-white rounded-xl font-black shadow-lg shadow-amber-600/20 group-hover:bg-amber-700 transition-all uppercase tracking-tight">
                                             Bilgisayardan Gözat
                                         </div>
                                     </div>
@@ -213,7 +213,7 @@ export default function NewAdPage() {
                                 <div className="space-y-3">
                                     <label className="text-sm font-bold text-gray-700">Görüntülenecek Taraf</label>
                                     <select
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-gray-100 bg-white text-sm focus:border-red-600 focus:ring-0 transition-all cursor-pointer font-medium"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-gray-100 bg-white text-sm focus:border-amber-600 focus:ring-0 transition-all cursor-pointer font-medium"
                                         value={formData.position}
                                         onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                                     >
@@ -227,7 +227,7 @@ export default function NewAdPage() {
                                     <label className="text-sm font-bold text-gray-700">Sıralama Önceliği</label>
                                     <Input
                                         type="number"
-                                        className="h-12 rounded-xl border-2 border-gray-100 focus:border-red-600 transition-all font-medium"
+                                        className="h-12 rounded-xl border-2 border-gray-100 focus:border-amber-600 transition-all font-medium"
                                         value={formData.order}
                                         onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
                                         min={0}
@@ -238,12 +238,12 @@ export default function NewAdPage() {
                             {/* Link */}
                             <div className="space-y-3">
                                 <label className="text-sm font-bold text-gray-700 font-bold flex items-center gap-2">
-                                    <Save className="h-4 w-4 text-red-600" />
+                                    <Save className="h-4 w-4 text-amber-600" />
                                     Tıklayınca Gidilecek Link (Opsiyonel)
                                 </label>
                                 <Input
                                     placeholder="https://"
-                                    className="h-12 rounded-xl border-2 border-gray-100 focus:border-red-600 transition-all font-medium"
+                                    className="h-12 rounded-xl border-2 border-gray-100 focus:border-amber-600 transition-all font-medium"
                                     value={formData.link}
                                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                                 />
@@ -258,7 +258,7 @@ export default function NewAdPage() {
                                 <div className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        className="h-7 w-7 rounded-lg border-2 border-gray-300 text-red-600 focus:ring-red-600 transition-all cursor-pointer"
+                                        className="h-7 w-7 rounded-lg border-2 border-gray-300 text-amber-600 focus:ring-amber-600 transition-all cursor-pointer"
                                         checked={formData.is_active}
                                         onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                                     />
@@ -268,7 +268,7 @@ export default function NewAdPage() {
                             <Button
                                 type="submit"
                                 size="lg"
-                                className="w-full h-14 bg-red-600 hover:bg-red-700 text-white font-black text-lg transition-all shadow-xl shadow-red-600/20 active:scale-[0.98]"
+                                className="w-full h-14 bg-amber-600 hover:bg-amber-700 text-white font-black text-lg transition-all shadow-xl shadow-amber-600/20 active:scale-[0.98]"
                                 disabled={loading || uploading}
                             >
                                 {loading ? (

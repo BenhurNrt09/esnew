@@ -53,15 +53,15 @@ export default function NewCityPage() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl animate-in fade-in duration-500">
             <div className="mb-8">
-                <h1 className="text-3xl font-black text-red-950 tracking-tight">Yeni Şehir Ekle</h1>
+                <h1 className="text-3xl font-black text-amber-950 tracking-tight">Yeni Şehir Ekle</h1>
                 <p className="text-muted-foreground mt-1">Platformun hizmet vereceği yeni bir lokasyon tanımlayın.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
 
-                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
-                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
-                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
+                <Card className="border-amber-100 shadow-lg shadow-amber-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-amber-50 to-white border-b border-amber-50 py-4">
+                        <CardTitle className="flex items-center gap-2 text-amber-900 text-lg">
                             <MapPin className="h-5 w-5" /> Şehir Bilgileri
                         </CardTitle>
                     </CardHeader>
@@ -76,7 +76,7 @@ export default function NewCityPage() {
                                     onChange={(e) => handleNameChange(e.target.value)}
                                     placeholder="Örn: İstanbul"
                                     required
-                                    className="pl-10 border-gray-200 focus:border-red-500 h-11 shadow-sm font-medium"
+                                    className="pl-10 border-gray-200 focus:border-amber-500 h-11 shadow-sm font-medium"
                                 />
                             </div>
                         </div>
@@ -117,9 +117,9 @@ export default function NewCityPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
-                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
-                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
+                <Card className="border-amber-100 shadow-lg shadow-amber-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-amber-50 to-white border-b border-amber-50 py-4">
+                        <CardTitle className="flex items-center gap-2 text-amber-900 text-lg">
                             <FileText className="h-5 w-5" /> SEO Ayarları
                         </CardTitle>
                     </CardHeader>
@@ -130,7 +130,7 @@ export default function NewCityPage() {
                                 value={formData.seo_title}
                                 onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
                                 placeholder={`${formData.name || '...'} İlanları - En İyi Profiller`}
-                                className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
+                                className="border-gray-200 focus:border-amber-500 h-11 shadow-sm"
                             />
                         </div>
 
@@ -140,21 +140,21 @@ export default function NewCityPage() {
                                 value={formData.seo_description}
                                 onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
                                 placeholder={`${formData.name || '...'} bölgesindeki en popüler ilanlar ve profiller.`}
-                                className="w-full min-h-[100px] rounded-xl border border-gray-200 p-4 text-sm focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none shadow-sm transition-all resize-y"
+                                className="w-full min-h-[100px] rounded-xl border border-gray-200 p-4 text-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none shadow-sm transition-all resize-y"
                             />
                         </div>
                     </CardContent>
                 </Card>
 
                 {error && (
-                    <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-3 font-medium animate-pulse">
+                    <div className="p-4 bg-amber-50 text-amber-700 rounded-xl border border-amber-200 flex items-center gap-3 font-medium animate-pulse">
                         <Info className="h-5 w-5" />
                         {error}
                     </div>
                 )}
 
                 <div className="flex items-center gap-4 sticky bottom-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-gray-200 shadow-2xl z-40">
-                    <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-bold shadow-lg shadow-red-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
+                    <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white h-14 text-lg font-bold shadow-lg shadow-amber-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
                         {loading ? 'Ekleniyor...' : 'Şehri Kaydet'}
                     </Button>
                     <Button

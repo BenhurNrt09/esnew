@@ -229,7 +229,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
                 )}
 
                 <div className="flex items-center gap-4 sticky bottom-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-gray-200 shadow-2xl z-40">
-                    <Button type="submit" disabled={saving} className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-bold shadow-lg shadow-red-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
+                    <Button type="submit" disabled={saving} className="flex-1 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white h-14 text-lg font-bold shadow-lg shadow-amber-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
                         {saving ? 'Güncelleniyor...' : 'Değişiklikleri Kaydet'}
                     </Button>
                     <Button

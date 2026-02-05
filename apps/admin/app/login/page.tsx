@@ -113,7 +113,7 @@ export default function LoginPage() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
                                     disabled={loading}
-                                    className="pl-10 h-12 bg-white/5 border-red-900/30 text-white placeholder:text-white/20 focus:border-red-500 focus:ring-red-500/20 rounded-xl transition-all"
+                                    className="pl-10 h-12 bg-white/5 border-amber-900/30 text-white placeholder:text-white/20 focus:border-amber-500 focus:ring-amber-500/20 rounded-xl transition-all"
                                 />
                             </div>
                         </div>
@@ -143,7 +143,7 @@ export default function LoginPage() {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <p className="text-xs text-red-200/40">
+                        <p className="text-xs text-amber-200/40">
                             © 2024 Secure Admin System. All rights reserved.
                         </p>
                     </div>

@@ -27,15 +27,15 @@ export default async function AdsPage() {
         <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-black text-red-950 flex items-center gap-3">
-                        <ImageIcon className="h-8 w-8 text-red-600" />
+                    <h1 className="text-3xl font-black text-amber-950 flex items-center gap-3">
+                        <ImageIcon className="h-8 w-8 text-amber-600" />
                         Reklam Yönetimi
                     </h1>
                     <p className="text-muted-foreground mt-1">
                         Sitede görünen reklam alanlarını yönetin
                     </p>
                 </div>
-                <Button asChild className="bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-red-200 gap-2">
+                <Button asChild className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-amber-200 gap-2">
                     <Link href="/dashboard/ads/new">
                         <Plus className="h-4 w-4" />
                         Yeni Reklam Ekle
@@ -45,7 +45,7 @@ export default async function AdsPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {ads.map((ad) => (
-                    <Card key={ad.id} className="overflow-hidden border-red-100 shadow-sm group hover:shadow-md transition-shadow">
+                    <Card key={ad.id} className="overflow-hidden border-amber-100 shadow-sm group hover:shadow-md transition-shadow">
                         <div className="w-full bg-gray-50 relative overflow-hidden border-b border-gray-100 flex items-center justify-center p-2">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
@@ -84,7 +84,7 @@ export default async function AdsPage() {
                             {!ad.link && <p className="text-xs text-gray-400 italic mb-4">Link yok</p>}
 
                             <div className="flex items-center gap-2">
-                                <Button variant="outline" size="sm" className="flex-1 gap-1 text-red-600 hover:bg-red-50" asChild>
+                                <Button variant="outline" size="sm" className="flex-1 gap-1 text-amber-600 hover:bg-amber-50" asChild>
                                     <Link href={`/dashboard/ads/${ad.id}/edit`}>
                                         <Edit className="h-3 w-3" /> Düzenle
                                     </Link>
@@ -96,7 +96,7 @@ export default async function AdsPage() {
                                     await supabase.from('banners').delete().eq('id', ad.id);
                                     revalidatePath('/dashboard/ads');
                                 }}>
-                                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-red-600">
+                                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-amber-600">
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </form>

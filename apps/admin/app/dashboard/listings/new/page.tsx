@@ -322,8 +322,8 @@ export default function NewProfilePage() {
             <form onSubmit={handleSubmit} className="space-y-8">
 
                 {/* 1. KİŞİSEL BİLGİLER */}
-                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
-                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
+                <Card className="border-amber-100 shadow-lg shadow-amber-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-amber-50 to-white border-b border-amber-50 py-4">
                         <CardTitle className="flex items-center gap-2 text-primary text-lg">
                             <User className="h-5 w-5" /> Temel Bilgiler
                         </CardTitle>
@@ -361,7 +361,7 @@ export default function NewProfilePage() {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Kendinizden bahsedin..."
-                                className="w-full min-h-[140px] rounded-xl border border-gray-200 p-4 text-sm focus:border-primary focus:ring-4 focus:ring-red-500/10 outline-none shadow-sm transition-all resize-y"
+                                className="w-full min-h-[140px] rounded-xl border border-gray-200 p-4 text-sm focus:border-primary focus:ring-4 focus:ring-amber-500/10 outline-none shadow-sm transition-all resize-y"
                             />
                         </div>
 
@@ -420,8 +420,8 @@ export default function NewProfilePage() {
                 </Card>
 
                 {/* 2. FİZİKSEL & DETAYLI ÖZELLİKLER */}
-                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
-                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
+                <Card className="border-amber-100 shadow-lg shadow-amber-100/20 overflow-visible">
+                    <CardHeader className="bg-gradient-to-r from-amber-50 to-white border-b border-amber-50 py-4">
                         <CardTitle className="flex items-center gap-2 text-primary text-lg">
                             <Info className="h-5 w-5" /> Fiziksel Özellikler & Detaylar
                         </CardTitle>
@@ -528,8 +528,8 @@ export default function NewProfilePage() {
                 </Card>
 
                 {/* 3. MEDYA GALERİSİ */}
-                <Card className="border-red-100 shadow-lg shadow-red-100/20">
-                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
+                <Card className="border-amber-100 shadow-lg shadow-amber-100/20">
+                    <CardHeader className="bg-gradient-to-r from-amber-50 to-white border-b border-amber-50 py-4">
                         <CardTitle className="flex items-center gap-2 text-primary text-lg">
                             <ImageIcon className="h-5 w-5" /> Fotoğraf Galerisi
                         </CardTitle>
@@ -540,7 +540,7 @@ export default function NewProfilePage() {
                             <label className="text-sm font-bold text-gray-700 block">Kapak Fotoğrafı (Ana Resim)</label>
                             <div className="flex items-start gap-6 p-4 bg-gray-50/50 rounded-xl border border-gray-100 border-dashed">
                                 <div
-                                    className="w-40 h-56 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-white cursor-pointer hover:border-red-400 hover:bg-red-50/10 transition-all overflow-hidden relative shadow-sm"
+                                    className="w-40 h-56 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-white cursor-pointer hover:border-amber-400 hover:bg-amber-50/10 transition-all overflow-hidden relative shadow-sm"
                                     onClick={() => document.getElementById('cover_input')?.click()}
                                 >
                                     {coverPreview ? (
@@ -573,7 +573,7 @@ export default function NewProfilePage() {
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
                                 <label className="text-sm font-bold text-gray-700">Galeri Resimleri (Çoklu)</label>
-                                <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('gallery_input')?.click()} className="border-red-200 text-red-600 hover:bg-red-50">
+                                <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('gallery_input')?.click()} className="border-amber-200 text-amber-600 hover:bg-amber-50">
                                     + Resim Ekle
                                 </Button>
                             </div>
@@ -596,7 +596,7 @@ export default function NewProfilePage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => removeGalleryImage(idx)}
-                                                    className="bg-red-600 text-white rounded-full p-2 transform scale-0 group-hover:scale-100 transition-transform duration-200 hover:bg-red-700 shadow-lg"
+                                                    className="bg-amber-600 text-white rounded-full p-2 transform scale-0 group-hover:scale-100 transition-transform duration-200 hover:bg-amber-700 shadow-lg"
                                                 >
                                                     <X className="h-4 w-4" />
                                                 </button>
@@ -604,7 +604,7 @@ export default function NewProfilePage() {
                                         </div>
                                     ))}
                                     <div
-                                        className="aspect-[3/4] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-red-300 hover:bg-red-50/10 transition-colors bg-gray-50/30"
+                                        className="aspect-[3/4] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-amber-300 hover:bg-amber-50/10 transition-colors bg-gray-50/30"
                                         onClick={() => document.getElementById('gallery_input')?.click()}
                                     >
                                         <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center mb-2 shadow-sm">
@@ -615,11 +615,11 @@ export default function NewProfilePage() {
                                 </div>
                             ) : (
                                 <div
-                                    className="border-2 border-dashed border-gray-200 rounded-xl p-10 text-center cursor-pointer hover:bg-gray-50 hover:border-red-300 transition-all group"
+                                    className="border-2 border-dashed border-gray-200 rounded-xl p-10 text-center cursor-pointer hover:bg-gray-50 hover:border-amber-300 transition-all group"
                                     onClick={() => document.getElementById('gallery_input')?.click()}
                                 >
-                                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                                        <ImageIcon className="h-8 w-8 text-red-300 group-hover:text-primary" />
+                                    <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                                        <ImageIcon className="h-8 w-8 text-amber-300 group-hover:text-primary" />
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-700">Fotoğraf Yükle</h3>
                                     <p className="text-sm text-gray-400 mt-1">Sürükleyip bırakın veya seçmek için tıklayın</p>
@@ -631,7 +631,7 @@ export default function NewProfilePage() {
                 </Card>
 
                 {/* 4. YAYIN AYARLARI */}
-                <Card className="border-red-100 shadow-md bg-white overflow-hidden">
+                <Card className="border-amber-100 shadow-md bg-white overflow-hidden">
                     <CardContent className="p-6">
                         <div className="flex flex-col md:flex-row gap-6">
                             <div
@@ -676,7 +676,7 @@ export default function NewProfilePage() {
                 </Card>
 
                 {error && (
-                    <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-3 font-medium animate-pulse">
+                    <div className="p-4 bg-amber-50 text-amber-700 rounded-xl border border-amber-200 flex items-center gap-3 font-medium animate-pulse">
                         <Info className="h-5 w-5" />
                         {error}
                     </div>
