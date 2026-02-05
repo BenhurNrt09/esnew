@@ -51,7 +51,7 @@ async function main() {
     });
 
     const NEW_EMAIL = 'admin@velora.com';
-    const NEW_PASSWORD = 'admin.123!';
+    const NEW_PASSWORD = '" "';
     const OLD_EMAIL = 'admin@esnew.com';
 
     console.log(`Target: ${NEW_EMAIL}`);

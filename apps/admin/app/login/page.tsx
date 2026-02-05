@@ -35,15 +35,20 @@ export default function LoginPage() {
                 .eq('id', data.user.id)
                 .maybeSingle();
 
-            // If user doesn't exist in DB, deny admin access (do NOT auto-create as admin)
+            if (selectError) {
+                console.error('Login DB Error:', selectError);
+                throw new Error('Veritabanı bağlantı hatası oluştu.');
+            }
+
+            // If user doesn't exist in DB, it might be a sync problem or non-admin
             if (!existingUser) {
                 await supabase.auth.signOut();
-                setError('Erişim reddedildi. Hesabınız yönetici değil veya veritabanında kayıtlı değil.');
+                setError('Hata: Hesabınız veritabanında bulunamadı. Lütfen sistem yöneticisine başvurun veya migration scriptlerini kontrol edin.');
                 return;
             } else if (existingUser.role !== 'admin') {
                 // If user exists but isn't admin, deny access
                 await supabase.auth.signOut();
-                setError('Erişim reddedildi. Bu panele sadece yöneticiler erişebilir.');
+                setError('Erişim reddedildi. Bu e-posta adresi yönetici yetkisine sahip değil.');
                 return;
             }
 
