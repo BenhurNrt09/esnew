@@ -38,22 +38,22 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
     return (
         <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
             {/* Modern Filters Bar */}
-            <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-xl shadow-red-100/20">
-                <div className="flex items-center gap-2 mb-6 text-red-900 font-bold text-sm uppercase tracking-wider">
-                    <SlidersHorizontal className="h-4 w-4 text-red-500" />
+            <div className="bg-white p-6 rounded-2xl border border-primary/10 shadow-xl shadow-primary/5">
+                <div className="flex items-center gap-2 mb-6 text-gray-800 font-bold text-sm uppercase tracking-wider">
+                    <SlidersHorizontal className="h-4 w-4 text-primary" />
                     Hızlı Filtreleme
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                     {/* Search */}
                     <div className="md:col-span-4 relative group">
-                        <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                        <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400 group-focus-within:text-primary transition-colors" />
                         <Input
                             type="text"
                             placeholder="İsim, Açıklama veya ID ara..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-11 pl-10 border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:border-red-500 shadow-sm"
+                            className="w-full h-11 pl-10 border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:border-primary shadow-sm"
                         />
                     </div>
 
@@ -88,7 +88,7 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
                             disabled={!hasFilters}
                             variant="outline"
                             className={`w-full h-11 rounded-lg border-dashed ${hasFilters
-                                ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
+                                ? 'border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50'
                                 : 'border-gray-200 text-gray-300 cursor-not-allowed'
                                 }`}
                         >
@@ -104,8 +104,8 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
                     Toplam <span className="font-bold text-gray-900 text-sm">{filteredListings.length}</span> profil listeleniyor
                 </div>
                 {hasFilters && (
-                    <div className="text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                    <div className="text-black bg-gold-gradient px-3 py-1 rounded-full border-none flex items-center gap-2 shadow-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></div>
                         Filtrelenmiş sonuçlar
                     </div>
                 )}
@@ -139,19 +139,19 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
                                 </tr>
                             ) : (
                                 filteredListings.map((listing) => (
-                                    <tr key={listing.id} className="hover:bg-red-50/10 transition-colors group">
+                                    <tr key={listing.id} className="hover:bg-primary/5 transition-colors group">
                                         <td className="py-5 px-6">
                                             <div className="flex items-center gap-4">
-                                                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border overflow-hidden relative ${listing.cover_image ? 'border-gray-100' : 'bg-gradient-to-br from-red-50 to-white border-red-100'
+                                                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border overflow-hidden relative ${listing.cover_image ? 'border-gray-100' : 'bg-gradient-to-br from-gray-50 to-white border-gray-200'
                                                     }`}>
                                                     {listing.cover_image ? (
                                                         <img src={listing.cover_image} alt="" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                                                     ) : (
-                                                        <ImageIcon className="h-6 w-6 text-red-200" />
+                                                        <ImageIcon className="h-6 w-6 text-gray-300" />
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <p className="font-extrabold text-base text-gray-900 group-hover:text-red-700 transition-colors">{listing.title}</p>
+                                                    <p className="font-extrabold text-base text-gray-900 group-hover:text-primary transition-colors">{listing.title}</p>
                                                     <p className="text-[11px] text-gray-400 font-mono mt-1 flex items-center gap-1">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
                                                         {listing.slug}
@@ -162,7 +162,7 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
                                         <td className="py-5 px-6">
                                             <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                                                    <span className="text-red-500">•</span>
+                                                    <span className="text-primary">•</span>
                                                     {listing.city?.name || 'Şehir Yok'}
                                                 </div>
                                                 <div className="text-xs text-gray-400 bg-gray-50 inline-block px-2 py-0.5 rounded border border-gray-100 w-fit">

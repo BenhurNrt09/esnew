@@ -218,6 +218,9 @@ export default function NewProfilePage() {
         setError('');
 
         try {
+            if (!formData.city_id) throw new Error('Lütfen bir şehir seçiniz.');
+            if (!formData.category_id) throw new Error('Lütfen bir kategori seçiniz.');
+
             const supabase = createBrowserClient();
 
             const { data: profile, error: insertError } = await supabase
@@ -226,8 +229,8 @@ export default function NewProfilePage() {
                     title: formData.title,
                     slug: formData.slug,
                     description: formData.description,
-                    city_id: formData.city_id,
-                    category_id: formData.category_id,
+                    city_id: formData.city_id || null,
+                    category_id: formData.category_id || null,
                     price: formData.price ? parseFloat(formData.price) : null,
                     phone: formData.phone,
                     is_active: formData.is_active,
@@ -299,7 +302,7 @@ export default function NewProfilePage() {
         <div className="container mx-auto px-4 py-8 max-w-4xl animate-in fade-in duration-500">
             <div className="mb-8 flex justify-between items-end">
                 <div>
-                    <h1 className="text-3xl font-black text-red-950 tracking-tight">Yeni Profil Oluştur</h1>
+                    <h1 className="text-3xl font-black text-black tracking-tight">Yeni Profil Oluştur</h1>
                     <p className="text-muted-foreground mt-1">Platforma detaylı bir profesyonel profil ekleyin</p>
                 </div>
                 <Button
@@ -321,7 +324,7 @@ export default function NewProfilePage() {
                 {/* 1. KİŞİSEL BİLGİLER */}
                 <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
                     <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
-                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
+                        <CardTitle className="flex items-center gap-2 text-primary text-lg">
                             <User className="h-5 w-5" /> Temel Bilgiler
                         </CardTitle>
                     </CardHeader>
@@ -334,7 +337,7 @@ export default function NewProfilePage() {
                                     onChange={(e) => handleTitleChange(e.target.value)}
                                     placeholder="Örn: Ayşe Yılmaz"
                                     required
-                                    className="border-gray-200 focus:border-red-500 font-medium h-11 text-base shadow-sm"
+                                    className="border-gray-200 focus:border-primary font-medium h-11 text-base shadow-sm"
                                 />
                                 <p className="text-xs text-gray-400">Profilinizin ana başlığı.</p>
                             </div>
@@ -358,14 +361,14 @@ export default function NewProfilePage() {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Kendinizden bahsedin..."
-                                className="w-full min-h-[140px] rounded-xl border border-gray-200 p-4 text-sm focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none shadow-sm transition-all resize-y"
+                                className="w-full min-h-[140px] rounded-xl border border-gray-200 p-4 text-sm focus:border-primary focus:ring-4 focus:ring-red-500/10 outline-none shadow-sm transition-all resize-y"
                             />
                         </div>
 
                         <div className="grid md:grid-cols-3 gap-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                    <MapPin className="h-4 w-4 text-red-500" /> Şehir / İl
+                                    <MapPin className="h-4 w-4 text-primary" /> Şehir / İl
                                 </label>
                                 <Combobox
                                     options={cities.map(c => ({ value: c.id, label: c.name }))}
@@ -419,7 +422,7 @@ export default function NewProfilePage() {
                 {/* 2. FİZİKSEL & DETAYLI ÖZELLİKLER */}
                 <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
                     <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
-                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
+                        <CardTitle className="flex items-center gap-2 text-primary text-lg">
                             <Info className="h-5 w-5" /> Fiziksel Özellikler & Detaylar
                         </CardTitle>
                     </CardHeader>
@@ -432,7 +435,7 @@ export default function NewProfilePage() {
                                     placeholder="25"
                                     value={formData.details['age'] || ''}
                                     onChange={e => handleFeatureChange('age', e.target.value)}
-                                    className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
+                                    className="border-gray-200 focus:border-primary h-11 shadow-sm"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -442,7 +445,7 @@ export default function NewProfilePage() {
                                     placeholder="175"
                                     value={formData.details['height'] || ''}
                                     onChange={e => handleFeatureChange('height', e.target.value)}
-                                    className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
+                                    className="border-gray-200 focus:border-primary h-11 shadow-sm"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -452,7 +455,7 @@ export default function NewProfilePage() {
                                     placeholder="60"
                                     value={formData.details['weight'] || ''}
                                     onChange={e => handleFeatureChange('weight', e.target.value)}
-                                    className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
+                                    className="border-gray-200 focus:border-primary h-11 shadow-sm"
                                 />
                             </div>
 
@@ -460,7 +463,7 @@ export default function NewProfilePage() {
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700">Cinsiyet</label>
                                 <select
-                                    className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:border-red-500 outline-none"
+                                    className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:border-primary outline-none"
                                     value={formData.details['gender'] || 'woman'}
                                     onChange={e => handleFeatureChange('gender', e.target.value)}
                                 >
@@ -472,7 +475,7 @@ export default function NewProfilePage() {
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700">Göğüs Ölçüsü</label>
                                 <select
-                                    className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:border-red-500 outline-none"
+                                    className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:border-primary outline-none"
                                     value={formData.details['breast_size'] || ''}
                                     onChange={e => handleFeatureChange('breast_size', e.target.value)}
                                 >
@@ -487,7 +490,7 @@ export default function NewProfilePage() {
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700">Vücut Kılı</label>
                                 <select
-                                    className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:border-red-500 outline-none"
+                                    className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:border-primary outline-none"
                                     value={formData.details['body_hair'] || 'shaved'}
                                     onChange={e => handleFeatureChange('body_hair', e.target.value)}
                                 >
@@ -527,7 +530,7 @@ export default function NewProfilePage() {
                 {/* 3. MEDYA GALERİSİ */}
                 <Card className="border-red-100 shadow-lg shadow-red-100/20">
                     <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
-                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
+                        <CardTitle className="flex items-center gap-2 text-primary text-lg">
                             <ImageIcon className="h-5 w-5" /> Fotoğraf Galerisi
                         </CardTitle>
                     </CardHeader>
@@ -616,7 +619,7 @@ export default function NewProfilePage() {
                                     onClick={() => document.getElementById('gallery_input')?.click()}
                                 >
                                     <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                                        <ImageIcon className="h-8 w-8 text-red-300 group-hover:text-red-500" />
+                                        <ImageIcon className="h-8 w-8 text-red-300 group-hover:text-primary" />
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-700">Fotoğraf Yükle</h3>
                                     <p className="text-sm text-gray-400 mt-1">Sürükleyip bırakın veya seçmek için tıklayın</p>
@@ -680,7 +683,7 @@ export default function NewProfilePage() {
                 )}
 
                 <div className="flex items-center gap-4 sticky bottom-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-gray-200 shadow-2xl z-40 transform translate-y-2">
-                    <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-bold shadow-lg shadow-red-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
+                    <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-primary to-primary-foreground/90 hover:from-primary/90 hover:to-primary shadow-primary/20 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
                         {loading ? 'Profil Oluşturuluyor...' : 'Profili Kaydet ve Yayınla'}
                     </Button>
                     <Button type="button" variant="outline" onClick={() => router.back()} className="h-14 px-8 rounded-xl border-gray-300 text-gray-600 hover:bg-gray-50 font-medium">

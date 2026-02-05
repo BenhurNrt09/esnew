@@ -1,30 +1,55 @@
 import { createBrowserClient } from '@supabase/ssr';
 
 export const createClient = () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const isBrowser = typeof window !== 'undefined';
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error('Missing Supabase environment variables');
-    }
-
-
-    // During SSR (build time), we need to provide dummy cookie methods to prevent crashes.
-    // In the browser, we let createBrowserClient handle document.cookie automatically by NOT passing the cookies object.
-    const isBrowser = () => typeof window !== 'undefined';
-
-    const options: any = {
-        cookieOptions: {
-            name: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
-        },
-    };
-
-    if (!isBrowser()) {
-        options.cookies = {
-            getAll() { return []; },
-            setAll() { }
-        };
-    }
-
-    return createBrowserClient(supabaseUrl, supabaseAnonKey, options);
+    return createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) {
+                    if (!isBrowser) return undefined;
+                    const cookie = document.cookie.split('; ').find(row => row.startsWith(`${name}=`));
+                    return cookie ? decodeURIComponent(cookie.split('=')[1]) : undefined;
+                },
+                set(name: string, value: string, options: any) {
+                    if (!isBrowser) return;
+                    let cookieString = `${name}=${encodeURIComponent(value)}`;
+                    if (options?.maxAge) cookieString += `; Max-Age=${options.maxAge}`;
+                    if (options?.path) cookieString += `; Path=${options.path}`;
+                    if (options?.domain) cookieString += `; Domain=${options.domain}`;
+                    if (options?.secure) cookieString += `; Secure`;
+                    if (options?.sameSite) cookieString += `; SameSite=${options.sameSite}`;
+                    document.cookie = cookieString;
+                },
+                remove(name: string, options: any) {
+                    if (!isBrowser) return;
+                    document.cookie = `${name}=; Max-Age=-1; Path=${options?.path || '/'}`;
+                },
+                getAll() {
+                    if (!isBrowser) return [];
+                    return document.cookie.split('; ').filter(Boolean).map(str => {
+                        const [name, ...value] = str.split('=');
+                        return { name, value: decodeURIComponent(value.join('=')) };
+                    });
+                },
+                setAll(cookiesToSet: any[]) {
+                    if (!isBrowser) return;
+                    cookiesToSet.forEach(({ name, value, options }) => {
+                        this.set(name, value, options);
+                    });
+                },
+            },
+            cookieOptions: {
+                name: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME || 'sb-auth-token',
+            },
+            auth: {
+                storageKey: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME ? `${process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME}-storage` : undefined,
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true,
+            }
+        }
+    );
 };

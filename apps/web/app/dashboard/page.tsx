@@ -117,7 +117,7 @@ export default function DashboardPage() {
         switch (type) {
             case 'view': return <Users className="w-5 h-5 text-blue-500" />;
             case 'comment': return <MessageSquare className="w-5 h-5 text-purple-500" />;
-            case 'story': return <Camera className="w-5 h-5 text-pink-500" />;
+            case 'story': return <Camera className="w-5 h-5 text-primary" />;
             default: return <Bell className="w-5 h-5 text-gray-500" />;
         }
     };

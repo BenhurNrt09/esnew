@@ -24,9 +24,9 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
     return (
         <div className="container mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-500">
             {/* Welcome Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-red-50">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-primary/10">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-red-950">{t.dashboard.welcome}</h1>
+                    <h1 className="text-3xl font-black tracking-tight text-gray-900">{t.dashboard.welcome}</h1>
                     <p className="text-gray-500 mt-1">{t.dashboard.quickStart}</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-100 font-medium">
@@ -42,14 +42,14 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
                     value={stats.totalListings}
                     description={`${stats.activeListings} ${t.listings.active}`}
                     trend="+12%"
-                    color="red"
+                    color="primary"
                 />
                 <StatsCard
                     title={t.cities.title}
                     value={stats.totalCities}
                     description={t.dashboard.addCities}
                     trend="Sabit"
-                    color="rose"
+                    color="primary"
                 />
                 <StatsCard
                     title={t.categories.title}
@@ -63,7 +63,7 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
                     value={stats.featuredListings}
                     description={t.home.featuredProfiles}
                     trend="+5%"
-                    color="purple"
+                    color="primary"
                 />
             </div>
 
@@ -71,7 +71,7 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
             <Card className="shadow-sm border-gray-100 hover:shadow-md transition-shadow">
                 <CardHeader className="border-b border-gray-50 bg-gray-50/30">
                     <CardTitle className="flex items-center gap-2 text-gray-800">
-                        <Activity className="h-5 w-5 text-red-600" />
+                        <Activity className="h-5 w-5 text-primary" />
                         {t.dashboard.welcome}
                     </CardTitle>
                     <CardDescription>
@@ -83,9 +83,7 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
                         {recentActivity.length > 0 ? recentActivity.map((activity, i) => (
                             <div key={i} className="flex gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-50 last:border-0 last:pb-0">
                                 <div className="mt-1">
-                                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center border border-red-200">
-                                        <FileText className="h-4 w-4 text-red-600" />
-                                    </div>
+                                    <FileText className="h-4 w-4 text-primary" />
                                 </div>
                                 <div>
                                     <p className="text-gray-900 font-medium text-sm">

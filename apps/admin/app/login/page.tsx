@@ -57,21 +57,21 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-950 via-gray-900 to-black p-4 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black p-4 relative overflow-hidden">
             {/* Background Effects */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-                <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-red-600/20 rounded-full blur-[120px] animate-pulse"></div>
-                <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-red-800/20 rounded-full blur-[100px]"></div>
+                <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
+                <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[100px]"></div>
             </div>
 
-            <Card className="w-full max-w-md relative z-10 border-red-900/30 bg-black/40 backdrop-blur-xl shadow-2xl shadow-red-900/20">
+            <Card className="w-full max-w-md relative z-10 border-primary/20 bg-black/40 backdrop-blur-xl shadow-2xl shadow-primary/10">
                 <CardHeader className="text-center space-y-4 pb-2">
-                    <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/30 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                        <ShieldCheck className="h-8 w-8 text-white" />
+                    <div className="mx-auto w-16 h-16 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                        <ShieldCheck className="h-8 w-8 text-black" />
                     </div>
                     <div>
                         <CardTitle className="text-2xl font-black text-white tracking-tight">Yönetici Paneli</CardTitle>
-                        <CardDescription className="text-red-200/60 text-sm mt-1">
+                        <CardDescription className="text-gray-400 text-sm mt-1">
                             Güvenli giriş yaparak yönetim paneline erişin
                         </CardDescription>
                     </div>
@@ -79,10 +79,10 @@ export default function LoginPage() {
                 <CardContent className="pt-6">
                     <form onSubmit={handleLogin} className="space-y-5">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-red-200/80 uppercase tracking-wider ml-1">E-posta Adresi</label>
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">E-posta Adresi</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-red-300/50 group-focus-within:text-red-400 transition-colors" />
+                                    <Mail className="h-5 w-5 text-gray-500 group-focus-within:text-primary transition-colors" />
                                 </div>
                                 <Input
                                     id="email"
@@ -92,18 +92,18 @@ export default function LoginPage() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
                                     disabled={loading}
-                                    className="pl-10 h-12 bg-white/5 border-red-900/30 text-white placeholder:text-white/20 focus:border-red-500 focus:ring-red-500/20 rounded-xl transition-all"
+                                    className="pl-10 h-12 bg-white/5 border-primary/20 text-white placeholder:text-white/20 focus:border-primary focus:ring-primary/20 rounded-xl transition-all"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <label className="text-xs font-bold text-red-200/80 uppercase tracking-wider ml-1">Şifre</label>
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Şifre</label>
                             </div>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-red-300/50 group-focus-within:text-red-400 transition-colors" />
+                                    <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-primary transition-colors" />
                                 </div>
                                 <Input
                                     id="password"
@@ -119,9 +119,9 @@ export default function LoginPage() {
                         </div>
 
                         {error && (
-                            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-200 text-sm animate-pulse">
-                                <div className="p-1 bg-red-500/20 rounded-full">
-                                    <ShieldCheck className="h-4 w-4 text-red-400" />
+                            <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl flex items-center gap-3 text-gray-200 text-sm animate-pulse">
+                                <div className="p-1 bg-primary/20 rounded-full">
+                                    <ShieldCheck className="h-4 w-4 text-primary" />
                                 </div>
                                 {error}
                             </div>
@@ -129,7 +129,7 @@ export default function LoginPage() {
 
                         <Button
                             type="submit"
-                            className="w-full h-12 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-bold rounded-xl shadow-lg shadow-red-900/30 transition-all hover:scale-[1.02] active:scale-[0.98] group"
+                            className="w-full h-12 bg-gold-gradient hover:opacity-90 text-black font-bold rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] group border-none"
                             disabled={loading}
                         >
                             {loading ? (

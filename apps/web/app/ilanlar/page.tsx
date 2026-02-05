@@ -66,7 +66,7 @@ export default async function IlanlarPage({
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Hero Header */}
-            <div className="bg-gradient-to-br from-red-600 via-red-500 to-pink-500 text-white py-12 md:py-16">
+            <div className="bg-gradient-to-br from-black via-gray-900 to-black text-white py-12 md:py-16 border-b border-primary/20">
                 <div className="container mx-auto px-4">
                     <Button
                         variant="ghost"
@@ -99,7 +99,7 @@ export default async function IlanlarPage({
                             <Button
                                 size="sm"
                                 variant={!isVitrinOnly ? "secondary" : "ghost"}
-                                className={!isVitrinOnly ? "bg-white text-red-600 font-bold" : "text-white border-white/30 hover:bg-white/10"}
+                                className={!isVitrinOnly ? "bg-gold-gradient text-black font-bold border-none" : "text-white border-white/30 hover:bg-white/10"}
                             >
                                 Tüm Profiller
                             </Button>
@@ -108,7 +108,7 @@ export default async function IlanlarPage({
                             <Button
                                 size="sm"
                                 variant={isVitrinOnly ? "secondary" : "ghost"}
-                                className={isVitrinOnly ? "bg-white text-red-600 font-bold" : "text-white border-white/30 hover:bg-white/10"}
+                                className={isVitrinOnly ? "bg-gold-gradient text-black font-bold border-none" : "text-white border-white/30 hover:bg-white/10"}
                             >
                                 <Sparkles className="h-3 w-3 mr-1.5" />
                                 Sadece Vitrin

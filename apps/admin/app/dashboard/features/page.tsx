@@ -25,15 +25,15 @@ export default async function FeaturesPage() {
             <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-700">
                 <div className="flex flex-col md:flex-row justify-between items-end border-b border-gray-100 pb-4">
                     <div>
-                        <h1 className="text-3xl font-black text-red-950 flex items-center gap-3">
-                            <Star className="h-8 w-8 text-amber-500 fill-amber-500" />
+                        <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
+                            <Star className="h-8 w-8 text-primary fill-primary" />
                             Vitrin & Özellikler
                         </h1>
                         <p className="text-muted-foreground mt-2">
                             Ana sayfada öne çıkan profilleri ve sistem özelliklerini buradan yönetebilirsiniz.
                         </p>
                     </div>
-                    <Button asChild className="bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-200 mt-4 md:mt-0">
+                    <Button asChild className="bg-primary hover:bg-primary/90 text-black font-bold shadow-lg shadow-primary/10 mt-4 md:mt-0">
                         <Link href="/dashboard/listings/new">
                             <Sparkles className="mr-2 h-4 w-4" /> Vitrine Yeni Profil Ekle
                         </Link>
@@ -61,7 +61,7 @@ export default async function FeaturesPage() {
                                     <span className="text-gray-500">
                                         {listing.price ? `${listing.price} ₺` : 'Fiyat Yok'}
                                     </span>
-                                    <Link href={`/dashboard/listings/${listing.id}/edit`} className="text-red-500 hover:text-red-700 font-medium text-xs flex items-center">
+                                    <Link href={`/dashboard/listings/${listing.id}/edit`} className="text-primary hover:text-primary/70 font-bold text-xs flex items-center">
                                         Düzenle <ArrowRight className="h-3 w-3 ml-1" />
                                     </Link>
                                 </div>
@@ -82,7 +82,7 @@ export default async function FeaturesPage() {
             {/* ÖZELLİK (KATEGORİ) LİSTESİ */}
             <div className="space-y-6">
                 <div className="flex items-center gap-2 border-b border-gray-100 pb-2">
-                    <Layers className="h-5 w-5 text-red-600" />
+                    <Layers className="h-5 w-5 text-primary" />
                     <h2 className="text-xl font-bold text-gray-800">Özellik Seçenekleri</h2>
                 </div>
 
@@ -91,10 +91,10 @@ export default async function FeaturesPage() {
                         const subs = categories.filter(c => c.parent_id === parent.id);
                         return (
                             <Card key={parent.id} className="border-red-50 bg-white">
-                                <CardHeader className="py-3 bg-red-50/30 border-b border-red-50">
-                                    <CardTitle className="text-base text-red-900 flex justify-between">
+                                <CardHeader className="py-3 bg-gray-50/50 border-b border-gray-100">
+                                    <CardTitle className="text-base text-gray-900 flex justify-between">
                                         {parent.name}
-                                        <span className="text-xs bg-white px-2 py-0.5 rounded border border-red-100 text-red-400">
+                                        <span className="text-xs bg-white px-2 py-0.5 rounded border border-gray-100 text-gray-400">
                                             {subs.length}
                                         </span>
                                     </CardTitle>
@@ -109,7 +109,7 @@ export default async function FeaturesPage() {
                                         {subs.length === 0 && <span className="text-xs text-gray-300 italic">Seçenek yok</span>}
                                     </div>
                                     <div className="mt-4 pt-2 border-t border-gray-50">
-                                        <Link href={`/dashboard/categories/${parent.id}/edit`} className="text-[10px] text-red-400 hover:text-red-600 hover:underline">
+                                        <Link href={`/dashboard/categories/${parent.id}/edit`} className="text-[10px] text-primary hover:text-primary/70 hover:underline">
                                             + Seçenekleri Düzenle
                                         </Link>
                                     </div>

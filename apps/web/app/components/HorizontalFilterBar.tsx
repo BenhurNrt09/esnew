@@ -175,13 +175,13 @@ export function HorizontalFilterBar({ filters, setFilters }: { filters: any, set
                         value={filters.hair}
                         onChange={(v) => setFilters({ ...filters, hair: v })}
                     />
-                    <FilterDropdown
+                    {/* <FilterDropdown
                         label={f.breast}
                         icon={<Circle className="w-3.5 h-3.5" />}
                         options={breastOptions}
                         value={filters.breast}
                         onChange={(v) => setFilters({ ...filters, breast: v })}
-                    />
+                    /> */}
                 </div>
             </div>
         </div>

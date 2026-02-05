@@ -25,7 +25,7 @@ export default async function CategoriesPage() {
         <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-black text-red-950">Kategori Yönetimi</h1>
+                    <h1 className="text-3xl font-black text-gray-900">Kategori Yönetimi</h1>
                     <p className="text-muted-foreground mt-1">
                         {mainCategories.length} ana kategori, {subCategories.length} alt kategori
                     </p>

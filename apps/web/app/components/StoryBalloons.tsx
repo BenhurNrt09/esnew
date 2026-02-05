@@ -94,7 +94,7 @@ export function StoryBalloons({ modelId }: { modelId?: string }) {
                             className="flex flex-col items-center gap-1.5 shrink-0 group"
                         >
                             <div className={cn(
-                                "rounded-full p-[2px] bg-gradient-to-tr from-primary via-primary/50 to-pink-500 animate-gradient-xy group-hover:scale-105 transition-transform",
+                                "rounded-full p-[2px] bg-gradient-to-tr from-primary via-primary/50 to-primary/80 animate-gradient-xy group-hover:scale-105 transition-transform",
                                 modelId ? "w-20 h-20" : "w-16 h-16" // Larger on profile page, smaller on homepage
                             )}>
                                 <div className="w-full h-full rounded-full border-[2px] border-white overflow-hidden bg-gray-100 flex items-center justify-center">
@@ -182,7 +182,7 @@ function StoryViewer({ item, onClose }: { item: any, onClose: () => void }) {
                 {/* External Close Button (PC) */}
                 <button
                     onClick={onClose}
-                    className="absolute top-6 right-3 z-40 p-2 bg-black/40 hover:bg-red-500/80 rounded-full transition-all backdrop-blur-md border border-white/10 group"
+                    className="absolute top-6 right-3 z-40 p-2 bg-black/40 hover:bg-primary/80 rounded-full transition-all backdrop-blur-md border border-white/10 group"
                 >
                     <X className="w-5 h-5 text-white drop-shadow-md group-hover:rotate-90 transition-transform" />
                 </button>

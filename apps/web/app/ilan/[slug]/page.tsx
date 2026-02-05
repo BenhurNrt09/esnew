@@ -142,15 +142,15 @@ export default async function ListingPage({ params }: { params: { slug: string }
         'YENİ': 'bg-green-500 text-white',
         'PREMIUM': 'bg-blue-600 text-white',
         'BAĞIMSIZ': 'bg-purple-600 text-white',
-        'VİDEOLU': 'bg-pink-500 text-white',
-        'PORNO YILDIZI': 'bg-red-600 text-white'
+        'VİDEOLU': 'bg-primary text-black',
+        'PORNO YILDIZI': 'bg-gray-900 text-white'
     };
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* COMPACT HERO */}
-            <div className="relative h-[200px] sm:h-[250px] w-full bg-red-950 overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-950 to-black/90"></div>
+            <div className="relative h-[200px] sm:h-[250px] w-full bg-black overflow-hidden group border-b border-primary/30">
+                <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-950 to-black/90"></div>
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
 
                 {/* Floating Back Button */}
@@ -179,20 +179,20 @@ export default async function ListingPage({ params }: { params: { slug: string }
                                     <span className="bg-white/10 backdrop-blur-md text-white px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider border border-white/20">
                                         {listing.category?.name}
                                     </span>
-                                    <span className="bg-red-500/90 backdrop-blur-md text-white px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-red-900/20 border border-red-400/30">
-                                        <ShieldCheck className="w-3 h-3" /> Kimlik Doğrulanmış
+                                    <span className="bg-gold-gradient backdrop-blur-md text-black px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-primary/20 border border-primary/30">
+                                        <ShieldCheck className="w-3 h-3 text-black" /> Kimlik Doğrulanmış
                                     </span>
                                 </div>
                                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tighter leading-none drop-shadow-2xl">
                                     {listing.title}
                                 </h1>
                                 <div className="flex items-center gap-3 text-white/50 text-xs font-bold uppercase tracking-wide">
-                                    <span className="flex items-center gap-1.5">
-                                        <MapPin className="h-3.5 w-3.5 text-red-500" /> {listing.city?.name}
+                                    <span className="flex items-center gap-1.5 text-primary">
+                                        <MapPin className="h-3.5 w-3.5 text-primary" /> {listing.city?.name}
                                     </span>
-                                    <span className="w-1 h-1 bg-white/20 rounded-full"></span>
+                                    <span className="w-1 h-1 bg-primary/20 rounded-full"></span>
                                     <span className="flex items-center gap-1.5">
-                                        <Calendar className="h-3.5 w-3.5 text-red-500" /> {new Date(listing.created_at).toLocaleDateString('tr-TR')}
+                                        <Calendar className="h-3.5 w-3.5 text-primary" /> {new Date(listing.created_at).toLocaleDateString('tr-TR')}
                                     </span>
                                 </div>
                             </div>
@@ -258,10 +258,10 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             <div className="col-span-1 md:col-span-8">
                                 <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-6 shadow-md md:shadow-lg border border-gray-100 relative overflow-hidden">
                                     <div className="hidden md:block absolute top-0 right-0 p-8 opacity-5">
-                                        <User className="w-24 h-24 text-red-600" />
+                                        <User className="w-24 h-24 text-primary" />
                                     </div>
                                     <h2 className="text-sm md:text-xl font-black text-gray-900 mb-2 md:mb-4 flex items-center gap-1.5 md:gap-3 uppercase tracking-tighter relative z-10">
-                                        <User className="h-4 w-4 md:h-6 md:w-6 text-red-600" /> <span className="hidden sm:inline">PROFİL</span> ÖZETİ
+                                        <User className="h-4 w-4 md:h-6 md:w-6 text-primary" /> <span className="hidden sm:inline">PROFİL</span> ÖZETİ
                                     </h2>
                                     <p className="text-gray-700 text-xs md:text-sm lg:text-base font-medium leading-relaxed whitespace-pre-line relative z-10 line-clamp-6 md:line-clamp-none">
                                         {listing.description}
@@ -284,7 +284,7 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             {/* Features */}
                             <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
                                 <h3 className="text-base font-black text-gray-900 mb-3 flex items-center gap-2 uppercase tracking-tighter">
-                                    <Info className="h-4 w-4 text-red-600" /> ÖZELLİKLER
+                                    <Info className="h-4 w-4 text-primary" /> ÖZELLİKLER
                                 </h3>
                                 <div className="space-y-1.5">
                                     {features.map((f, i) => (
@@ -300,16 +300,16 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             </div>
 
                             {/* Pricing */}
-                            <div className="bg-white rounded-2xl p-4 shadow-lg border border-red-50">
-                                <h3 className="text-base font-black text-red-600 mb-3 flex items-center gap-2 uppercase tracking-tighter">
-                                    <DollarSign className="h-4 w-4" /> FİYATLANDIRMA
+                            <div className="bg-white rounded-2xl p-4 shadow-lg border border-primary/10">
+                                <h3 className="text-base font-black text-gold-gradient mb-3 flex items-center gap-2 uppercase tracking-tighter">
+                                    <DollarSign className="h-4 w-4 text-primary" /> FİYATLANDIRMA
                                 </h3>
                                 <div className="space-y-2">
                                     {listing.pricing && listing.pricing.length > 0 ? (
                                         listing.pricing.map((p, i) => (
                                             <div key={i} className="flex justify-between items-center bg-gray-50/50 p-3 rounded-xl border border-gray-100">
                                                 <div>
-                                                    <p className="text-[9px] font-black text-red-600 uppercase tracking-wide mb-0.5">{p.duration}</p>
+                                                    <p className="text-[9px] font-black text-gold-gradient uppercase tracking-wide mb-0.5">{p.duration}</p>
                                                     <div className="flex items-center gap-1.5 text-gray-400 text-[9px] font-bold uppercase">
                                                         <MapPin className="w-2.5 h-2.5" /> {p.location || 'Her Yer'}
                                                     </div>
@@ -328,7 +328,7 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             {/* Services */}
                             <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
                                 <h3 className="text-base font-black text-gray-900 mb-3 flex items-center gap-2 uppercase tracking-tighter">
-                                    <ListChecks className="h-4 w-4 text-red-600" /> NELER VAR?
+                                    <ListChecks className="h-4 w-4 text-primary" /> NELER VAR?
                                 </h3>
                                 <div className="grid grid-cols-1 gap-1.5">
                                     {services.length > 0 ? (
@@ -360,7 +360,7 @@ export default async function ListingPage({ params }: { params: { slug: string }
                         {/* 1. ÖZELLİKLER TABLE */}
                         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 relative overflow-hidden">
                             <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-tighter">
-                                <Info className="h-5 w-5 text-red-600" /> ÖZELLİKLER
+                                <Info className="h-5 w-5 text-primary" /> ÖZELLİKLER
                             </h3>
                             <div className="space-y-2">
                                 {features.map((f, i) => (
@@ -376,19 +376,19 @@ export default async function ListingPage({ params }: { params: { slug: string }
                         </div>
 
                         {/* 2. FİYATLANDIRMA TABLE */}
-                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-red-50 relative overflow-hidden group">
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-primary/20 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <DollarSign className="w-16 h-16 text-red-600" />
+                                <DollarSign className="w-16 h-16 text-primary" />
                             </div>
-                            <h3 className="text-lg font-black text-red-600 mb-4 flex items-center gap-2 uppercase tracking-tighter relative z-10">
-                                <DollarSign className="h-5 w-5" /> FİYATLANDIRMA
+                            <h3 className="text-lg font-black text-gold-gradient mb-4 flex items-center gap-2 uppercase tracking-tighter relative z-10">
+                                <DollarSign className="h-5 w-5 text-primary" /> FİYATLANDIRMA
                             </h3>
                             <div className="space-y-3 relative z-10">
                                 {listing.pricing && listing.pricing.length > 0 ? (
                                     listing.pricing.map((p, i) => (
                                         <div key={i} className="flex justify-between items-center bg-gray-50/80 p-3 rounded-xl border border-gray-100/50 hover:bg-white hover:shadow-md transition-all">
                                             <div>
-                                                <p className="text-[10px] font-black text-red-600 uppercase tracking-wide mb-0.5 flex items-center gap-1">
+                                                <p className="text-[10px] font-black text-gold-gradient uppercase tracking-wide mb-0.5 flex items-center gap-1">
                                                     <Clock className="w-3 h-3" /> {p.duration}
                                                 </p>
                                                 <div className="flex items-center gap-1.5 text-gray-400 text-[10px] font-bold uppercase">
@@ -412,7 +412,7 @@ export default async function ListingPage({ params }: { params: { slug: string }
                         {/* 3. İZİNLER / NELER VAR TABLE */}
                         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                             <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-tighter">
-                                <ListChecks className="h-5 w-5 text-red-600" /> NELER VAR?
+                                <ListChecks className="h-5 w-5 text-primary" /> NELER VAR?
                             </h3>
                             <div className="grid grid-cols-1 gap-1.5">
                                 {services.length > 0 ? (
@@ -434,7 +434,7 @@ export default async function ListingPage({ params }: { params: { slug: string }
                         <div className="bg-gray-950 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
                             <div className="relative z-10 space-y-3">
                                 <p className="text-red-500 font-black uppercase tracking-wider text-[10px] flex items-center gap-2">
-                                    <AlertCircle className="w-4 h-4" /> GÜVENLİK PROTOKOLÜ
+                                    <AlertCircle className="w-4 h-4 text-primary" /> GÜVENLİK PROTOKOLÜ
                                 </p>
                                 <p className="text-gray-400 text-[10px] font-bold leading-relaxed">
                                     ValoraEscort sadece dijital bir rehberdir. Modellerle yapacağınız görüşmelerde kişisel güvenliğiniz için onaylı profilleri tercih ediniz.

@@ -63,7 +63,7 @@ export function AuthDropdown({ user }: { user?: any }) {
                                         handleLogout();
                                         setIsOpen(false);
                                     }}
-                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
+                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-primary/5 hover:text-primary transition-colors"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     {t.auth.logout || 'Çıkış Yap'}

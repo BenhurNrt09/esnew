@@ -27,7 +27,7 @@ async function getStats() {
     // Top listings by views
     const { data: topListings } = await supabase
         .from('listing_stats')
-        .select('view_count, contact_count, listing:listings(title, slug)')
+        .select('view_count, contact_count, listing:listings!inner(title, slug)')
         .order('view_count', { ascending: false })
         .limit(10);
 
@@ -48,7 +48,7 @@ export default async function StatsPage() {
     return (
         <div className="container mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-500">
             <div>
-                <h1 className="text-3xl font-black text-red-950 tracking-tight uppercase">Sistem İstatistikleri</h1>
+                <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">Sistem İstatistikleri</h1>
                 <p className="text-muted-foreground mt-1">Platform genelindeki etkileşim ve performans verileri.</p>
             </div>
 
@@ -60,7 +60,7 @@ export default async function StatsPage() {
                     { label: 'Favoriye Ekleme', value: data.totalFavorites, icon: Star, color: 'text-amber-600', bg: 'bg-amber-50' },
                     { label: 'Ortalama Puan', value: data.avgRating, icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
                 ].map((stat, i) => (
-                    <Card key={i} className="border-red-50 shadow-sm hover:shadow-md transition-all">
+                    <Card key={i} className="border-gray-100 shadow-sm hover:shadow-md transition-all">
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
@@ -81,7 +81,7 @@ export default async function StatsPage() {
                 <Card className="border-red-50 shadow-sm">
                     <CardHeader className="bg-red-50/30 border-b border-red-50">
                         <CardTitle className="text-lg font-black uppercase tracking-tighter flex items-center gap-2">
-                            <BarChart3 className="w-5 h-5 text-red-600" /> En Çok Tıklanan Profiller
+                            <BarChart3 className="w-5 h-5 text-primary" /> En Çok Tıklanan Profiller
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -89,7 +89,7 @@ export default async function StatsPage() {
                             {data.topListings.map((item: any, i: number) => (
                                 <div key={i} className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-8 h-8 rounded-lg bg-red-950 text-white flex items-center justify-center font-black text-xs shrink-0">
+                                        <div className="w-8 h-8 rounded-lg bg-black text-primary flex items-center justify-center font-black text-xs shrink-0 border border-primary/20">
                                             {i + 1}
                                         </div>
                                         <div>
@@ -103,7 +103,7 @@ export default async function StatsPage() {
                                             <p className="text-[9px] text-gray-400 uppercase font-bold tracking-widest">İzlenme</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs font-black text-red-600">{item.contact_count}</p>
+                                            <p className="text-xs font-black text-primary">{item.contact_count}</p>
                                             <p className="text-[9px] text-gray-400 uppercase font-bold tracking-widest">İletişim</p>
                                         </div>
                                     </div>
@@ -117,7 +117,7 @@ export default async function StatsPage() {
                 <Card className="border-red-50 shadow-sm">
                     <CardHeader className="bg-red-50/30 border-b border-red-50">
                         <CardTitle className="text-lg font-black uppercase tracking-tighter flex items-center gap-2">
-                            <Users className="w-5 h-5 text-red-600" /> Sistem Özeti
+                            <Users className="w-5 h-5 text-primary" /> Sistem Özeti
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="p-8 space-y-8">
@@ -135,11 +135,11 @@ export default async function StatsPage() {
                         </div>
 
                         <div className="space-y-4">
-                            <h5 className="text-xs font-black text-red-950 uppercase tracking-widest">Performans Notu</h5>
-                            <div className="p-6 rounded-2xl bg-red-950 text-white shadow-xl shadow-red-900/20">
+                            <h5 className="text-xs font-black text-gray-900 uppercase tracking-widest">Performans Notu</h5>
+                            <div className="p-6 rounded-2xl bg-black text-white shadow-xl shadow-primary/10 border border-primary/20">
                                 <p className="text-sm font-bold leading-relaxed opacity-90">
-                                    Sistem şu anda <span className="text-red-400 font-black">{data.totalViews}</span> görüntülenme ile stabil çalışıyor.
-                                    İletişim dönüşüm oranı <span className="text-red-400 font-black">%{data.totalViews > 0 ? ((data.totalContacts / data.totalViews) * 100).toFixed(1) : 0}</span> seviyesinde.
+                                    Sistem şu anda <span className="text-primary font-black">{data.totalViews}</span> görüntülenme ile stabil çalışıyor.
+                                    İletişim dönüşüm oranı <span className="text-primary font-black">%{data.totalViews > 0 ? ((data.totalContacts / data.totalViews) * 100).toFixed(1) : 0}</span> seviyesinde.
                                 </p>
                             </div>
                         </div>

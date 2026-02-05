@@ -28,7 +28,7 @@ export function DashboardHeader() {
             try {
                 const supabase = createClient();
                 const { data: { user } } = await supabase.auth.getUser();
-                
+
                 if (user) {
                     let displayName = '';
 
@@ -46,9 +46,9 @@ export function DashboardHeader() {
                             .select('username, first_name, last_name')
                             .eq('id', user.id)
                             .single();
-                        
+
                         if (memberData) {
-                            displayName = memberData.first_name && memberData.last_name 
+                            displayName = memberData.first_name && memberData.last_name
                                 ? `${memberData.first_name} ${memberData.last_name}`
                                 : memberData.username;
                         } else {
@@ -58,7 +58,7 @@ export function DashboardHeader() {
                                 .select('username, display_name')
                                 .eq('id', user.id)
                                 .single();
-                            
+
                             if (modelData) {
                                 displayName = modelData.display_name || modelData.username;
                             } else {
@@ -68,7 +68,7 @@ export function DashboardHeader() {
                                     .select('company_name, username')
                                     .eq('id', user.id)
                                     .single();
-                                
+
                                 if (agencyData) {
                                     displayName = agencyData.company_name || agencyData.username;
                                 }
@@ -117,7 +117,7 @@ export function DashboardHeader() {
                         variant="ghost"
                         size="sm"
                         onClick={handleLogout}
-                        className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="gap-2 text-gray-600 hover:text-primary hover:bg-primary/5"
                     >
                         <LogOut className="h-4 w-4" />
                         {t.nav.logout}

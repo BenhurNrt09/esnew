@@ -53,7 +53,7 @@ export function Header() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    className="font-bold border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-300 text-xs sm:text-sm px-2 sm:px-3"
+                                    className="font-bold border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:border-gray-300 text-xs sm:text-sm px-2 sm:px-3"
                                     onClick={async () => {
                                         await supabase.auth.signOut();
                                         router.push('/');
