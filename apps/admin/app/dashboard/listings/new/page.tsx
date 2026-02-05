@@ -223,12 +223,25 @@ export default function NewProfilePage() {
 
             const supabase = createBrowserClient();
 
+            // Slug uniqueness check
+            const { data: existingSlug } = await supabase
+                .from('listings')
+                .select('slug')
+                .eq('slug', formData.slug)
+                .maybeSingle();
+
+            let finalSlug = formData.slug;
+            if (existingSlug) {
+                finalSlug = `${formData.slug}-${Math.floor(Math.random() * 1000)}`;
+            }
+
             const { data: profile, error: insertError } = await supabase
                 .from('listings')
                 .insert([{
                     title: formData.title,
-                    slug: formData.slug,
+                    slug: finalSlug,
                     description: formData.description,
+                    // ... rest of data
                     city_id: formData.city_id || null,
                     category_id: formData.category_id || null,
                     price: formData.price ? parseFloat(formData.price) : null,
@@ -236,11 +249,10 @@ export default function NewProfilePage() {
                     is_active: formData.is_active,
                     is_featured: formData.is_featured,
                     details: formData.details,
-                    // New standardized columns
                     gender: formData.details['gender'] || 'woman',
                     orientation: formData.details['orientation'] || 'straight',
                     ethnicity: formData.details['ethnicity'] || 'european',
-                    race: formData.details['ethnicity'] || 'european', // Map to race for homepage filter
+                    race: formData.details['ethnicity'] || 'european',
                     nationality: formData.details['nationality'] || '',
                     breast_size: formData.details['breast_size'] || '',
                     body_hair: formData.details['body_hair'] || 'shaved',
@@ -288,7 +300,7 @@ export default function NewProfilePage() {
                 }
             }
 
-            router.push('/dashboard/listings');
+            router.push('/dashboard/profiles/active');
             router.refresh();
         } catch (err: any) {
             console.error(err);

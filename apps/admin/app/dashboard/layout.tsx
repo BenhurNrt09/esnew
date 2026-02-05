@@ -19,10 +19,15 @@ export default async function DashboardLayout({
         redirect('/login');
     }
 
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const isServiceRoleKeyMissing = !serviceRoleKey ||
+        serviceRoleKey === 'your_service_role_key' ||
+        serviceRoleKey.length < 50; // Supabase keys are long
+
     return (
         <div className="flex h-screen bg-muted/20 overflow-hidden">
             {/* Sidebar (Desktop) */}
-            <Sidebar />
+            <Sidebar isServiceRoleKeyMissing={isServiceRoleKeyMissing} />
 
             {/* Main Wrapper */}
             <div className="flex-1 flex flex-col min-w-0">

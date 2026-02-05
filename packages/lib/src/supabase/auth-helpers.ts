@@ -19,7 +19,8 @@ export function validateUsername(username: string): ValidationResult {
         return { valid: false, error: 'Kullanıcı adı en fazla 20 karakter olabilir' };
     }
 
-    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+    // Allow letters (including Turkish), numbers, underscores, and hyphens
+    const usernameRegex = /^[a-zA-Z0-9çğışıöüÇĞİIÖÜ_-]+$/;
     if (!usernameRegex.test(username)) {
         return { valid: false, error: 'Kullanıcı adı sadece harf, rakam, alt çizgi ve tire içerebilir' };
     }
@@ -60,8 +61,8 @@ export function validatePassword(password: string): ValidationResult {
         return { valid: false, error: 'Şifre en az bir rakam içermelidir' };
     }
 
-    // Check for at least one letter
-    if (!/[a-zA-Z]/.test(password)) {
+    // Check for at least one letter (including Turkish)
+    if (!/[a-zA-ZçğışıöüÇĞİIÖÜ]/.test(password)) {
         return { valid: false, error: 'Şifre en az bir harf içermelidir' };
     }
 

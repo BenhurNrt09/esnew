@@ -265,7 +265,7 @@ export default function ProfileEditPage() {
                     }).eq('id', listingId);
                     if (error) throw error;
                 }
-            } else {
+            } else if (userType === 'member') {
                 const { error } = await supabase.from('members').upsert({
                     id: user.id,
                     email: user.email,
@@ -278,6 +278,9 @@ export default function ProfileEditPage() {
                 }, { onConflict: 'id' });
 
                 if (error) throw error;
+            } else {
+                // If agency or unknown, don't perform a member upsert here
+                console.warn('ProfileEditPage: Skipping member upsert for userType:', userType);
             }
 
             toast.success('Profil başarıyla güncellendi!');

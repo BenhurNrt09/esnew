@@ -63,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const isAdmin = roleRes.data?.role === 'admin';
 
             // Override userType and set displayName based on WHICH record we actually found
+            // We search in order of priority: Model > Agency > Member
             if (modelRes.data) {
                 const p = modelRes.data as any;
                 userType = 'independent_model';
@@ -77,9 +78,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 userType = 'member';
                 if (p.first_name && p.last_name) displayName = `${p.first_name} ${p.last_name}`;
                 else if (p.username) displayName = p.username;
+            } else {
+                // FALLBACK: If not found in any table, TRUST metadata first, then default
+                userType = currentUser.user_metadata?.user_type || 'member';
             }
 
-            return { ...currentUser, displayName, isAdmin, userType };
+            const fullUser = { ...currentUser, displayName, isAdmin, userType };
+
+            // Persist userType in local metadata if possible to prevent flipping
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('lastKnownUserType', userType);
+            }
+
+            return fullUser;
         } catch (err) {
             console.error('Error fetching extended user data (using fallback):', err);
             return {

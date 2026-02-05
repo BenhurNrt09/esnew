@@ -70,7 +70,11 @@ export function ListingActions({ id, slug, isActive, isFeatured }: ListingAction
             </Button>
 
             <Button variant="ghost" size="icon" asChild title="Sitede Gör">
-                <a href={`http://localhost:3000/ilan/${slug}`} target="_blank" rel="noopener noreferrer">
+                <a
+                    href={`${process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000'}/ilan/${slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     <Eye className="h-4 w-4 text-gray-500" />
                 </a>
             </Button>
