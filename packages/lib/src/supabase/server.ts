@@ -19,34 +19,18 @@ export const createClient = () => {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
             cookies: {
-                get(name: string) {
-                    const transformedName = transformCookieName(name);
-                    return cookieStore.get(transformedName)?.value;
-                },
-                set(name: string, value: string, options: CookieOptions) {
-                    try {
-                        const transformedName = transformCookieName(name);
-                        cookieStore.set({ name: transformedName, value, ...options });
-                    } catch (error) {
-                        // The `set` method was called from a Server Component.
-                    }
-                },
-                remove(name: string, options: CookieOptions) {
-                    try {
-                        const transformedName = transformCookieName(name);
-                        cookieStore.set({ name: transformedName, value: '', ...options, maxAge: -1 });
-                    } catch (error) {
-                        // The `remove` method was called from a Server Component.
-                    }
-                },
                 getAll() {
-                    return cookieStore.getAll();
+                    return cookieStore.getAll().map((cookie) => ({
+                        name: cookie.name.replace(`${appPrefix}-`, ''),
+                        value: cookie.value,
+                    }));
                 },
-                setAll(cookiesToSet: { name: string, value: string, options: CookieOptions }[]) {
+                setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
                     try {
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            cookieStore.set(name, value, options)
-                        );
+                        cookiesToSet.forEach(({ name, value, options }) => {
+                            const transformedName = transformCookieName(name);
+                            cookieStore.set(transformedName, value, options);
+                        });
                     } catch {
                         // The `setAll` method was called from a Server Component.
                     }

@@ -19,51 +19,26 @@ export async function middleware(request: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
             cookies: {
-                get(name: string) {
-                    const transformedName = transformCookieName(name);
-                    return request.cookies.get(transformedName)?.value;
-                },
-                set(name: string, value: string, options: CookieOptions) {
-                    const transformedName = transformCookieName(name);
-                    request.cookies.set({ name: transformedName, value, ...options });
-                    response = NextResponse.next({
-                        request: {
-                            headers: request.headers,
-                        },
-                    });
-                    response.cookies.set({ name: transformedName, value, ...options });
-                },
-                remove(name: string, options: CookieOptions) {
-                    const transformedName = transformCookieName(name);
-                    request.cookies.set({ name: transformedName, value: '', ...options, maxAge: -1 });
-                    response = NextResponse.next({
-                        request: {
-                            headers: request.headers,
-                        },
-                    });
-                    response.cookies.set({ name: transformedName, value: '', ...options, maxAge: -1 });
-                },
                 getAll() {
-                    return request.cookies.getAll();
+                    const cookies = request.cookies.getAll();
+                    return cookies.map((cookie) => ({
+                        name: cookie.name.replace(`${appPrefix}-`, ''),
+                        value: cookie.value,
+                    }));
                 },
-                setAll(cookiesToSet: { name: string, value: string, options: CookieOptions }[]) {
+                setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
                     cookiesToSet.forEach(({ name, value, options }) => {
                         const transformedName = transformCookieName(name);
-                        request.cookies.set({
-                            name: transformedName,
-                            value,
-                            ...options,
-                        });
-                        response = NextResponse.next({
-                            request: {
-                                headers: request.headers,
-                            },
-                        });
-                        response.cookies.set({
-                            name: transformedName,
-                            value,
-                            ...options,
-                        });
+                        request.cookies.set(transformedName, value);
+                    });
+                    response = NextResponse.next({
+                        request: {
+                            headers: request.headers,
+                        },
+                    });
+                    cookiesToSet.forEach(({ name, value, options }) => {
+                        const transformedName = transformCookieName(name);
+                        response.cookies.set(transformedName, value, options);
                     });
                 },
             },
