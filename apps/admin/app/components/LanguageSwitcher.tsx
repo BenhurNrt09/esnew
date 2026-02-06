@@ -27,14 +27,9 @@ export function LanguageSwitcher() {
                     transition={{ duration: 0.2 }}
                     className="flex items-center gap-2 absolute inset-0 justify-center"
                 >
-                    <>
-                        <span className="text-2xl">🇹🇷</span>
-                    </>
-                    ) : (
-                    <>
-                        <span className="text-2xl">🇬🇧</span>
-                    </>
-                    )}
+                    <span className="text-2xl">
+                        {language === 'tr' ? '🇹🇷' : '🇬🇧'}
+                    </span>
                 </motion.div>
             </AnimatePresence>
         </Button>
