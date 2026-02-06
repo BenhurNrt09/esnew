@@ -112,8 +112,8 @@ export default function PricingPage() {
         <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Fiyatlandırma Stratejisi</h1>
-                    <p className="text-gray-500 font-medium">Hizmet sürelerinizi ve ücretlerinizi modern barlarla yönetin.</p>
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Fiyatlandırma Stratejisi</h1>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">Hizmet sürelerinizi ve ücretlerinizi modern barlarla yönetin.</p>
                 </div>
                 <Button
                     onClick={handleSave}
@@ -126,16 +126,16 @@ export default function PricingPage() {
 
             <div className="space-y-4">
                 {pricing.map((tier, idx) => (
-                    <Card key={idx} className="shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[2rem] overflow-hidden group hover:border-primary/20 transition-all border-l-8 border-l-primary">
+                    <Card key={idx} className="shadow-2xl shadow-gray-200/50 dark:shadow-none bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-white/5 rounded-[2rem] overflow-hidden group hover:border-primary/20 transition-all border-l-8 border-l-primary">
                         <CardContent className="p-6 md:p-8 flex flex-col lg:flex-row items-center gap-6">
 
                             {/* Duration Selection */}
                             <div className="w-full lg:w-1/4 space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Hizmet Süresi</label>
+                                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Hizmet Süresi</label>
                                 <div className="relative">
                                     <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                                     <select
-                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-100 bg-gray-50 font-bold text-gray-700 focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
+                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 font-bold text-gray-700 dark:text-white focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
                                         value={tier.duration}
                                         onChange={(e) => updateTier(idx, 'duration', e.target.value)}
                                     >
@@ -146,11 +146,11 @@ export default function PricingPage() {
 
                             {/* Location Input */}
                             <div className="w-full lg:w-1/4 space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Lokasyon / Yer</label>
+                                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Lokasyon / Yer</label>
                                 <div className="relative">
                                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                                     <Input
-                                        className="pl-11 h-12 rounded-xl border-gray-100 bg-gray-50 font-bold"
+                                        className="pl-11 h-12 rounded-xl border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 font-bold text-gray-900 dark:text-white"
                                         placeholder="Örn: Kendi Yerim"
                                         value={tier.location}
                                         onChange={(e) => updateTier(idx, 'location', e.target.value)}
@@ -161,13 +161,13 @@ export default function PricingPage() {
                             {/* Price & Currency */}
                             <div className="flex-1 w-full flex items-center gap-3">
                                 <div className="flex-1 space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Ücret</label>
+                                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Ücret</label>
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-black text-xl">
                                             {currencies.find(c => c.code === tier.currency)?.symbol}
                                         </span>
                                         <Input
-                                            className="pl-12 h-14 rounded-xl border-gray-100 bg-gray-50 font-black text-xl text-gray-900"
+                                            className="pl-12 h-14 rounded-xl border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 font-black text-xl text-gray-900 dark:text-white"
                                             placeholder="0.00"
                                             type="number"
                                             value={tier.price}
@@ -176,9 +176,9 @@ export default function PricingPage() {
                                     </div>
                                 </div>
                                 <div className="w-32 space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Para Birimi</label>
+                                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Para Birimi</label>
                                     <select
-                                        className="w-full h-14 px-4 rounded-xl border border-gray-100 bg-gray-50 font-black text-gray-700 focus:ring-2 focus:ring-primary/20 outline-none"
+                                        className="w-full h-14 px-4 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 font-black text-gray-700 dark:text-white focus:ring-2 focus:ring-primary/20 outline-none"
                                         value={tier.currency}
                                         onChange={(e) => updateTier(idx, 'currency', e.target.value)}
                                     >
@@ -204,12 +204,12 @@ export default function PricingPage() {
 
             <button
                 onClick={addTier}
-                className="w-full h-20 border-4 border-dashed border-gray-100 rounded-[2.5rem] flex items-center justify-center gap-3 text-gray-300 hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-all font-black uppercase tracking-[0.2em] text-sm group"
+                className="w-full h-20 border-4 border-dashed border-gray-100 dark:border-white/5 rounded-[2.5rem] flex items-center justify-center gap-3 text-gray-300 dark:text-gray-700 hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-all font-black uppercase tracking-[0.2em] text-sm group"
             >
                 <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-500" /> YENİ FİYAT BARI EKLE
             </button>
 
-            <div className="bg-gray-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-gray-900/40">
+            <div className="bg-gray-900 dark:bg-[#0a0a0a] border border-transparent dark:border-white/5 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-gray-900/40">
                 <div className="absolute top-0 right-0 p-8 opacity-10">
                     <Globe className="w-40 h-40" />
                 </div>

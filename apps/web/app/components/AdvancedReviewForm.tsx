@@ -115,32 +115,32 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
     };
 
     const RatingSlider = ({ label, value, setter, icon: Icon }: any) => (
-        <div className="space-y-4 bg-gray-50/50 p-6 rounded-3xl border border-gray-100">
+        <div className="space-y-4 bg-gray-50/50 dark:bg-white/5 p-6 rounded-3xl border border-gray-100 dark:border-white/5 group hover:border-primary/20 transition-all">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div className="p-2 bg-white dark:bg-black rounded-xl border border-gray-100 dark:border-white/10 group-hover:border-primary/40 transition-colors">
                         <Icon className="w-4 h-4 text-primary" />
                     </div>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{label}</span>
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{label}</span>
                 </div>
-                <span className="bg-primary text-white text-xs font-black px-3 py-1 rounded-lg">{value}/10</span>
+                <span className="bg-primary text-black text-xs font-black px-3 py-1 rounded-lg">{value}/10</span>
             </div>
             <input
                 type="range" min="1" max="10" value={value}
                 onChange={(e) => setter(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
             />
         </div>
     );
 
     const OptionGrid = ({ label, options, current, setter }: any) => (
-        <div className="space-y-2 md:space-y-3">
-            <label className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-wider md:tracking-widest ml-1">{label}</label>
+        <div className="space-y-3 md:space-y-4">
+            <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{label}</label>
             {/* Mobile: Dropdown */}
             <select
                 value={current || ''}
                 onChange={(e) => setter(e.target.value)}
-                className="md:hidden w-full px-3 py-2 rounded-lg text-xs font-bold uppercase bg-white border border-gray-200 text-gray-700 focus:border-primary focus:outline-none"
+                className="md:hidden w-full px-4 py-3 rounded-xl text-xs font-black uppercase bg-white dark:bg-black border border-gray-100 dark:border-white/10 text-gray-900 dark:text-white focus:border-primary focus:outline-none"
             >
                 <option value="">Seçiniz...</option>
                 {options.map((opt: string) => (
@@ -148,13 +148,13 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
                 ))}
             </select>
             {/* Desktop: Buttons */}
-            <div className="hidden md:flex flex-wrap gap-1.5 md:gap-2">
+            <div className="hidden md:flex flex-wrap gap-2">
                 {options.map((opt: string) => (
                     <button
                         key={opt} type="button" onClick={() => setter(opt)}
-                        className={`px-3 md:px-4 py-1.5 md:py-2.5 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all border ${current === opt
-                            ? 'bg-primary text-white border-primary shadow-md md:shadow-lg shadow-primary/20'
-                            : 'bg-white text-gray-500 border-gray-100 hover:border-primary/30'
+                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${current === opt
+                            ? 'bg-gold-gradient text-black border-primary shadow-lg shadow-primary/20'
+                            : 'bg-white dark:bg-black text-gray-400 border-gray-100 dark:border-white/10 hover:border-white/30 hover:text-gray-900 dark:hover:text-white'
                             }`}
                     >
                         {opt}
@@ -167,11 +167,11 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
     // Loading state
     if (isAuthenticated === null) {
         return (
-            <Card className="shadow-2xl shadow-primary/5 border-gray-100 rounded-[3rem] overflow-hidden bg-white mt-12">
+            <Card className="shadow-2xl border-gray-100 dark:border-white/10 rounded-[3rem] overflow-hidden bg-white dark:bg-[#0A0A0A] mt-12">
                 <CardContent className="p-20 text-center">
-                    <div className="animate-pulse">
-                        <div className="h-8 bg-gray-200 rounded-lg w-1/3 mx-auto mb-4"></div>
-                        <div className="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div>
+                    <div className="animate-pulse space-y-4">
+                        <div className="h-4 bg-gray-100 dark:bg-white/5 rounded-lg w-1/3 mx-auto"></div>
+                        <div className="h-8 bg-gray-200 dark:bg-white/10 rounded-lg w-1/2 mx-auto"></div>
                     </div>
                 </CardContent>
             </Card>
@@ -181,25 +181,26 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
     // Not authenticated - show login prompt
     if (!isAuthenticated) {
         return (
-            <Card className="shadow-lg border-gray-100 rounded-2xl overflow-hidden bg-white mt-6">
-                <CardContent className="p-8 text-center space-y-4">
-                    <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-full mb-2">
-                        <LogIn className="w-7 h-7 text-primary" />
+            <Card className="shadow-2xl border-gray-100 dark:border-white/10 rounded-3xl overflow-hidden bg-white dark:bg-[#0A0A0A] mt-8 relative group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-50" />
+                <CardContent className="p-12 text-center space-y-6 relative z-10">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full border border-primary/20 mb-2">
+                        <LogIn className="w-8 h-8 text-primary" />
                     </div>
                     <div className="space-y-2">
-                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">Üye Girişi Gerekli</h3>
+                        <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Değerlendirme İçin Giriş Gerekli</h3>
                         <p className="text-gray-500 font-medium text-sm max-w-md mx-auto">
-                            Değerlendirme yapabilmek için üye girişi yapmanız gerekmektedir.
+                            Güvenliğimiz için sadece kayıtlı üyelerimiz profesyonel değerlendirme yapabilmektedir.
                         </p>
                     </div>
-                    <div className="flex items-center justify-center gap-3 pt-2">
+                    <div className="flex items-center justify-center gap-4 pt-4">
                         <Link href="/login">
-                            <Button className="h-10 px-6 bg-primary text-white font-bold uppercase tracking-wide rounded-xl shadow-lg shadow-primary/20 hover:translate-y-[-1px] transition-all text-xs">
+                            <Button className="h-12 px-8 bg-gold-gradient text-black font-black uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20 hover:scale-105 transition-all text-[10px]">
                                 Giriş Yap
                             </Button>
                         </Link>
                         <Link href="/register">
-                            <Button variant="outline" className="h-10 px-6 font-bold uppercase tracking-wide rounded-xl border-2 hover:border-primary/50 text-xs">
+                            <Button variant="outline" className="h-12 px-8 font-black uppercase tracking-widest rounded-xl border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/30 text-gray-900 dark:text-white text-[10px]">
                                 Kayıt Ol
                             </Button>
                         </Link>
@@ -211,23 +212,24 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
 
     // Authenticated - show review form
     return (
-        <Card className="shadow-lg border-gray-100 rounded-2xl overflow-hidden bg-white mt-6">
-            <CardContent className="p-4 md:p-8 space-y-4 md:space-y-6">
+        <Card className="shadow-2xl border-gray-100 dark:border-white/10 rounded-3xl overflow-hidden bg-white dark:bg-[#0A0A0A] mt-8 relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-30" />
+            <CardContent className="p-4 md:p-10 space-y-8 md:space-y-10 relative z-10">
                 {/* Header & Main Rating */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 border-b border-gray-50 pb-4 md:pb-6">
-                    <div className="space-y-1 md:space-y-2">
-                        <h3 className="text-lg md:text-2xl lg:text-3xl font-black text-gray-900 uppercase tracking-tighter">Deneyiminizi Detaylandırın</h3>
-                        <p className="text-gray-500 font-medium text-xs md:text-sm">Görüşleriniz diğer kullanıcılar için rehber niteliğindedir.</p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 border-b border-gray-100 dark:border-white/5 pb-8 md:pb-10">
+                    <div className="space-y-2">
+                        <h3 className="text-xl md:text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Deneyiminizi Detaylandırın</h3>
+                        <p className="text-gray-500 font-medium text-xs md:text-base">Görüşleriniz topluluğumuz için çok değerlidir.</p>
                     </div>
-                    <div className="flex items-center gap-2 md:gap-4 bg-gray-50 p-3 md:p-4 rounded-xl md:rounded-[2rem] border border-gray-100">
-                        <span className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-wider md:tracking-widest mr-1 md:mr-2">GENEL PUAN</span>
-                        <div className="flex gap-1 md:gap-1.5">
+                    <div className="flex items-center gap-2 md:gap-5 bg-gray-50 dark:bg-black/40 p-4 md:p-5 rounded-2xl md:rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-inner">
+                        <span className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest mr-2">GENEL PUAN</span>
+                        <div className="flex gap-1.5">
                             {[1, 2, 3, 4, 5].map((s) => (
                                 <button
                                     key={s} type="button" onClick={() => setRating(s)}
-                                    className={`transition-all ${s <= rating ? 'scale-110 text-yellow-400' : 'text-gray-200 hover:text-yellow-200 hover:scale-110'}`}
+                                    className={`transition-all duration-300 ${s <= rating ? 'scale-125 text-primary drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]' : 'text-gray-200 dark:text-gray-800 hover:text-primary/30 hover:scale-110'}`}
                                 >
-                                    <Star className={`w-6 h-6 md:w-8 md:h-8 ${s <= rating ? 'fill-current' : ''}`} />
+                                    <Star className={`w-7 h-7 md:w-9 md:h-9 ${s <= rating ? 'fill-current' : ''}`} />
                                 </button>
                             ))}
                         </div>
@@ -237,22 +239,22 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
                 {/* Meeting Context */}
                 <div className="grid md:grid-cols-3 gap-6">
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-primary" /> Buluşma Tarihi
                         </label>
-                        <Input type="date" value={meetingDate} onChange={(e) => setMeetingDate(e.target.value)} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
+                        <Input type="date" value={meetingDate} onChange={(e) => setMeetingDate(e.target.value)} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-black/40 text-gray-900 dark:text-white font-black" />
                     </div>
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                             <Clock className="w-4 h-4 text-primary" /> Süre
                         </label>
-                        <Input placeholder="Örn: 2 Saat" value={duration} onChange={(e) => setDuration(e.target.value)} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
+                        <Input placeholder="Örn: 2 Saat" value={duration} onChange={(e) => setDuration(e.target.value)} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-black/40 text-gray-900 dark:text-white font-black placeholder:text-gray-300 dark:placeholder:text-gray-700" />
                     </div>
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-primary" /> Şehir
                         </label>
-                        <Input placeholder="Örn: İstanbul" value={city} onChange={(e) => setCity(e.target.value)} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
+                        <Input placeholder="Örn: İstanbul" value={city} onChange={(e) => setCity(e.target.value)} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-black/40 text-gray-900 dark:text-white font-black placeholder:text-gray-300 dark:placeholder:text-gray-700" />
                     </div>
                 </div>
 
@@ -264,7 +266,7 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
                 </div>
 
                 {/* Service Details Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 bg-gray-50/30 p-10 rounded-[2.5rem] border border-gray-100">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 bg-gray-50 dark:bg-white/5 p-8 md:p-12 rounded-[3.5rem] border border-gray-100 dark:border-white/5 shadow-inner">
                     <OptionGrid label="ÖPÜŞME" setter={setKissing} current={kissing} options={['Dilli', 'Dilsiz', 'Sadece Dudak', 'Hayır']} />
                     <OptionGrid label="ORAL SEKS" setter={setOralSex} current={oralSex} options={['Kondomlu', 'Kondomsuz', 'Derin']} />
                     <OptionGrid label="AĞIZA GELME" setter={setComeInMouth} current={comeInMouth} options={['Evet', 'Hayır', 'Ağıza', 'Yutma']} />
@@ -277,20 +279,20 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
                 </div>
 
                 <div className="space-y-4">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">DENEYİM NOTUNUZ</label>
+                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">DENEYİM NOTUNUZ</label>
                     <textarea
                         value={content} onChange={(e) => setContent(e.target.value)}
                         placeholder="Modelin servisi, tavrı ve genel deneyiminiz hakkında detaylı bilgi verin..."
-                        className="w-full h-40 bg-gray-50/50 border border-gray-100 rounded-[2rem] p-8 text-sm font-bold text-gray-700 outline-none focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-gray-300"
+                        className="w-full h-48 bg-gray-50 dark:bg-black/40 border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-8 text-sm font-black text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-gray-300 dark:placeholder:text-gray-800"
                         required
                     />
                 </div>
 
                 <Button
                     onClick={handleSubmit} disabled={submitting}
-                    className="w-full h-10 bg-primary text-white font-black uppercase tracking-widest text-[10px] sm:text-xs rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                    className="w-full h-16 bg-gold-gradient text-black font-black uppercase tracking-[0.2em] text-sm rounded-2xl shadow-2xl shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-3"
                 >
-                    <Send className="w-3 h-3 sm:w-4 sm:h-4" /> {submitting ? 'GÖNDERİLİYOR...' : 'DEĞERLENDİRMEYİ YAYINLA'}
+                    <Send className="w-5 h-5" /> {submitting ? 'GÖNDERİLİYOR...' : 'DEĞERLENDİRMEYİ YAYINLA'}
                 </Button>
             </CardContent>
         </Card>

@@ -1,16 +1,15 @@
+
 import { createServerClient } from '@repo/lib/server';
-import type { City, Listing, Category } from '@repo/types';
-import { Button } from '@repo/ui';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { MapPin, Calendar, Heart, ArrowRight, Tag, Layers } from 'lucide-react';
-import { formatPrice } from '@repo/lib';
-import { ProfileCard } from '../../components/ProfileCard';
+import { ListingSection } from '../../components/ListingSection';
+import { Button } from '@repo/ui';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
-async function getCategory(slug: string): Promise<Category | null> {
+async function getCategory(slug: string) {
     const supabase = createServerClient();
     const { data, error } = await supabase
         .from('categories')
@@ -23,22 +22,6 @@ async function getCategory(slug: string): Promise<Category | null> {
     return data;
 }
 
-// Recursively get all subcategory IDs if needed, but for now simple match
-async function getListings(category_id: string): Promise<any[]> {
-    const supabase = createServerClient();
-
-    const { data, error } = await supabase
-        .from('listings')
-        .select('*, city:cities(*), category:categories(*), model_pricing(*), listing_stats(view_count, contact_count)')
-        .eq('category_id', category_id)
-        .eq('is_active', true)
-        .order('is_featured', { ascending: false })
-        .order('created_at', { ascending: false });
-
-    if (error) return [];
-    return data || [];
-}
-
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const category = await getCategory(params.slug);
     if (!category) return { title: 'Kategori Bulunamadı' };
@@ -49,64 +32,81 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function CategoryPage({ params }: { params: { slug: string } }) {
+    const supabase = createServerClient();
     const category = await getCategory(params.slug);
     if (!category) notFound();
 
-    const listings = await getListings(category.id);
+    // 1. Fetch Listings
+    const listingsQuery = supabase
+        .from('listings')
+        .select('*, city:cities(*), category:categories(*), model_pricing(*)')
+        .eq('category_id', category.id)
+        .eq('is_active', true)
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false });
+
+    // 2. Fetch Dependencies
+    const [listingsRes, citiesRes, categoriesRes, adsRes] = await Promise.all([
+        listingsQuery,
+        supabase.from('cities').select('*').eq('is_active', true).order('name').limit(81),
+        supabase.from('categories').select('*').eq('is_active', true).is('parent_id', null).order('order'),
+        supabase.from('banners').select('*').eq('is_active', true).order('order', { ascending: true }),
+    ]);
+
+    const listings = listingsRes.data || [];
+    const ads = adsRes.data || [];
+    const leftAds = ads.filter((a: any) => a.position === 'left');
+    const rightAds = ads.filter((a: any) => a.position === 'right');
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Modern Hero Header - RED THEME */}
-            <div className="relative bg-gradient-to-r from-red-600 to-rose-900 text-white py-20 overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-
-                <div className="container mx-auto px-4 relative z-10 text-center">
-                    <div className="inline-flex items-center gap-2 text-red-100 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm mb-6 border border-white/10">
-                        <Layers className="h-4 w-4" />
-                        <Link href="/" className="hover:text-white transition-colors">Ana Sayfa</Link>
-                        <span className="opacity-50">/</span>
-                        <Link href="/kullanici-kategorileri" className="hover:text-white transition-colors">Kategoriler</Link>
-                        <span className="opacity-50">/</span>
-                        <span>{category.name}</span>
+        <div className="min-h-screen bg-white dark:bg-black">
+            {/* Minimal Category Header */}
+            <div className="bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white py-8 border-b border-gray-100 dark:border-white/10">
+                <div className="container mx-auto px-4">
+                    <div className="flex items-center gap-4 mb-2">
+                        <Button variant="ghost" size="sm" asChild className="text-primary hover:text-primary/80 dark:text-white/50 dark:hover:text-white p-0 h-auto">
+                            <Link href="/">
+                                <ArrowLeft className="w-4 h-4 mr-1" /> Ana Sayfa
+                            </Link>
+                        </Button>
                     </div>
-
-                    <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tight drop-shadow-lg">
-                        {category.name}
-                    </h1>
-                    <p className="text-xl text-red-100 max-w-2xl mx-auto font-light">
-                        {listings.length > 0
-                            ? `"${category.name}" kategorisinde ${listings.length} özel profil listeleniyor.`
-                            : 'Bu kategoride henüz aktif ilan bulunmuyor.'}
-                    </p>
+                    <div className="flex items-end gap-4">
+                        <h1 className="text-3xl font-black uppercase tracking-tight text-primary">
+                            {category.name}
+                        </h1>
+                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1.5 border-l border-gray-200 dark:border-gray-700 pl-4">
+                            {listings.length} İlan bulundu
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            {/* Listings Section */}
-            <section className="py-12 -mt-8 relative z-20">
-                <div className="container mx-auto px-4">
-                    {listings.length === 0 ? (
-                        <div className="bg-white rounded-2xl shadow-xl p-12 text-center max-w-2xl mx-auto border border-gray-100">
-                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Layers className="h-8 w-8 text-gray-400" />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">{category.name} Kategorisi Boş</h3>
-                            <p className="text-gray-500 mb-8">
-                                Bu kategoride henüz ilan bulunmuyor.
+            <ListingSection
+                cities={citiesRes.data || []}
+                listings={listings}
+                categories={categoriesRes.data || []}
+                leftAds={leftAds}
+                rightAds={rightAds}
+                hideCategories={true}
+            />
+
+            {/* SEO Description Section */}
+            <div className="bg-gray-50 dark:bg-[#050505] py-20 border-t border-gray-100 dark:border-white/10">
+                <div className="container mx-auto px-6">
+                    <div className="max-w-4xl">
+                        <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-8 flex items-center gap-4">
+                            <div className="w-2 h-8 bg-gold-gradient" />
+                            {category.name} Hakkında
+                        </h2>
+                        <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 p-10 rounded-[2.5rem] relative overflow-hidden group shadow-sm dark:shadow-none">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] group-hover:bg-primary/10 transition-all duration-700" />
+                            <p className="text-gray-600 dark:text-gray-400 text-lg font-medium leading-loose italic relative z-10">
+                                {category.seo_description || `${category.name} kategorisinde hayalinizdeki deneyimi yaşatacak en seçkin ve profesyonel modellerin ilanlarını bulabilirsiniz. VeloraEscortWorld güvencesiyle en kaliteli hizmete ulaşın.`}
                             </p>
-                            <Button asChild className="bg-red-600 hover:bg-red-700 text-white rounded-full px-8 py-6 h-auto text-lg">
-                                <Link href="/">Tüm Kategorilere Bak</Link>
-                            </Button>
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-                            {listings.map((listing) => (
-                                <ProfileCard key={listing.id} listing={listing} isFeatured={listing.is_featured} />
-                            ))}
-                        </div>
-                    )}
+                    </div>
                 </div>
-            </section>
+            </div>
         </div>
     );
 }

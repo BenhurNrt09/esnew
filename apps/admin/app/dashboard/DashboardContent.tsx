@@ -24,14 +24,13 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
     return (
         <div className="container mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-500">
             {/* Welcome Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-primary/10">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card border border-white/10 p-6 rounded-xl shadow-lg">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-gray-900">{t.dashboard.welcome}</h1>
-                    <p className="text-gray-500 mt-1">{t.dashboard.quickStart}</p>
+                    <h1 className="text-3xl font-black tracking-tight text-white">{t.dashboard.welcome}</h1>
+                    <p className="text-gray-400 mt-1">{t.dashboard.quickStart}</p>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-100 font-medium">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    {t.common.loading}
+                <div className="flex items-center gap-2 text-sm text-primary font-medium">
+                    {/* Badge removed */}
                 </div>
             </div>
 
@@ -56,7 +55,7 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
                     value={stats.totalCategories}
                     description={t.categories.addNew}
                     trend="+2"
-                    color="amber"
+                    color="amber" // Keep amber/primary as gold 
                 />
                 <StatsCard
                     title={t.home.vitrinBadge}
@@ -68,41 +67,41 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
             </div>
 
             {/* Main Content Area - Full Width Activity */}
-            <Card className="shadow-sm border-gray-100 hover:shadow-md transition-shadow">
-                <CardHeader className="border-b border-gray-50 bg-gray-50/30">
-                    <CardTitle className="flex items-center gap-2 text-gray-800">
+            <Card className="shadow-lg border-white/10 bg-card hover:border-primary/30 transition-all">
+                <CardHeader className="border-b border-white/5 bg-white/5">
+                    <CardTitle className="flex items-center gap-2 text-white">
                         <Activity className="h-5 w-5 text-primary" />
                         {t.dashboard.welcome}
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-gray-400">
                         {t.dashboard.addFirstListing}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
                     <div className="space-y-0">
                         {recentActivity.length > 0 ? recentActivity.map((activity, i) => (
-                            <div key={i} className="flex gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-50 last:border-0 last:pb-0">
+                            <div key={i} className="flex gap-4 p-4 hover:bg-white/5 rounded-lg transition-colors border-b border-white/5 last:border-0 last:pb-0">
                                 <div className="mt-1">
                                     <FileText className="h-4 w-4 text-primary" />
                                 </div>
                                 <div>
-                                    <p className="text-gray-900 font-medium text-sm">
-                                        {t.listings.addNew}: <span className="font-bold">{activity.title}</span>
+                                    <p className="text-gray-200 font-medium text-sm">
+                                        Yeni Eklendi: <span className="font-bold text-white">{activity.title}</span>
                                     </p>
                                     <div className="flex items-center gap-3 mt-1">
-                                        <p className="text-xs text-gray-400">
+                                        <p className="text-xs text-gray-500">
                                             {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: tr })}
                                         </p>
                                         {activity.is_active ? (
-                                            <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">{t.listings.active}</span>
+                                            <span className="text-[10px] bg-green-900/30 text-green-400 px-1.5 py-0.5 rounded-full border border-green-900/50">{t.listings.active}</span>
                                         ) : (
-                                            <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">{t.cities.inactive}</span>
+                                            <span className="text-[10px] bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded-full border border-gray-700">{t.cities.inactive}</span>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         )) : (
-                            <div className="text-center py-8 text-gray-400 italic">
+                            <div className="text-center py-8 text-gray-600 italic">
                                 {t.common.noResults}
                             </div>
                         )}
@@ -115,23 +114,23 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
 
 function StatsCard({ title, value, description, trend, color }: any) {
     return (
-        <Card className={`shadow-sm hover:shadow-lg transition-all duration-300 border-${color}-100 overflow-hidden relative group`}>
+        <Card className={`shadow-lg hover:shadow-primary/20 transition-all duration-300 border-white/10 bg-card overflow-hidden relative group`}>
             {/* Decorative BG Blob */}
-            <div className={`absolute top-0 right-0 w-24 h-24 bg-${color}-50 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500 opacity-50`} />
+            <div className={`absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500 opacity-20`} />
 
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                <CardTitle className="text-sm font-medium text-gray-600">
+                <CardTitle className="text-sm font-medium text-gray-400 group-hover:text-primary transition-colors">
                     {title}
                 </CardTitle>
             </CardHeader>
             <CardContent className="relative z-10">
-                <div className="text-3xl font-black text-gray-900">{value}</div>
+                <div className="text-3xl font-black text-white">{value}</div>
                 <div className="flex items-center justify-between mt-2">
                     <p className="text-xs text-gray-500">
                         {description}
                     </p>
                     {trend && (
-                        <span className={`text-${color}-600 font-bold text-[10px] bg-${color}-50 px-2 py-1 rounded-full`}>
+                        <span className={`text-black font-bold text-[10px] bg-primary px-2 py-1 rounded-full`}>
                             {trend}
                         </span>
                     )}

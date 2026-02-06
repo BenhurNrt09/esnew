@@ -305,30 +305,30 @@ export default function ProfileEditPage() {
             <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Profil Ayarları</h1>
-                        <p className="text-gray-500 font-medium">Temel bilgilerinizi bu kısımdan güncelleyebilirsiniz.</p>
+                        <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Profil Ayarları</h1>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium">Temel bilgilerinizi bu kısımdan güncelleyebilirsiniz.</p>
                     </div>
                 </div>
 
-                <Card className="shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[2.5rem] overflow-hidden">
+                <Card className="shadow-2xl shadow-gray-200/50 dark:shadow-none border-gray-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden">
                     <CardContent className="p-10 space-y-8">
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Kullanıcı Adı</label>
-                                <Input value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
+                                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Kullanıcı Adı</label>
+                                <Input value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Adınız</label>
-                                <Input value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
+                                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Adınız</label>
+                                <Input value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Soyadınız</label>
-                                <Input value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
+                                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Soyadınız</label>
+                                <Input value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white" />
                             </div>
                         </div>
 
                         <div className="space-y-4">
-                            <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2 ml-1">
+                            <label className="text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2 ml-1">
                                 <Phone className="w-3.5 h-3.5 text-primary" /> İletişim Numarası
                             </label>
 
@@ -337,9 +337,9 @@ export default function ProfileEditPage() {
                                     <select
                                         value={formData.phone_country_code}
                                         onChange={(e) => setFormData({ ...formData, phone_country_code: e.target.value })}
-                                        className="w-full h-15 rounded-2xl border-2 border-gray-100 bg-white font-black text-gray-900 px-5 py-4 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer"
+                                        className="w-full h-15 rounded-2xl border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 font-black text-gray-900 dark:text-white px-5 py-4 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer"
                                     >
-                                        {countryCodes.map(c => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
+                                        {countryCodes.map(c => <option key={c.code} value={c.code} className="bg-white dark:bg-[#0a0a0a]">{c.flag} {c.code}</option>)}
                                     </select>
                                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-primary w-4 h-4" />
                                 </div>
@@ -348,7 +348,7 @@ export default function ProfileEditPage() {
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     placeholder="5XXXXXXXXX"
-                                    className="h-15 rounded-2xl border-2 border-gray-100 bg-white font-black text-lg text-gray-900 focus:border-primary transition-all pl-4"
+                                    className="h-15 rounded-2xl border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 font-black text-lg text-gray-900 dark:text-white focus:border-primary transition-all pl-4"
                                 />
                             </div>
                         </div>
@@ -366,8 +366,8 @@ export default function ProfileEditPage() {
         <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tighter">İlan Yönetimi</h1>
-                    <p className="text-gray-500 font-bold">Profilinizi ve hizmetlerinizi en detaylı şekilde optimize edin.</p>
+                    <h1 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">İlan Yönetimi</h1>
+                    <p className="text-gray-500 dark:text-gray-400 font-bold">Profilinizi ve hizmetlerinizi en detaylı şekilde optimize edin.</p>
                 </div>
                 <Button onClick={handleSave} disabled={saving} className="w-full lg:w-auto h-16 px-12 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
                     <Save className="w-5 h-5 mr-3" /> {saving ? 'GÜNCELLENİYOR...' : 'DEĞİŞİKLİKLERİ YAYINLA'}
@@ -377,41 +377,41 @@ export default function ProfileEditPage() {
             <div className="grid lg:grid-cols-12 gap-10 items-start">
                 {/* Main Content Info */}
                 <div className="lg:col-span-8 space-y-10">
-                    <Card className="shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[3rem] overflow-hidden">
-                        <CardHeader className="p-8 border-b border-gray-50 bg-gray-50/30">
-                            <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+                    <Card className="shadow-2xl shadow-gray-200/50 dark:shadow-none border-gray-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] rounded-[3rem] overflow-hidden">
+                        <CardHeader className="p-8 border-b border-gray-50 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.02]">
+                            <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-3 text-gray-900 dark:text-white">
                                 <Info className="w-6 h-6 text-primary" /> Temel İlan Bilgileri
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-10 space-y-8">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">İlan Başlığı</label>
-                                <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold focus:ring-4 focus:ring-primary/5 shadow-sm" />
+                                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">İlan Başlığı</label>
+                                <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white focus:ring-4 focus:ring-primary/5 shadow-sm" />
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-8">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">İletişim Numarası</label>
+                                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">İletişim Numarası</label>
                                     <div className="flex gap-2">
                                         <div className="relative min-w-[100px]">
                                             <select
                                                 value={formData.phone_country_code}
                                                 onChange={(e) => setFormData({ ...formData, phone_country_code: e.target.value })}
-                                                className="w-full h-14 rounded-2xl border border-gray-100 bg-gray-50/50 font-black text-sm px-4 appearance-none outline-none focus:border-primary transition-all"
+                                                className="w-full h-14 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-black text-sm text-gray-900 dark:text-white px-4 appearance-none outline-none focus:border-primary transition-all"
                                             >
-                                                {countryCodes.map(c => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
+                                                {countryCodes.map(c => <option key={c.code} value={c.code} className="bg-white dark:bg-[#0a0a0a]">{c.flag} {c.code}</option>)}
                                             </select>
                                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none" />
                                         </div>
-                                        <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-black flex-1 focus:ring-4 focus:ring-primary/5 shadow-sm" />
+                                        <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-black text-gray-900 dark:text-white flex-1 focus:ring-4 focus:ring-primary/5 shadow-sm" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Bulunduğunuz Şehir</label>
+                                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Bulunduğunuz Şehir</label>
                                     <div className="relative">
-                                        <select value={formData.city_id} onChange={(e) => setFormData({ ...formData, city_id: e.target.value })} className="w-full h-14 rounded-2xl border border-gray-100 bg-gray-50/50 px-6 font-bold outline-none appearance-none focus:border-primary transition-all shadow-sm">
-                                            <option value="">Şehir Seçin</option>
-                                            {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        <select value={formData.city_id} onChange={(e) => setFormData({ ...formData, city_id: e.target.value })} className="w-full h-14 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 px-6 font-bold text-gray-900 dark:text-white outline-none appearance-none focus:border-primary transition-all shadow-sm">
+                                            <option value="" className="bg-white dark:bg-[#0a0a0a]">Şehir Seçin</option>
+                                            {cities.map(c => <option key={c.id} value={c.id} className="bg-white dark:bg-[#0a0a0a]">{c.name}</option>)}
                                         </select>
                                         <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" />
                                     </div>
@@ -419,15 +419,15 @@ export default function ProfileEditPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Kişisel Açıklama</label>
-                                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full h-40 rounded-[2rem] border border-gray-100 bg-gray-50/50 p-8 font-bold outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm leading-relaxed resize-none shadow-sm" />
+                                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Kişisel Açıklama</label>
+                                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full h-40 rounded-[2rem] border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 p-8 font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm leading-relaxed resize-none shadow-sm" />
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[3rem] overflow-hidden">
-                        <CardHeader className="p-8 border-b border-gray-50 bg-gray-50/30">
-                            <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+                    <Card className="shadow-2xl shadow-gray-200/50 dark:shadow-none border-gray-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] rounded-[3rem] overflow-hidden">
+                        <CardHeader className="p-8 border-b border-gray-50 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.02]">
+                            <CardTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-3 text-gray-900 dark:text-white">
                                 <Zap className="w-6 h-6 text-primary" /> Hizmetler & Kategoriler
                             </CardTitle>
                         </CardHeader>
@@ -450,9 +450,9 @@ export default function ProfileEditPage() {
 
                 {/* Right Sidebar */}
                 <div className="lg:col-span-4 space-y-10">
-                    <Card className="shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[3rem] overflow-hidden">
-                        <CardHeader className="p-8 border-b border-gray-50 bg-gray-50/30">
-                            <CardTitle className="text-lg font-black uppercase tracking-tighter flex items-center gap-3">
+                    <Card className="shadow-2xl shadow-gray-200/50 dark:shadow-none border-gray-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] rounded-[3rem] overflow-hidden">
+                        <CardHeader className="p-8 border-b border-gray-50 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.02]">
+                            <CardTitle className="text-lg font-black uppercase tracking-tighter flex items-center gap-3 text-gray-900 dark:text-white">
                                 <Heart className="w-6 h-6 text-primary" /> Kişisel Özellikler
                             </CardTitle>
                         </CardHeader>
@@ -471,13 +471,47 @@ export default function ProfileEditPage() {
                                     {['Avrupalı', 'Asyalı', 'Latin', 'Siyahi', 'Arap'].map(opt => (
                                         <button key={opt} onClick={() => setFormData({ ...formData, ethnicity: opt })} className={cn(
                                             "py-2 rounded-lg border text-[9px] font-black uppercase transition-all",
-                                            formData.ethnicity === opt ? "bg-primary text-white border-primary shadow-md shadow-primary/10" : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-white"
+                                            formData.ethnicity === opt ? "bg-primary text-white border-primary shadow-md shadow-primary/10" : "bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-500 border-gray-100 dark:border-white/10 hover:bg-white dark:hover:bg-white/10"
                                         )}>
                                             {opt}
                                         </button>
                                     ))}
                                 </div>
                             </div>
+
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Uyruk (Milliyet)</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {[
+                                        { val: 'TR', label: 'Türk' },
+                                        { val: 'RU', label: 'Rus' },
+                                        { val: 'UA', label: 'Ukrayna' },
+                                        { val: 'US', label: 'Amerikan' },
+                                        { val: 'OTHER', label: 'Diğer' }
+                                    ].map(opt => (
+                                        <button key={opt.val} onClick={() => setFormData({ ...formData, nationality: opt.val })} className={cn(
+                                            "py-2 rounded-lg border text-[9px] font-black uppercase transition-all",
+                                            formData.nationality === opt.val ? "bg-primary text-white border-primary shadow-md shadow-primary/10" : "bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-500 border-gray-100 dark:border-white/10 hover:bg-white dark:hover:bg-white/10"
+                                        )}>
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <ModernSelection
+                                label="Saç Rengi"
+                                value={formData.hair_color}
+                                onChange={(val) => setFormData({ ...formData, hair_color: val })}
+                                options={[
+                                    { value: 'sari', label: 'Sarı', description: 'Blonde' },
+                                    { value: 'kumral', label: 'Kumral', description: 'Light Brown' },
+                                    { value: 'esmer', label: 'Esmer', description: 'Brunette' },
+                                    { value: 'siyah', label: 'Siyah', description: 'Black' },
+                                    { value: 'kizil', label: 'Kızıl', description: 'Red' },
+                                    { value: 'renkli', label: 'Renkli/Boyalı', description: 'Colorful' },
+                                ]}
+                            />
 
                             <ModernSelection
                                 label="Göğüs Ölçekleri"

@@ -47,8 +47,8 @@ function FilterDropdown({ label, options, value, onChange, icon }: FilterDropdow
                 className={cn(
                     "flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all min-w-[120px] justify-between",
                     value !== 'all'
-                        ? "bg-primary text-white border-primary shadow-sm"
-                        : "bg-white text-gray-700 border-gray-200 hover:border-primary/50"
+                        ? "bg-primary text-black border-primary shadow-sm"
+                        : "bg-white/5 text-gray-400 border-white/10 hover:border-primary/50"
                 )}
             >
                 <div className="flex items-center gap-2">
@@ -57,7 +57,7 @@ function FilterDropdown({ label, options, value, onChange, icon }: FilterDropdow
                 </div>
                 <div className="flex items-center gap-1">
                     {value !== 'all' && (
-                        <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-bold bg-black/20 px-2 py-0.5 rounded">
                             {selectedOption?.label}
                         </span>
                     )}
@@ -66,7 +66,7 @@ function FilterDropdown({ label, options, value, onChange, icon }: FilterDropdow
             </button>
 
             {isOpen && (
-                <div className="absolute top-full left-0 mt-2 w-full min-w-[160px] bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
+                <div className="absolute top-full left-0 mt-2 w-full min-w-[160px] bg-[#0a0a0a] rounded-lg shadow-2xl border border-white/10 py-1 z-50">
                     {options.map((opt) => (
                         <button
                             key={opt.value}
@@ -77,8 +77,8 @@ function FilterDropdown({ label, options, value, onChange, icon }: FilterDropdow
                             className={cn(
                                 "w-full text-left px-4 py-2 text-sm font-medium transition-colors",
                                 value === opt.value
-                                    ? "bg-primary text-white"
-                                    : "text-gray-700 hover:bg-gray-100"
+                                    ? "bg-primary text-black"
+                                    : "text-gray-400 hover:bg-white/5 hover:text-white"
                             )}
                         >
                             {opt.label}
@@ -137,7 +137,7 @@ export function HorizontalFilterBar({ filters, setFilters }: { filters: any, set
     ];
 
     return (
-        <div className="w-full bg-white border-y border-gray-100 shadow-sm">
+        <div className="w-full bg-black border-y border-white/5 shadow-2xl shadow-black">
             <div className="container mx-auto px-4 py-4">
                 <div className="flex flex-wrap items-center justify-center gap-3">
                     <FilterDropdown

@@ -38,9 +38,9 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
     return (
         <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
             {/* Modern Filters Bar */}
-            <div className="bg-white p-6 rounded-2xl border border-primary/10 shadow-xl shadow-primary/5">
-                <div className="flex items-center gap-2 mb-6 text-gray-800 font-bold text-sm uppercase tracking-wider">
-                    <SlidersHorizontal className="h-4 w-4 text-primary" />
+            <div className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-xl backdrop-blur-sm relative z-30">
+                <div className="flex items-center gap-2 mb-6 text-primary font-black text-sm uppercase tracking-widest">
+                    <SlidersHorizontal className="h-4 w-4" />
                     Hızlı Filtreleme
                 </div>
 
@@ -53,7 +53,7 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
                             placeholder="İsim, Açıklama veya ID ara..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-11 pl-10 border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:border-primary shadow-sm"
+                            className="w-full h-11 pl-10 border-white/10 bg-black/40 text-sm focus:bg-black focus:border-primary shadow-sm text-white"
                         />
                     </div>
 
@@ -99,12 +99,12 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
             </div>
 
             {/* Stats Bar */}
-            <div className="flex items-center justify-between text-xs text-gray-500 px-2 font-medium">
+            <div className="flex items-center justify-between text-xs text-gray-300 px-2 font-medium">
                 <div>
-                    Toplam <span className="font-bold text-gray-900 text-sm">{filteredListings.length}</span> profil listeleniyor
+                    Toplam <span className="font-black text-primary text-sm">{filteredListings.length}</span> profil listeleniyor
                 </div>
                 {hasFilters && (
-                    <div className="text-black bg-gold-gradient px-3 py-1 rounded-full border-none flex items-center gap-2 shadow-sm">
+                    <div className="text-black bg-gold-gradient px-3 py-1 rounded-full border-none flex items-center gap-2 shadow-lg">
                         <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></div>
                         Filtrelenmiş sonuçlar
                     </div>
@@ -112,27 +112,27 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white/5 rounded-2xl border border-white/10 shadow-sm overflow-hidden backdrop-blur-sm">
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-gray-50/80 text-xs uppercase border-b border-gray-100 backdrop-blur-sm">
+                        <thead className="bg-black/60 text-[10px] uppercase border-b border-white/5 backdrop-blur-sm">
                             <tr>
-                                <th className="text-left py-5 px-6 font-bold text-gray-400 tracking-wider w-[300px]">Profil Detayı</th>
-                                <th className="text-left py-5 px-6 font-bold text-gray-400 tracking-wider">İl / Kategori</th>
-                                <th className="text-left py-5 px-6 font-bold text-gray-400 tracking-wider">Saatlik Ücret</th>
-                                <th className="text-left py-5 px-6 font-bold text-gray-400 tracking-wider">Durum</th>
-                                <th className="text-right py-5 px-6 font-bold text-gray-400 tracking-wider">Yönetim</th>
+                                <th className="text-left py-5 px-6 font-black text-gray-400 tracking-widest w-[300px]">Profil Detayı</th>
+                                <th className="text-left py-5 px-6 font-black text-gray-400 tracking-widest">İl / Kategori</th>
+                                <th className="text-left py-5 px-6 font-black text-gray-400 tracking-widest">Saatlik Ücret</th>
+                                <th className="text-left py-5 px-6 font-black text-gray-400 tracking-widest">Durum</th>
+                                <th className="text-right py-5 px-6 font-black text-gray-400 tracking-widest">Yönetim</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-white/5">
                             {filteredListings.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="text-center py-20">
-                                        <div className="flex flex-col items-center justify-center text-gray-400">
-                                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                                <Search className="h-8 w-8 text-gray-300" />
+                                        <div className="flex flex-col items-center justify-center text-gray-300">
+                                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                                                <Search className="h-8 w-8 text-primary" />
                                             </div>
-                                            <p className="font-bold text-gray-600 text-lg">Sonuç bulunamadı</p>
+                                            <p className="font-black text-white text-lg uppercase tracking-wider">Sonuç bulunamadı</p>
                                             <p className="text-sm mt-1 text-gray-400">Arama kriterlerinizi değiştirerek tekrar deneyin.</p>
                                         </div>
                                     </td>
@@ -142,18 +142,18 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
                                     <tr key={listing.id} className="hover:bg-primary/5 transition-colors group">
                                         <td className="py-5 px-6">
                                             <div className="flex items-center gap-4">
-                                                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border overflow-hidden relative ${listing.cover_image ? 'border-gray-100' : 'bg-gradient-to-br from-gray-50 to-white border-gray-200'
+                                                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border overflow-hidden relative ${listing.cover_image ? 'border-white/10' : 'bg-black/40 border-white/10'
                                                     }`}>
                                                     {listing.cover_image ? (
                                                         <img src={listing.cover_image} alt="" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                                                     ) : (
-                                                        <ImageIcon className="h-6 w-6 text-gray-300" />
+                                                        <ImageIcon className="h-6 w-6 text-primary/40" />
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <p className="font-extrabold text-base text-gray-900 group-hover:text-primary transition-colors">{listing.title}</p>
+                                                    <p className="font-black text-base text-white group-hover:text-primary transition-colors">{listing.title}</p>
                                                     <p className="text-[11px] text-gray-400 font-mono mt-1 flex items-center gap-1">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-primary/60"></span>
                                                         {listing.slug}
                                                     </p>
                                                 </div>
@@ -161,25 +161,25 @@ export function ListingTable({ listings, cities, categories }: ListingTableProps
                                         </td>
                                         <td className="py-5 px-6">
                                             <div className="flex flex-col gap-1">
-                                                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                                                <div className="flex items-center gap-2 text-sm font-medium text-gray-300">
                                                     <span className="text-primary">•</span>
                                                     {listing.city?.name || 'Şehir Yok'}
                                                 </div>
-                                                <div className="text-xs text-gray-400 bg-gray-50 inline-block px-2 py-0.5 rounded border border-gray-100 w-fit">
+                                                <div className="text-xs text-gray-300 bg-white/5 inline-block px-2 py-0.5 rounded border border-white/10 w-fit font-bold">
                                                     {listing.category?.name || 'Kategori Yok'}
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="py-5 px-6">
                                             {listing.price ? (
-                                                <span className="text-sm font-bold text-gray-900 font-mono bg-green-50 text-green-700 px-2 py-1 rounded-md border border-green-100">
+                                                <span className="text-sm font-bold text-white font-mono bg-green-500/10 text-green-500 px-2 py-1 rounded-md border border-green-500/20">
                                                     {new Intl.NumberFormat('tr-TR', {
                                                         style: 'currency',
                                                         currency: 'TRY',
                                                         minimumFractionDigits: 0
                                                     }).format(listing.price)}
                                                 </span>
-                                            ) : <span className="text-gray-400 text-xs italic">Fiyat Yok</span>}
+                                            ) : <span className="text-gray-600 text-xs italic">Fiyat Yok</span>}
                                         </td>
                                         <td className="py-5 px-6">
                                             <div className="flex flex-col gap-1.5 items-start">

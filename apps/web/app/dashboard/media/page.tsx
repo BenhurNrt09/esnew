@@ -133,14 +133,14 @@ export default function MediaPage() {
     return (
         <div className="max-w-6xl mx-auto space-y-12">
             <div>
-                <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Medya & Hikayeler</h1>
-                <p className="text-gray-500 font-medium">Fotoğraflarınızı yönetin ve 24 saatlik hikayeler paylaşın.</p>
+                <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Medya & Hikayeler</h1>
+                <p className="text-gray-500 dark:text-gray-400 font-medium">Fotoğraflarınızı yönetin ve 24 saatlik hikayeler paylaşın.</p>
             </div>
 
             {/* Stories Section */}
             <section className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
+                    <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2 text-gray-900 dark:text-white">
                         <Sparkles className="w-5 h-5 text-primary" /> Hikayelerim
                     </h2>
                     <div className="relative">
@@ -163,7 +163,7 @@ export default function MediaPage() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     {stories.map((story) => (
-                        <div key={story.id} className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-gray-100 border border-gray-100 group">
+                        <div key={story.id} className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-100 dark:border-white/5 group">
                             {story.media_type === 'video' ? (
                                 <video src={story.media_url} className="w-full h-full object-cover" />
                             ) : (
@@ -177,7 +177,7 @@ export default function MediaPage() {
                         </div>
                     ))}
                     {stories.length === 0 && (
-                        <div className="col-span-full py-12 text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 rounded-3xl">
+                        <div className="col-span-full py-12 text-center text-gray-400 dark:text-gray-600 font-bold border-2 border-dashed border-gray-100 dark:border-white/10 rounded-3xl bg-gray-50/50 dark:bg-white/[0.02]">
                             Henüz hikaye paylaşmadınız.
                         </div>
                     )}
@@ -187,8 +187,8 @@ export default function MediaPage() {
             {/* Photos Section */}
             <section className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
-                        <LayoutGrid className="w-5 h-5 text-gray-400" /> Profil Fotoğrafları
+                    <h2 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2 text-gray-900 dark:text-white">
+                        <LayoutGrid className="w-5 h-5 text-gray-400 dark:text-gray-600" /> Profil Fotoğrafları
                     </h2>
                     <div className="relative">
                         <input
@@ -202,7 +202,7 @@ export default function MediaPage() {
                         />
                         <label
                             htmlFor="photo-upload"
-                            className="flex items-center gap-2 px-6 h-11 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold text-sm tracking-tight cursor-pointer hover:bg-gray-50 transition-all shadow-sm"
+                            className="flex items-center gap-2 px-6 h-11 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-xl font-bold text-sm tracking-tight cursor-pointer hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm"
                         >
                             <UploadCloud className="w-4 h-4" /> FOTOĞRAF YÜKLE
                         </label>
@@ -211,7 +211,7 @@ export default function MediaPage() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {listing?.images?.map((img: string, idx: number) => (
-                        <div key={idx} className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-gray-100 border border-gray-100 group shadow-sm hover:shadow-xl transition-all">
+                        <div key={idx} className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-100 dark:border-white/5 group shadow-sm hover:shadow-xl transition-all">
                             <img src={img} className="w-full h-full object-cover" alt={`Photo ${idx}`} />
                             <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
@@ -222,14 +222,14 @@ export default function MediaPage() {
                                 </button>
                             </div>
                             {idx === 0 && (
-                                <div className="absolute bottom-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black text-primary border border-primary/20 uppercase tracking-tighter">
+                                <div className="absolute bottom-3 left-3 px-3 py-1 bg-white/90 dark:bg-black/90 backdrop-blur-md rounded-full text-[10px] font-black text-primary border border-primary/20 uppercase tracking-tighter">
                                     Kapak Fotoğrafı
                                 </div>
                             )}
                         </div>
                     ))}
                     {(!listing?.images || listing.images.length === 0) && (
-                        <div className="col-span-full py-20 text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/50">
+                        <div className="col-span-full py-20 text-center text-gray-400 dark:text-gray-600 font-bold border-2 border-dashed border-gray-100 dark:border-white/10 rounded-3xl bg-gray-50/50 dark:bg-white/[0.02]">
                             Hiç fotoğraf yüklenmemiş.
                         </div>
                     )}

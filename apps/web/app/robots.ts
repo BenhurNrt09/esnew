@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/api/', '/dashboard/'],
         },
-        sitemap: 'https://esnew.com/sitemap.xml', // Değiştirin
+        sitemap: 'https://veloraescortworld.com/sitemap.xml',
     };
 }

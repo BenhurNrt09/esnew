@@ -52,37 +52,41 @@ export default function NewCityPage() {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl animate-in fade-in duration-500">
-            <div className="mb-8">
-                <h1 className="text-3xl font-black text-amber-950 tracking-tight">Yeni Şehir Ekle</h1>
-                <p className="text-muted-foreground mt-1">Platformun hizmet vereceği yeni bir lokasyon tanımlayın.</p>
+            <div className="mb-10 flex items-center justify-between border-b border-white/10 pb-6">
+                <div>
+                    <h1 className="text-3xl font-black text-white tracking-tighter uppercase transition-all">
+                        Yeni <span className="text-primary italic">Şehir Ekle</span>
+                    </h1>
+                    <p className="text-gray-400 mt-2 font-medium italic">Platformun hizmet vereceği yeni bir lokasyon tanımlayın.</p>
+                </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
 
-                <Card className="border-amber-100 shadow-lg shadow-amber-100/20 overflow-visible">
-                    <CardHeader className="bg-gradient-to-r from-amber-50 to-white border-b border-amber-50 py-4">
-                        <CardTitle className="flex items-center gap-2 text-amber-900 text-lg">
+                <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
+                    <CardHeader className="bg-black/40 border-b border-white/5 py-4">
+                        <CardTitle className="flex items-center gap-2 text-primary text-lg font-bold">
                             <MapPin className="h-5 w-5" /> Şehir Bilgileri
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6 grid gap-6">
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Şehir Adı *</label>
+                            <label className="text-sm font-bold text-gray-300">Şehir Adı *</label>
                             <div className="relative">
-                                <AlignLeft className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                                <AlignLeft className="absolute left-3 top-3.5 h-4 w-4 text-gray-500" />
                                 <Input
                                     value={formData.name}
                                     onChange={(e) => handleNameChange(e.target.value)}
                                     placeholder="Örn: İstanbul"
                                     required
-                                    className="pl-10 border-gray-200 focus:border-amber-500 h-11 shadow-sm font-medium"
+                                    className="pl-10 border-white/10 bg-black/40 text-white focus:border-primary/50 h-11 shadow-sm font-medium"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                            <label className="text-sm font-bold text-gray-300 flex items-center gap-2">
                                 <LinkIcon className="h-3 w-3" /> Slug (URL)
                             </label>
                             <Input
@@ -90,26 +94,26 @@ export default function NewCityPage() {
                                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                 placeholder="istanbul"
                                 required
-                                className="border-gray-200 bg-gray-50 text-gray-500 font-mono text-sm h-11 shadow-sm"
+                                className="border-white/5 bg-black/60 text-gray-500 font-mono text-sm h-11 shadow-sm"
                             />
                         </div>
 
                         {/* Status Toggle Card */}
                         <div
                             className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${formData.is_active
-                                    ? 'bg-green-50 border-green-300 shadow-lg shadow-green-100/50'
-                                    : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
+                                ? 'bg-green-500/10 border-green-500/30 shadow-lg shadow-green-500/5'
+                                : 'bg-white/5 border-white/5 hover:border-white/10'
                                 }`}
                             onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
                         >
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-sm ${formData.is_active ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors shadow-sm ${formData.is_active ? 'bg-green-500 text-white' : 'bg-white/5 text-gray-500'}`}>
                                 <CheckCircle2 className="w-6 h-6" />
                             </div>
                             <div>
-                                <p className={`font-bold text-lg ${formData.is_active ? 'text-green-900' : 'text-gray-700'}`}>Şehir Aktif</p>
-                                <p className="text-sm text-muted-foreground leading-tight mt-1">Bu şehir sitede listelensin ve kullanıcılar seçim yapabilsin.</p>
+                                <p className={`font-bold text-lg ${formData.is_active ? 'text-green-400' : 'text-gray-400'}`}>Şehir Aktif</p>
+                                <p className="text-sm text-gray-500 leading-tight mt-1">Bu şehir sitede listelensin ve kullanıcılar seçim yapabilsin.</p>
                             </div>
-                            <div className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center ${formData.is_active ? 'border-green-500 bg-green-500' : 'border-gray-300'}`}>
+                            <div className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center ${formData.is_active ? 'border-green-500 bg-green-500' : 'border-white/10'}`}>
                                 {formData.is_active && <CheckCircle2 className="w-4 h-4 text-white" />}
                             </div>
                         </div>
@@ -117,44 +121,44 @@ export default function NewCityPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="border-amber-100 shadow-lg shadow-amber-100/20 overflow-visible">
-                    <CardHeader className="bg-gradient-to-r from-amber-50 to-white border-b border-amber-50 py-4">
-                        <CardTitle className="flex items-center gap-2 text-amber-900 text-lg">
+                <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
+                    <CardHeader className="bg-black/40 border-b border-white/5 py-4">
+                        <CardTitle className="flex items-center gap-2 text-primary text-lg font-bold">
                             <FileText className="h-5 w-5" /> SEO Ayarları
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6 grid gap-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">SEO Başlık</label>
+                            <label className="text-sm font-bold text-gray-300">SEO Başlık</label>
                             <Input
                                 value={formData.seo_title}
                                 onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
                                 placeholder={`${formData.name || '...'} İlanları - En İyi Profiller`}
-                                className="border-gray-200 focus:border-amber-500 h-11 shadow-sm"
+                                className="border-white/10 bg-black/40 text-white focus:border-primary/50 h-11 shadow-sm"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">SEO Açıklama</label>
+                            <label className="text-sm font-bold text-gray-300">SEO Açıklama</label>
                             <textarea
                                 value={formData.seo_description}
                                 onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
                                 placeholder={`${formData.name || '...'} bölgesindeki en popüler ilanlar ve profiller.`}
-                                className="w-full min-h-[100px] rounded-xl border border-gray-200 p-4 text-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none shadow-sm transition-all resize-y"
+                                className="w-full min-h-[100px] rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white focus:border-primary/50 outline-none shadow-sm transition-all resize-y"
                             />
                         </div>
                     </CardContent>
                 </Card>
 
                 {error && (
-                    <div className="p-4 bg-amber-50 text-amber-700 rounded-xl border border-amber-200 flex items-center gap-3 font-medium animate-pulse">
+                    <div className="p-4 bg-red-900/20 text-red-400 rounded-xl border border-red-500/20 flex items-center gap-3 font-medium">
                         <Info className="h-5 w-5" />
                         {error}
                     </div>
                 )}
 
-                <div className="flex items-center gap-4 sticky bottom-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-gray-200 shadow-2xl z-40">
-                    <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white h-14 text-lg font-bold shadow-lg shadow-amber-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
+                <div className="flex items-center gap-4 sticky bottom-4 bg-black/80 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-2xl z-40">
+                    <Button type="submit" disabled={loading} className="flex-1 bg-gold-gradient text-black h-14 text-lg font-bold rounded-xl transition-all hover:opacity-90 active:scale-[0.99] shadow-lg shadow-primary/20 border-none">
                         {loading ? 'Ekleniyor...' : 'Şehri Kaydet'}
                     </Button>
                     <Button
@@ -162,7 +166,7 @@ export default function NewCityPage() {
                         variant="outline"
                         onClick={() => router.back()}
                         disabled={loading}
-                        className="h-14 px-8 rounded-xl border-gray-300 text-gray-600 hover:bg-gray-50 font-medium"
+                        className="h-14 px-8 rounded-xl border-white/10 text-gray-400 hover:bg-white/5 hover:text-white font-medium"
                     >
                         İptal
                     </Button>

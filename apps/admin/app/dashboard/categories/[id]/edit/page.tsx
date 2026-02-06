@@ -116,31 +116,31 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl animate-in fade-in duration-500">
-            <div className="mb-8 flex items-center justify-between">
+            <div className="mb-10 flex items-center justify-between border-b border-white/10 pb-6">
                 <div>
-                    <h1 className="text-3xl font-black text-red-950 tracking-tight">Kategori Düzenle</h1>
-                    <p className="text-muted-foreground mt-1">{formData.name} kategorisini güncelliyorsunuz.</p>
+                    <h1 className="text-3xl font-black text-white tracking-tighter uppercase transition-all">Kategori <span className="text-primary italic">Düzenle</span></h1>
+                    <p className="text-gray-400 mt-2 font-medium italic">"{formData.name}" kategorisini güncelliyorsunuz.</p>
                 </div>
                 <Button
                     type="button"
                     variant="ghost"
                     onClick={handleDelete}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 font-bold gap-2"
+                    className="text-gray-500 hover:text-red-500 hover:bg-red-500/5 font-black uppercase text-xs tracking-widest gap-2 h-12 px-6 rounded-xl border border-white/5"
                 >
-                    <Trash2 className="h-4 w-4" /> Sil
+                    <Trash2 className="h-4 w-4" /> Kategoriyi Sil
                 </Button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
-                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
-                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
-                            <Layers className="h-5 w-5" /> Kategori Detayları
+                <Card className="border-white/10 bg-white/5 backdrop-blur-md shadow-2xl rounded-2xl overflow-visible">
+                    <CardHeader className="bg-white/5 border-b border-white/5 py-5">
+                        <CardTitle className="flex items-center gap-3 text-white font-black uppercase text-sm tracking-widest">
+                            <Layers className="h-5 w-5 text-primary" /> Kategori Detayları
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-6 grid gap-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Üst Kategori</label>
+                    <CardContent className="pt-8 grid gap-8 bg-black/20">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Üst Kategori</label>
                             <Combobox
                                 options={categories.map(c => ({ value: c.id, label: c.name }))}
                                 value={formData.parent_id}
@@ -150,22 +150,22 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Kategori Adı *</label>
-                            <div className="relative">
-                                <AlignLeft className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Kategori Adı *</label>
+                            <div className="relative group">
+                                <AlignLeft className="absolute left-4 top-4 h-4 w-4 text-gray-500 group-focus-within:text-primary transition-colors" />
                                 <Input
                                     value={formData.name}
                                     onChange={(e) => handleNameChange(e.target.value)}
                                     placeholder="Örn: Hizmetler veya Göz Rengi"
                                     required
-                                    className="pl-10 border-gray-200 focus:border-red-500 h-11 shadow-sm font-medium"
+                                    className="pl-12 bg-black/40 border-white/10 focus:border-primary h-12 shadow-xl font-bold text-white rounded-xl transition-all"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
                                 <LinkIcon className="h-3 w-3" /> Slug (URL)
                             </label>
                             <Input
@@ -173,71 +173,72 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
                                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                 placeholder="otomatik-olusturulur"
                                 required
-                                className="border-gray-200 bg-gray-50 text-gray-500 font-mono text-sm h-11 shadow-sm"
+                                className="bg-black/20 border-white/5 text-primary/60 font-mono text-xs h-12 shadow-inner rounded-xl italic cursor-not-allowed"
+                                readOnly
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Sıra No</label>
-                            <div className="relative">
-                                <SortAsc className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Sıra No</label>
+                            <div className="relative group">
+                                <SortAsc className="absolute left-4 top-4 h-4 w-4 text-gray-500 group-focus-within:text-primary transition-colors" />
                                 <Input
                                     type="number"
                                     value={formData.order}
                                     onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                                    className="pl-10 border-gray-200 focus:border-red-500 h-11 shadow-sm"
+                                    className="pl-12 bg-black/40 border-white/10 focus:border-primary h-12 shadow-xl font-black text-white rounded-xl"
                                 />
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-red-100 shadow-lg shadow-red-100/20 overflow-visible">
-                    <CardHeader className="bg-gradient-to-r from-red-50 to-white border-b border-red-50 py-4">
-                        <CardTitle className="flex items-center gap-2 text-red-900 text-lg">
-                            <FileText className="h-5 w-5" /> SEO Ayarları
+                <Card className="border-white/10 bg-white/5 backdrop-blur-md shadow-2xl rounded-2xl overflow-visible">
+                    <CardHeader className="bg-white/5 border-b border-white/5 py-5">
+                        <CardTitle className="flex items-center gap-3 text-white font-black uppercase text-sm tracking-widest">
+                            <FileText className="h-5 w-5 text-primary" /> SEO Ayarları
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-6 grid gap-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">SEO Başlık</label>
+                    <CardContent className="pt-8 grid gap-8 bg-black/20">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">SEO Başlık</label>
                             <Input
                                 value={formData.seo_title}
                                 onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
                                 placeholder={`${formData.name || '...'} İlanları`}
-                                className="border-gray-200 focus:border-red-500 h-11 shadow-sm"
+                                className="bg-black/40 border-white/10 focus:border-primary h-12 shadow-xl font-bold text-white rounded-xl"
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">SEO Açıklama</label>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">SEO Açıklama</label>
                             <textarea
                                 value={formData.seo_description}
                                 onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
                                 placeholder={`${formData.name || '...'} kategorisindeki tüm ilanlar ve profiller.`}
-                                className="w-full min-h-[100px] rounded-xl border border-gray-200 p-4 text-sm focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none shadow-sm transition-all resize-y"
+                                className="w-full min-h-[120px] rounded-xl border border-white/10 bg-black/40 p-4 text-sm font-medium text-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none shadow-xl transition-all resize-y"
                             />
                         </div>
                     </CardContent>
                 </Card>
 
                 {error && (
-                    <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-3 font-medium animate-pulse">
+                    <div className="p-4 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20 flex items-center gap-3 font-black uppercase text-xs tracking-widest animate-pulse">
                         <Info className="h-5 w-5" />
                         {error}
                     </div>
                 )}
 
-                <div className="flex items-center gap-4 sticky bottom-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-gray-200 shadow-2xl z-40">
-                    <Button type="submit" disabled={saving} className="flex-1 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white h-14 text-lg font-bold shadow-lg shadow-amber-200 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]">
+                <div className="flex items-center gap-4 sticky bottom-6 bg-black/80 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-3xl z-40 mt-10">
+                    <Button type="submit" disabled={saving} className="flex-1 bg-gold-gradient hover:opacity-90 text-black h-14 text-lg font-black uppercase tracking-tighter shadow-2xl shadow-primary/20 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]">
                         {saving ? 'Güncelleniyor...' : 'Değişiklikleri Kaydet'}
                     </Button>
                     <Button
                         type="button"
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => router.back()}
                         disabled={saving}
-                        className="h-14 px-8 rounded-xl border-gray-300 text-gray-600 hover:bg-gray-50 font-medium"
+                        className="h-14 px-10 rounded-xl border border-white/5 text-gray-400 hover:text-white hover:bg-white/5 font-black uppercase text-xs tracking-widest"
                     >
                         İptal
                     </Button>

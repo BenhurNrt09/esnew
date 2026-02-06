@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const fetchUserData = async (currentUser: User) => {
         const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('FetchUserData timeout')), 10000)
+            setTimeout(() => reject(new Error('FetchUserData timeout')), 7000)
         );
 
         try {
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.warn('AuthProvider safety timeout triggered');
                 setLoading(false);
             }
-        }, 5000);
+        }, 8000);
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {

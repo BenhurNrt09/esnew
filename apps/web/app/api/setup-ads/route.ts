@@ -21,16 +21,25 @@ END $$;
 
 
 -- ==========================================
--- 2. SETUP 'BANNERS' BUCKET (Anti-AdBlock)
+-- 2. SETUP BUCKETS (Anti-AdBlock & Chat)
 -- ==========================================
 -- Creates public bucket 'banners' safe from adblockers
 insert into storage.buckets (id, name, public) 
 values ('banners', 'banners', true)
 on conflict (id) do update set public = true;
 
+-- Creates 'chat-attachments' bucket
+insert into storage.buckets (id, name, public) 
+values ('chat-attachments', 'chat-attachments', true)
+on conflict (id) do update set public = true;
+
 -- Policies for Banners
 drop policy if exists "Banners Public Access" on storage.objects;
 create policy "Banners Public Access" on storage.objects for select using ( bucket_id = 'banners' );
+
+-- Policies for Chat
+drop policy if exists "Chat Public Reading" on storage.objects;
+create policy "Chat Public Reading" on storage.objects for select using ( bucket_id = 'chat-attachments' );
 
 drop policy if exists "Banners Upload Access" on storage.objects;
 create policy "Banners Upload Access" on storage.objects for insert with check ( bucket_id = 'banners' );

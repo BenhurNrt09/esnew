@@ -8,7 +8,7 @@ import { MapPin, Calendar, Heart, ArrowRight, Tag } from 'lucide-react';
 import { formatPrice } from '@repo/lib';
 import { ProfileCard } from '../../components/ProfileCard';
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 async function getCity(slug: string): Promise<City | null> {
     const supabase = createServerClient();
@@ -53,24 +53,24 @@ export default async function CityPage({ params }: { params: { slug: string } })
     const listings = await getListings(city.id);
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background">
             {/* Modern Hero Header */}
-            <div className="relative bg-gradient-to-r from-red-600 to-rose-800 text-white py-20 overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1449824913929-de6321ac588b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            <div className="relative bg-background text-foreground py-20 overflow-hidden border-b border-border">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1449824913929-de6321ac588b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-10 dark:opacity-20 mix-blend-overlay"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
 
                 <div className="container mx-auto px-4 relative z-10 text-center">
-                    <div className="inline-flex items-center gap-2 text-red-100 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm mb-6 border border-white/10">
+                    <div className="inline-flex items-center gap-2 text-muted-foreground bg-muted/50 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm mb-6 border border-border">
                         <MapPin className="h-4 w-4" />
-                        <Link href="/" className="hover:text-white transition-colors">Ana Sayfa</Link>
+                        <Link href="/" className="hover:text-primary transition-colors">Ana Sayfa</Link>
                         <span className="opacity-50">/</span>
                         <span>{city.name}</span>
                     </div>
 
-                    <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tight drop-shadow-lg">
-                        {city.name} Profilleri
+                    <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tight">
+                        <span className="text-foreground">{city.name}</span> <span className="text-gold-gradient">Profilleri</span>
                     </h1>
-                    <p className="text-xl text-red-100 max-w-2xl mx-auto font-light">
+                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-light">
                         {listings.length > 0
                             ? `${city.name} bölgesinde ${listings.length} aktif ilan listeleniyor.`
                             : 'Bu bölgede henüz aktif ilan bulunmuyor.'}
@@ -82,15 +82,15 @@ export default async function CityPage({ params }: { params: { slug: string } })
             <section className="py-12 -mt-8 relative z-20">
                 <div className="container mx-auto px-4">
                     {listings.length === 0 ? (
-                        <div className="bg-white rounded-2xl shadow-xl p-12 text-center max-w-2xl mx-auto border border-gray-100">
-                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <MapPin className="h-8 w-8 text-gray-400" />
+                        <div className="bg-card rounded-2xl shadow-xl p-12 text-center max-w-2xl mx-auto border border-border">
+                            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
+                                <MapPin className="h-8 w-8 text-muted-foreground" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">{city.name} için Sonuç Yok</h3>
-                            <p className="text-gray-500 mb-8">
+                            <h3 className="text-xl font-bold text-foreground mb-2">{city.name} için Sonuç Yok</h3>
+                            <p className="text-muted-foreground mb-8">
                                 Bu şehirde henüz yayınlanmış bir profil ilanı bulunmuyor. Başka bir şehir deneyebilir veya daha sonra tekrar kontrol edebilirsiniz.
                             </p>
-                            <Button asChild className="bg-red-600 hover:bg-red-700 text-white rounded-full px-8 py-6 h-auto text-lg shadow-lg shadow-red-200">
+                            <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 py-6 h-auto text-lg shadow-lg shadow-primary/20">
                                 <Link href="/">Diğer Şehirleri Keşfet</Link>
                             </Button>
                         </div>

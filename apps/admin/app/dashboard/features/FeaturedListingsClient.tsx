@@ -159,65 +159,68 @@ export default function FeaturedListingsClient() {
     return (
         <div className="container mx-auto px-4 py-8 space-y-8">
             {/* Header */}
-            <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+            <div className="flex justify-between items-center border-b border-white/10 pb-6">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
+                    <h1 className="text-3xl font-black text-white flex items-center gap-3 uppercase tracking-tighter">
                         <Star className="h-8 w-8 text-primary fill-primary" />
-                        Vitrin Yönetimi
+                        Vitrin <span className="text-primary italic">Yönetimi</span>
                     </h1>
-                    <p className="text-muted-foreground mt-2">
+                    <p className="text-gray-400 mt-2 font-medium">
                         Profilleri vitrine ekleyin ve süre bazlı yönetin
                     </p>
                 </div>
                 <Button
                     onClick={() => setShowAddModal(true)}
-                    className="bg-primary hover:bg-primary/90 text-black font-bold"
+                    className="bg-gold-gradient hover:opacity-90 text-black font-black uppercase tracking-tight rounded-xl shadow-lg shadow-primary/20 px-6 h-12"
                 >
-                    <Plus className="mr-2 h-4 w-4" /> Vitrine Ekle
+                    <Plus className="mr-2 h-5 w-5" /> Vitrine Ekle
                 </Button>
             </div>
 
             {/* Active Featured Listings */}
-            <div className="space-y-4">
-                <h2 className="text-xl font-bold text-gray-900">Aktif Vitrin Profilleri ({featuredListings.length})</h2>
+            <div className="space-y-6">
+                <h2 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    Aktif Vitrin Profilleri ({featuredListings.length})
+                </h2>
 
                 {featuredListings.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                        <Star className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-                        <p className="text-gray-500">Henüz vitrin profili yok</p>
+                    <div className="text-center py-20 bg-white/5 rounded-2xl border-2 border-dashed border-white/10 backdrop-blur-sm">
+                        <Star className="h-16 w-16 mx-auto text-white/10 mb-6" />
+                        <p className="text-gray-400 font-bold text-lg">Henüz vitrin profili yok</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {featuredListings.map((item) => (
                             <div
                                 key={item.id}
-                                className="bg-white border border-amber-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                                className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl backdrop-blur-sm hover:border-primary/30 transition-all group"
                             >
-                                <div className="flex justify-between items-start mb-3">
-                                    <h3 className="font-bold text-gray-900 truncate flex-1">
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="font-black text-white text-lg truncate flex-1 uppercase tracking-tight group-hover:text-primary transition-colors">
                                         {item.listing?.title || 'Bilinmeyen Profil'}
                                     </h3>
                                     <button
                                         onClick={() => removeFromFeatured(item.listing_id)}
-                                        className="text-gray-400 hover:text-amber-600 transition-colors"
+                                        className="text-gray-500 hover:text-red-500 transition-colors p-1"
                                     >
-                                        <X className="h-4 w-4" />
+                                        <X className="h-5 w-5" />
                                     </button>
                                 </div>
 
-                                <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                                    <Clock className="h-4 w-4" />
-                                    <span className="font-medium text-amber-600">{getRemainingTime(item.featured_until)}</span>
+                                <div className="flex items-center gap-2 text-sm text-gray-400 mb-6 bg-black/40 p-3 rounded-xl border border-white/5">
+                                    <Clock className="h-4 w-4 text-primary" />
+                                    <span className="font-black text-primary font-mono">{getRemainingTime(item.featured_until)}</span>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2 pt-4 border-t border-white/5">
                                     {[1, 2, 4, 6].map(hours => (
                                         <button
                                             key={hours}
                                             onClick={() => extendFeatured(item.listing_id, hours)}
-                                            className="text-xs px-2 py-1 bg-gray-100 hover:bg-primary hover:text-black rounded transition-colors"
+                                            className="text-[10px] font-black uppercase tracking-widest px-3 py-2 bg-white/5 hover:bg-gold-gradient hover:text-black rounded-lg transition-all border border-white/5"
                                         >
-                                            +{hours}s
+                                            +{hours}S
                                         </button>
                                     ))}
                                 </div>
@@ -229,15 +232,15 @@ export default function FeaturedListingsClient() {
 
             {/* Add to Featured Modal */}
             {showAddModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h2 className="text-xl font-bold">Vitrine Profil Ekle</h2>
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-md">
+                    <div className="bg-zinc-900 border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                            <h2 className="text-xl font-black text-white uppercase tracking-tighter">Vitrine Profil Ekle</h2>
                             <button
                                 onClick={() => setShowAddModal(false)}
-                                className="text-gray-400 hover:text-gray-600"
+                                className="text-gray-500 hover:text-white"
                             >
-                                <X className="h-5 w-5" />
+                                <X className="h-6 w-6" />
                             </button>
                         </div>
 
@@ -248,31 +251,31 @@ export default function FeaturedListingsClient() {
                                 placeholder="Profil ara..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-white font-medium placeholder:text-gray-500"
                             />
 
                             {/* Listing Selection */}
-                            <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
+                            <div className="max-h-64 overflow-y-auto border border-white/10 rounded-xl bg-black/20 divide-y divide-white/5">
                                 {filteredListings.map((listing) => {
                                     const isFeatured = featuredListings.some(f => f.listing_id === listing.id);
                                     return (
                                         <div
                                             key={listing.id}
                                             onClick={() => !isFeatured && setSelectedListing(listing.id)}
-                                            className={`p-3 border-b border-gray-100 cursor-pointer transition-colors ${selectedListing === listing.id
+                                            className={`p-4 cursor-pointer transition-all ${selectedListing === listing.id
                                                 ? 'bg-primary/10 border-l-4 border-l-primary'
                                                 : isFeatured
-                                                    ? 'bg-gray-50 opacity-50 cursor-not-allowed'
-                                                    : 'hover:bg-gray-50'
+                                                    ? 'bg-white/5 opacity-50 cursor-not-allowed'
+                                                    : 'hover:bg-white/5'
                                                 }`}
                                         >
                                             <div className="flex justify-between items-center">
-                                                <span className="font-medium text-sm">
+                                                <span className={`text-sm tracking-tight ${selectedListing === listing.id ? 'font-black text-primary uppercase' : 'font-bold text-gray-300'}`}>
                                                     {listing.title}
-                                                    {isFeatured && <span className="ml-2 text-xs text-amber-600">Zaten Vitrinde</span>}
+                                                    {isFeatured && <span className="ml-2 text-[10px] font-black uppercase text-primary/60 italic">Zaten Vitrinde</span>}
                                                 </span>
                                                 {listing.price && (
-                                                    <span className="text-xs text-gray-500">{listing.price} ₺</span>
+                                                    <span className="text-xs font-mono text-gray-500">{listing.price} ₺</span>
                                                 )}
                                             </div>
                                         </div>
@@ -282,17 +285,17 @@ export default function FeaturedListingsClient() {
 
                             {/* Duration Selection */}
                             {selectedListing && (
-                                <div className="space-y-4 pt-4 border-t border-gray-100">
-                                    <h3 className="font-bold text-sm">Vitrin Süresi Seç:</h3>
-                                    <div className="grid grid-cols-3 gap-2">
+                                <div className="space-y-6 pt-6 border-t border-white/10 animate-in slide-in-from-top-4 duration-300">
+                                    <h3 className="font-black text-xs text-primary uppercase tracking-widest">Vitrin Süresi Seç:</h3>
+                                    <div className="grid grid-cols-3 gap-3">
                                         {DURATION_OPTIONS.map((option) => (
                                             <button
                                                 key={option.hours}
                                                 type="button"
                                                 onClick={() => setSelectedDuration(option.hours)}
-                                                className={`px-4 py-3 rounded-lg font-medium text-sm transition-colors ${selectedDuration === option.hours
-                                                    ? 'bg-primary text-black ring-2 ring-primary ring-offset-2'
-                                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                                className={`px-4 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${selectedDuration === option.hours
+                                                    ? 'bg-gold-gradient text-black shadow-lg shadow-primary/20 scale-[1.02]'
+                                                    : 'bg-white/5 hover:bg-white/10 text-gray-400 border border-white/5'
                                                     }`}
                                             >
                                                 {option.label}
@@ -312,31 +315,31 @@ export default function FeaturedListingsClient() {
                                                     setCustomHours(val);
                                                     setSelectedDuration(val);
                                                 }}
-                                                className="w-full px-4 py-2 border border-gray-200 rounded-lg pr-10"
+                                                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl pr-16 text-white font-black outline-none focus:ring-1 focus:ring-primary"
                                                 placeholder="Özel saat"
                                             />
-                                            <span className="absolute right-3 top-2.5 text-gray-400 text-sm">saat</span>
+                                            <span className="absolute right-4 top-3 text-primary font-black text-[10px] uppercase tracking-widest">SAAT</span>
                                         </div>
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="flex gap-3 pt-4 border-t border-gray-100">
+                                    <div className="flex gap-4 pt-6 border-t border-white/5">
                                         <Button
-                                            variant="outline"
+                                            variant="ghost"
                                             onClick={() => {
                                                 setSelectedListing('');
                                                 setSelectedDuration(null);
                                             }}
-                                            className="flex-1"
+                                            className="flex-1 h-12 text-gray-400 font-bold hover:text-white hover:bg-white/5"
                                         >
                                             Vazgeç
                                         </Button>
                                         <Button
                                             onClick={() => selectedDuration && addToFeatured(selectedDuration)}
                                             disabled={!selectedDuration}
-                                            className="flex-1 bg-primary hover:bg-primary/90 text-black font-bold"
+                                            className="flex-1 bg-gold-gradient hover:opacity-90 text-black font-black uppercase tracking-tight h-12 rounded-xl"
                                         >
-                                            <Timer className="mr-2 h-4 w-4" />
+                                            <Timer className="mr-2 h-5 w-5" />
                                             Vitrine Ekle
                                         </Button>
                                     </div>

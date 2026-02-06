@@ -57,22 +57,22 @@ export function Combobox({
             <button
                 type="button"
                 onClick={() => !disabled && setOpen(!open)}
-                className={`flex h-11 w-full items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all ${open ? 'border-amber-500 ring-2 ring-amber-500/10' : 'border-gray-200 hover:border-gray-300'
-                    } ${disabled ? 'bg-gray-100' : ''}`}
+                className={`flex h-11 w-full items-center justify-between rounded-lg border bg-black px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all ${open ? 'border-primary ring-2 ring-primary/10' : 'border-white/10 hover:border-white/20'
+                    } ${disabled ? 'bg-white/5 opacity-50' : ''}`}
                 disabled={disabled}
             >
-                <span className={`block truncate ${!selectedLabel ? 'text-muted-foreground' : 'text-gray-900 font-medium'}`}>
+                <span className={`block truncate ${!selectedLabel ? 'text-gray-400' : 'text-white font-black uppercase tracking-tight'}`}>
                     {selectedLabel || placeholder}
                 </span>
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-80 text-primary" />
             </button>
 
             {open && (
-                <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-100 bg-white shadow-lg animate-in fade-in-0 zoom-in-95 duration-100">
-                    <div className="flex items-center border-b border-gray-100 px-3 py-2">
-                        <Search className="mr-2 h-4 w-4 shrink-0 opacity-50 text-gray-400" />
+                <div className="absolute z-50 mt-1 w-full rounded-md border border-white/10 bg-black/90 backdrop-blur-md shadow-2xl animate-in fade-in-0 zoom-in-95 duration-100 ring-1 ring-white/5">
+                    <div className="flex items-center border-b border-white/10 px-3 py-2">
+                        <Search className="mr-2 h-4 w-4 shrink-0 opacity-80 text-primary" />
                         <input
-                            className="flex h-6 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-400"
+                            className="flex h-6 w-full rounded-md bg-transparent py-4 text-sm outline-none placeholder:text-gray-400 text-white font-medium"
                             placeholder={searchPlaceholder}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -89,8 +89,8 @@ export function Combobox({
                                 <div
                                     key={option.value}
                                     className={`relative flex cursor-pointer select-none items-center rounded-sm px-2 py-2.5 text-sm outline-none transition-colors ${option.value === value
-                                            ? 'bg-amber-50 text-amber-900 font-medium'
-                                            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                        ? 'bg-primary/20 text-primary font-bold'
+                                        : 'text-gray-300 hover:bg-white/10 hover:text-white'
                                         }`}
                                     onClick={() => {
                                         onChange(option.value);
@@ -99,7 +99,7 @@ export function Combobox({
                                     }}
                                 >
                                     <Check
-                                        className={`mr-2 h-4 w-4 ${option.value === value ? 'opacity-100 text-amber-600' : 'opacity-0'
+                                        className={`mr-2 h-4 w-4 ${option.value === value ? 'opacity-100 text-primary' : 'opacity-0'
                                             }`}
                                     />
                                     {option.label}

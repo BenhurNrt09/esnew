@@ -52,71 +52,71 @@ export function PublicProfileComments({ listingId }: PublicProfileCommentsProps)
     if (loading) return <div className="py-12 text-center text-gray-400 font-bold uppercase tracking-widest text-xs animate-pulse">Değerlendirmeler Hazırlanıyor...</div>;
 
     if (comments.length === 0) return (
-        <div className="py-24 text-center bg-white rounded-[3rem] border-4 border-dashed border-gray-100 mt-12">
-            <MessageCircle className="w-16 h-16 text-gray-100 mx-auto mb-6" />
-            <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-sm">Henüz bir deneyim paylaşılmamış.</p>
+        <div className="py-24 text-center bg-white dark:bg-[#0A0A0A] rounded-[3rem] border-4 border-dashed border-gray-100 dark:border-white/5 mt-12 group">
+            <MessageCircle className="w-16 h-16 text-gray-200 dark:text-white/5 mx-auto mb-6 group-hover:text-primary/20 transition-colors duration-500" />
+            <p className="text-gray-400 dark:text-gray-600 font-black uppercase tracking-[0.2em] text-sm">Henüz bir deneyim paylaşılmamış.</p>
         </div>
     );
 
     const DetailRow = ({ label, value }: { label: string, value: string | null }) => {
         if (!value) return null;
         return (
-            <div className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors px-2 rounded-lg">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{label}:</span>
-                <span className="text-[11px] font-black text-gray-900 uppercase tracking-tighter">{value}</span>
+            <div className="flex items-center justify-between py-2 border-b border-gray-50 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors px-3 rounded-lg">
+                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{label}:</span>
+                <span className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">{value}</span>
             </div>
         );
     };
 
     const RatingBadge = ({ label, value, icon: Icon }: any) => (
-        <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
-            <Icon className="w-3.5 h-3.5 text-primary" />
+        <div className="flex items-center gap-3 bg-gray-50 dark:bg-black/40 p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-inner group/badge hover:border-primary/20 transition-all">
+            <Icon className="w-4 h-4 text-primary group-hover/badge:scale-110 transition-transform" />
             <div className="flex flex-col">
-                <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{label}</span>
-                <span className="text-[11px] font-black text-gray-950">%{value}0</span>
+                <span className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{label}</span>
+                <span className="text-[12px] font-black text-gray-900 dark:text-white">%{value}0</span>
             </div>
         </div>
     );
 
     return (
-        <div className="space-y-12 mt-20">
-            <div className="flex items-center justify-between px-6">
-                <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Üye Deneyimleri <span className="text-primary/30">({comments.length})</span></h3>
+        <div className="space-y-16 mt-24">
+            <div className="flex items-center justify-between px-2">
+                <h3 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">İNCELERKEN SORDUK <span className="text-primary/20">({comments.length})</span></h3>
             </div>
 
-            <div className="grid gap-12">
+            <div className="grid gap-16">
                 {comments.map((comment) => (
-                    <Card key={comment.id} className="relative shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[3rem] overflow-hidden bg-white hover:border-primary/20 transition-all duration-500 group">
+                    <Card key={comment.id} className="relative shadow-2xl border-gray-100 dark:border-white/10 rounded-[3.5rem] overflow-hidden bg-white dark:bg-[#0A0A0A] hover:border-primary/30 transition-all duration-700 group">
                         {/* Status Header */}
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-purple-500 to-blue-500"></div>
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-gold-gradient opacity-80"></div>
 
-                        <CardContent className="p-10">
+                        <CardContent className="p-6 md:p-12">
                             {/* Member Info Bar */}
-                            <div className="flex flex-wrap items-center justify-between gap-6 mb-10 border-b border-gray-50 pb-8">
+                            <div className="flex flex-wrap items-center justify-between gap-6 mb-12 border-b border-white/5 pb-10">
                                 <div className="flex items-center gap-6">
-                                    <div className="w-16 h-16 rounded-[1.5rem] bg-gray-900 flex items-center justify-center text-white shadow-xl group-hover:rotate-6 transition-transform">
-                                        <User className="w-8 h-8" />
+                                    <div className="w-20 h-20 rounded-3xl bg-gray-900 dark:bg-black border border-gray-800 dark:border-white/10 flex items-center justify-center text-primary shadow-2xl group-hover:rotate-6 group-hover:bg-primary group-hover:text-black transition-all duration-500">
+                                        <User className="w-10 h-10" />
                                     </div>
-                                    <div className="space-y-1">
-                                        <Link href={`/uye/${comment.username}`} className="text-xl font-black text-gray-900 uppercase tracking-tighter hover:text-primary transition-colors block">
+                                    <div className="space-y-2">
+                                        <Link href={`/uye/${comment.username}`} className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter hover:text-primary transition-colors block">
                                             {comment.username}
                                         </Link>
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex gap-0.5 text-yellow-500">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex gap-1 text-primary">
                                                 {[...Array(5)].map((_, i) => (
-                                                    <Star key={i} className={`w-3.5 h-3.5 ${i < (comment.rating_stars || 5) ? 'fill-current' : 'text-gray-150'}`} />
+                                                    <Star key={i} className={`w-4 h-4 ${i < (comment.rating_stars || 5) ? 'fill-current' : 'text-gray-200 dark:text-white/10'}`} />
                                                 ))}
                                             </div>
-                                            <span className="w-1.5 h-1.5 bg-gray-200 rounded-full"></span>
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">YAYIN: {new Date(comment.created_at).toLocaleDateString()}</span>
+                                            <span className="w-1.5 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full"></span>
+                                            <span className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">YAYIN: {new Date(comment.created_at).toLocaleDateString()}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-3">
                                     {comment.photo_accuracy && (
-                                        <div className="bg-green-50 text-green-600 px-5 py-2.5 rounded-2xl border border-green-100/50 text-[10px] font-black uppercase tracking-widest flex items-center gap-2.5 shadow-sm">
-                                            <ShieldCheck className="w-4 h-4" /> FOTOĞRAF: {comment.photo_accuracy.toUpperCase()}
+                                        <div className="bg-primary/10 text-primary px-6 py-3 rounded-2xl border border-primary/20 text-[11px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl">
+                                            <ShieldCheck className="w-5 h-5" /> FOTOĞRAF: {comment.photo_accuracy.toUpperCase()}
                                         </div>
                                     )}
                                 </div>
@@ -124,7 +124,7 @@ export function PublicProfileComments({ listingId }: PublicProfileCommentsProps)
 
                             <div className="grid lg:grid-cols-12 gap-12">
                                 {/* Left Column: Detailed Service Matrix */}
-                                <div className="lg:col-span-4 bg-gray-50/50 rounded-[2rem] p-6 border border-gray-100 space-y-1">
+                                <div className="lg:col-span-4 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] p-8 border border-gray-100 dark:border-white/5 space-y-1 shadow-inner">
                                     <DetailRow label="Öpüşme" value={comment.kissing} />
                                     <DetailRow label="Oral Seks" value={comment.oral_condom} />
                                     <DetailRow label="Ağıza Gelme" value={comment.come_in_mouth} />
@@ -136,23 +136,23 @@ export function PublicProfileComments({ listingId }: PublicProfileCommentsProps)
                                 </div>
 
                                 {/* Right Column: Content & Context */}
-                                <div className="lg:col-span-8 space-y-8">
+                                <div className="lg:col-span-8 space-y-10">
                                     {/* Context Bar */}
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-gray-900 p-6 rounded-[2rem] text-white shadow-xl shadow-gray-900/10">
-                                        <div className="space-y-1">
-                                            <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">TARİH</p>
-                                            <p className="text-[11px] font-black">{comment.meeting_date || 'N/A'}</p>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-gray-950 dark:bg-black p-8 rounded-[2.5rem] border border-gray-800 dark:border-white/5 shadow-2xl">
+                                        <div className="space-y-2">
+                                            <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">TARİH</p>
+                                            <p className="text-[12px] font-black text-white">{comment.meeting_date || 'N/A'}</p>
                                         </div>
-                                        <div className="space-y-1">
-                                            <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">SÜRE</p>
-                                            <p className="text-[11px] font-black">{comment.meeting_duration || 'N/A'}</p>
+                                        <div className="space-y-2">
+                                            <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">SÜRE</p>
+                                            <p className="text-[12px] font-black text-white">{comment.meeting_duration || 'N/A'}</p>
                                         </div>
-                                        <div className="space-y-1">
-                                            <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">ŞEHİR</p>
-                                            <p className="text-[11px] font-black">{comment.meeting_city || 'N/A'}</p>
+                                        <div className="space-y-2">
+                                            <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">ŞEHİR</p>
+                                            <p className="text-[12px] font-black text-white">{comment.meeting_city || 'N/A'}</p>
                                         </div>
                                         <div className="flex items-center justify-end">
-                                            <div className="bg-primary/20 text-primary px-3 py-1.5 rounded-xl border border-primary/20 text-[10px] font-black uppercase">
+                                            <div className="bg-primary/20 text-primary px-4 py-2 rounded-xl border border-primary/20 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-primary/10">
                                                 ONAYLI
                                             </div>
                                         </div>
@@ -166,26 +166,26 @@ export function PublicProfileComments({ listingId }: PublicProfileCommentsProps)
                                     </div>
 
                                     {/* Review Text */}
-                                    <div className="bg-gray-50/30 p-8 rounded-[2rem] border border-gray-100 relative">
-                                        <MessageCircle className="absolute -top-4 -right-4 w-12 h-12 text-gray-100/50" />
-                                        <p className="text-gray-600 font-bold leading-relaxed text-sm italic relative z-10">
+                                    <div className="bg-gray-50 dark:bg-white/5 p-10 rounded-[3rem] border border-gray-100 dark:border-white/5 relative group/text hover:border-primary/10 transition-all duration-500">
+                                        <MessageCircle className="absolute -top-6 -right-6 w-16 h-16 text-gray-200 dark:text-white/5 group-hover/text:text-primary/10 transition-colors" />
+                                        <p className="text-gray-600 dark:text-gray-400 font-medium leading-loose text-base italic relative z-10">
                                             "{comment.content}"
                                         </p>
                                     </div>
 
                                     {/* Replies */}
                                     {comment.replies.length > 0 && (
-                                        <div className="space-y-6 pt-4">
+                                        <div className="space-y-10 pt-4">
                                             {comment.replies.map((reply: any) => (
-                                                <div key={reply.id} className="relative ml-10 p-6 bg-primary/5 border border-primary/10 rounded-3xl">
-                                                    <div className="absolute -left-6 top-8 w-6 h-px bg-primary/20"></div>
-                                                    <div className="flex items-center gap-3 mb-3">
-                                                        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">
-                                                            <CornerDownRight className="w-4 h-4" />
+                                                <div key={reply.id} className="relative ml-12 p-8 bg-primary/5 border border-primary/10 rounded-[2.5rem] shadow-xl shadow-primary/5">
+                                                    <div className="absolute -left-8 top-12 w-8 h-px bg-primary/20"></div>
+                                                    <div className="flex items-center gap-4 mb-4">
+                                                        <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-black shadow-lg">
+                                                            <CornerDownRight className="w-5 h-5" />
                                                         </div>
-                                                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Model Yanıtı</span>
+                                                        <span className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Model Yanıtı</span>
                                                     </div>
-                                                    <p className="text-sm text-gray-600 font-bold leading-relaxed">
+                                                    <p className="text-base text-gray-600 dark:text-gray-300 font-medium leading-loose">
                                                         {reply.content}
                                                     </p>
                                                 </div>

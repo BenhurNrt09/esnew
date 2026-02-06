@@ -25,12 +25,14 @@ export default async function CategoriesPage() {
         <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900">Kategori Yönetimi</h1>
-                    <p className="text-muted-foreground mt-1">
+                    <h1 className="text-3xl font-black text-white uppercase tracking-tighter">
+                        <span className="text-primary">Kategori</span> Yönetimi
+                    </h1>
+                    <p className="text-gray-300 mt-1 font-medium">
                         {mainCategories.length} ana kategori, {subCategories.length} alt kategori
                     </p>
                 </div>
-                <Button asChild className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-amber-200">
+                <Button asChild className="bg-gold-gradient text-black font-bold hover:opacity-90 rounded-lg shadow-lg shadow-primary/20">
                     <Link href="/dashboard/categories/new">
                         Yeni Kategori Ekle
                     </Link>
@@ -41,22 +43,22 @@ export default async function CategoriesPage() {
                 {mainCategories.map((mainCat) => {
                     const subs = subCategories.filter(s => s.parent_id === mainCat.id);
                     return (
-                        <Card key={mainCat.id} className="border-amber-100 shadow-sm">
-                            <CardHeader className="bg-amber-50/50 border-b border-amber-50">
+                        <Card key={mainCat.id} className="bg-white/5 border-white/10 shadow-lg backdrop-blur-sm">
+                            <CardHeader className="bg-black/40 border-b border-white/5">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <CardTitle className="text-amber-900">{mainCat.name}</CardTitle>
-                                        <p className="text-sm text-amber-400 mt-1">
+                                        <CardTitle className="text-primary font-black text-xl uppercase tracking-wider">{mainCat.name}</CardTitle>
+                                        <p className="text-xs text-gray-400 mt-1 font-mono font-bold">
                                             Slug: {mainCat.slug} • Sıra: {mainCat.order}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <Button variant="ghost" size="sm" asChild className="text-amber-600 hover:text-amber-700 hover:bg-amber-50">
+                                        <Button variant="ghost" size="sm" asChild className="text-primary hover:text-white hover:bg-primary/20 font-bold">
                                             <Link href={`/dashboard/categories/${mainCat.id}/edit`}>
                                                 Düzenle
                                             </Link>
                                         </Button>
-                                        <Button variant="outline" size="sm" asChild className="text-amber-600 border-amber-200 hover:bg-amber-50">
+                                        <Button variant="outline" size="sm" asChild className="text-white border-white/20 hover:bg-white/10 font-bold">
                                             <Link href={`/dashboard/categories/new?parent=${mainCat.id}`}>
                                                 Alt Kategori Ekle
                                             </Link>
@@ -71,15 +73,15 @@ export default async function CategoriesPage() {
                                         {subs.map((sub) => (
                                             <div
                                                 key={sub.id}
-                                                className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-amber-200 hover:bg-amber-50/30 transition-all bg-white"
+                                                className="flex items-center justify-between p-3 rounded-lg border border-white/5 hover:border-primary/30 hover:bg-white/5 transition-all bg-black/20 group"
                                             >
                                                 <div>
-                                                    <p className="font-medium text-gray-800">{sub.name}</p>
-                                                    <p className="text-xs text-gray-400">
+                                                    <p className="font-bold text-white group-hover:text-primary transition-colors">{sub.name}</p>
+                                                    <p className="text-[10px] text-primary/60 font-black uppercase tracking-widest mt-0.5">
                                                         /{sub.slug}
                                                     </p>
                                                 </div>
-                                                <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-0 text-gray-400 hover:text-amber-600">
+                                                <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-0 text-gray-500 hover:text-primary hover:bg-transparent">
                                                     <Link href={`/dashboard/categories/${sub.id}/edit`}>
                                                         ✏️
                                                     </Link>
@@ -92,8 +94,8 @@ export default async function CategoriesPage() {
 
                             {subs.length === 0 && (
                                 <CardContent>
-                                    <p className="text-sm text-gray-400 text-center py-4 italic">
-                                        Bu kategoride alt kategori yok
+                                    <p className="text-sm text-gray-400 text-center py-6 italic font-medium">
+                                        Bu kategoride alt kategori bulunmuyor.
                                     </p>
                                 </CardContent>
                             )}
@@ -102,12 +104,12 @@ export default async function CategoriesPage() {
                 })}
 
                 {mainCategories.length === 0 && (
-                    <Card className="border-dashed border-2 border-gray-200">
+                    <Card className="bg-white/5 border-dashed border-2 border-white/10">
                         <CardContent className="text-center py-12">
                             <p className="text-gray-500 mb-4">
                                 Henüz kategori eklenmemiş.
                             </p>
-                            <Button asChild className="bg-amber-600 hover:bg-amber-700">
+                            <Button asChild className="bg-gold-gradient text-black font-bold">
                                 <Link href="/dashboard/categories/new">
                                     İlk Kategoriyi Ekle
                                 </Link>

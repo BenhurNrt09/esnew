@@ -106,27 +106,27 @@ export default function NewAdPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="max-w-2xl mx-auto">
-                <Button variant="ghost" className="mb-4 pl-0 hover:bg-transparent hover:text-amber-600 text-gray-500" asChild>
+                <Button variant="ghost" className="mb-6 pl-0 text-gray-500 hover:text-white hover:bg-transparent uppercase font-black text-xs tracking-widest gap-2" asChild>
                     <Link href="/dashboard/ads">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        <ArrowLeft className="h-4 w-4" />
                         Geri Dön
                     </Link>
                 </Button>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                            <ImageIcon className="h-6 w-6 text-amber-600" />
+                <Card className="border-white/10 bg-white/5 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
+                    <CardHeader className="bg-white/5 border-b border-white/5 py-5">
+                        <CardTitle className="text-white font-black uppercase text-sm tracking-widest flex items-center gap-3">
+                            <ImageIcon className="h-5 w-5 text-primary" />
                             Yeni Reklam Ekle
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-8 bg-black/20">
                         <form onSubmit={handleSubmit} className="space-y-8">
 
                             {/* Image Upload Area */}
                             <div className="space-y-4">
-                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                    <ImageIcon className="h-4 w-4 text-amber-600" />
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                    <ImageIcon className="h-3 w-3 text-primary" />
                                     Reklam Görseli
                                 </label>
 
@@ -140,7 +140,7 @@ export default function NewAdPage() {
                                 />
 
                                 {preview ? (
-                                    <div className="relative w-full min-h-[300px] flex flex-col items-center justify-center bg-gray-50 rounded-2xl border-2 border-gray-100 overflow-hidden group">
+                                    <div className="relative w-full min-h-[300px] flex flex-col items-center justify-center bg-black/40 rounded-2xl border-2 border-white/10 overflow-hidden group shadow-inner">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
                                             src={preview}
@@ -151,9 +151,9 @@ export default function NewAdPage() {
 
                                         {/* Overlay when uploading */}
                                         {uploading && (
-                                            <div className="absolute inset-0 bg-white/95 flex flex-col items-center justify-center z-20">
-                                                <Loader2 className="h-12 w-12 animate-spin text-amber-600 mb-4" />
-                                                <p className="text-xl font-black text-amber-900 animate-pulse">YÜKLENİYOR...</p>
+                                            <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center z-20">
+                                                <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+                                                <p className="text-xl font-black text-primary animate-pulse tracking-tighter uppercase italic">YÜKLENİYOR...</p>
                                             </div>
                                         )}
 
@@ -164,19 +164,19 @@ export default function NewAdPage() {
                                                     type="button"
                                                     size="sm"
                                                     onClick={() => document.getElementById('ad-image-upload')?.click()}
-                                                    className="bg-white text-black hover:bg-gray-100 border shadow-md font-bold"
+                                                    className="bg-black/60 text-white hover:bg-black border-white/10 shadow-2xl font-black uppercase text-[10px] tracking-widest px-4 h-9 rounded-lg"
                                                 >
                                                     Değiştir
                                                 </Button>
                                                 <Button
                                                     type="button"
-                                                    variant="destructive"
+                                                    variant="ghost"
                                                     size="sm"
                                                     onClick={() => {
                                                         setPreview(null);
                                                         setFormData({ ...formData, image_url: '' });
                                                     }}
-                                                    className="font-bold shadow-md"
+                                                    className="font-black text-[10px] uppercase tracking-widest text-red-500 hover:text-red-400 hover:bg-black/40"
                                                 >
                                                     Kaldır
                                                 </Button>
@@ -185,23 +185,23 @@ export default function NewAdPage() {
                                     </div>
                                 ) : (
                                     <div
-                                        className="w-full py-20 flex flex-col items-center justify-center border-4 border-dashed border-amber-200 rounded-3xl bg-white hover:bg-amber-50/50 hover:border-amber-400 transition-all cursor-pointer group"
+                                        className="w-full py-20 flex flex-col items-center justify-center border-4 border-dashed border-white/10 rounded-3xl bg-black/20 hover:bg-white/5 hover:border-primary/50 transition-all cursor-pointer group"
                                         onClick={() => document.getElementById('ad-image-upload')?.click()}
                                     >
-                                        <div className="bg-amber-50 p-6 rounded-full mb-6 shadow-sm border border-amber-100 group-hover:scale-110 transition-transform duration-300">
+                                        <div className="bg-white/5 p-6 rounded-full mb-6 shadow-2xl border border-white/5 group-hover:scale-110 transition-transform duration-500">
                                             {uploading ? (
-                                                <Loader2 className="h-12 w-12 animate-spin text-amber-600" />
+                                                <Loader2 className="h-12 w-12 animate-spin text-primary" />
                                             ) : (
-                                                <Upload className="h-12 w-12 text-amber-500" />
+                                                <Upload className="h-12 w-12 text-gray-500 group-hover:text-primary transition-colors" />
                                             )}
                                         </div>
                                         <div className="text-center px-4">
-                                            <h3 className="text-2xl font-black text-gray-900 mb-2">Görsel Seçmek İçin Tıklayın</h3>
-                                            <p className="text-gray-500 font-medium max-w-sm mx-auto">
+                                            <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Görsel Seçmek İçin Tıklayın</h3>
+                                            <p className="text-gray-400 font-medium max-w-sm mx-auto italic">
                                                 Reklam görselini buraya sürükleyebilir veya dosyalarınız arasından seçebilirsiniz.
                                             </p>
                                         </div>
-                                        <div className="mt-8 px-8 py-4 bg-amber-600 text-white rounded-xl font-black shadow-lg shadow-amber-600/20 group-hover:bg-amber-700 transition-all uppercase tracking-tight">
+                                        <div className="mt-8 px-8 py-4 bg-gold-gradient text-black rounded-xl font-black shadow-lg shadow-primary/20 group-hover:opacity-90 transition-all uppercase tracking-widest text-xs">
                                             Bilgisayardan Gözat
                                         </div>
                                     </div>
@@ -211,23 +211,23 @@ export default function NewAdPage() {
                             <div className="grid md:grid-cols-2 gap-8">
                                 {/* Position */}
                                 <div className="space-y-3">
-                                    <label className="text-sm font-bold text-gray-700">Görüntülenecek Taraf</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Görüntülenecek Taraf</label>
                                     <select
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-gray-100 bg-white text-sm focus:border-amber-600 focus:ring-0 transition-all cursor-pointer font-medium"
+                                        className="w-full h-12 px-4 rounded-xl border border-white/10 bg-black/40 text-sm text-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all cursor-pointer font-bold outline-none"
                                         value={formData.position}
                                         onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                                     >
-                                        <option value="left">Sol Taraf (Sidebar)</option>
-                                        <option value="right">Sağ Taraf (Sidebar)</option>
+                                        <option value="left" className="bg-zinc-900">Sol Taraf (Sidebar)</option>
+                                        <option value="right" className="bg-zinc-900">Sağ Taraf (Sidebar)</option>
                                     </select>
                                 </div>
 
                                 {/* Order */}
                                 <div className="space-y-3">
-                                    <label className="text-sm font-bold text-gray-700">Sıralama Önceliği</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Sıralama Önceliği</label>
                                     <Input
                                         type="number"
-                                        className="h-12 rounded-xl border-2 border-gray-100 focus:border-amber-600 transition-all font-medium"
+                                        className="bg-black/40 border-white/10 focus:border-primary h-12 shadow-xl font-black text-white rounded-xl pl-4"
                                         value={formData.order}
                                         onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
                                         min={0}
@@ -237,28 +237,28 @@ export default function NewAdPage() {
 
                             {/* Link */}
                             <div className="space-y-3">
-                                <label className="text-sm font-bold text-gray-700 font-bold flex items-center gap-2">
-                                    <Save className="h-4 w-4 text-amber-600" />
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                    <Save className="h-3 w-3 text-primary" />
                                     Tıklayınca Gidilecek Link (Opsiyonel)
                                 </label>
                                 <Input
                                     placeholder="https://"
-                                    className="h-12 rounded-xl border-2 border-gray-100 focus:border-amber-600 transition-all font-medium"
+                                    className="bg-black/40 border-white/10 focus:border-primary h-12 shadow-xl font-bold text-white rounded-xl pl-4 placeholder:italic placeholder:text-gray-600"
                                     value={formData.link}
                                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                                 />
                             </div>
 
                             {/* Is Active */}
-                            <div className="flex items-center justify-between p-6 border-2 border-gray-100 rounded-2xl bg-gray-50/50">
+                            <div className="flex items-center justify-between p-6 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm">
                                 <div className="space-y-1">
-                                    <label className="text-lg font-bold text-gray-900">Reklam Yayında</label>
-                                    <p className="text-sm text-gray-500 font-medium">Bu reklamı dilediğiniz zaman duraklatabilirsiniz.</p>
+                                    <label className="text-lg font-black text-white uppercase tracking-tight">Reklam Yayında</label>
+                                    <p className="text-sm text-gray-400 font-medium italic">Bu reklamı dilediğiniz zaman duraklatabilirsiniz.</p>
                                 </div>
                                 <div className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        className="h-7 w-7 rounded-lg border-2 border-gray-300 text-amber-600 focus:ring-amber-600 transition-all cursor-pointer"
+                                        className="h-8 w-8 rounded-xl border-white/10 bg-black/40 text-primary focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer shadow-xl"
                                         checked={formData.is_active}
                                         onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                                     />
@@ -268,12 +268,12 @@ export default function NewAdPage() {
                             <Button
                                 type="submit"
                                 size="lg"
-                                className="w-full h-14 bg-amber-600 hover:bg-amber-700 text-white font-black text-lg transition-all shadow-xl shadow-amber-600/20 active:scale-[0.98]"
+                                className="w-full h-16 bg-gold-gradient hover:opacity-90 text-black font-black text-xl transition-all shadow-2xl shadow-primary/30 active:scale-[0.98] rounded-xl uppercase tracking-tighter"
                                 disabled={loading || uploading}
                             >
                                 {loading ? (
                                     <>
-                                        <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                                        <Loader2 className="mr-3 h-7 w-7 animate-spin" />
                                         REKLAM KAYDEDİLİYOR...
                                     </>
                                 ) : (

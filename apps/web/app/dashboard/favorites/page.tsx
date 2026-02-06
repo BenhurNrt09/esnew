@@ -10,16 +10,20 @@ export default function FavoritesPage() {
     const supabase = createClient();
     const [favorites, setFavorites] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [userId, setUserId] = useState<string | null>(null);
 
     useEffect(() => {
         const loadFavorites = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
+            setUserId(user.id);
+
             const { data } = await supabase
                 .from('favorites')
                 .select(`
-                    id,
+                    user_id,
+                    listing_id,
                     created_at,
                     listing:listings(
                         id,
@@ -41,9 +45,12 @@ export default function FavoritesPage() {
         loadFavorites();
     }, []);
 
-    const removeFavorite = async (favoriteId: string) => {
-        await supabase.from('favorites').delete().eq('id', favoriteId);
-        setFavorites(favorites.filter(f => f.id !== favoriteId));
+    const removeFavorite = async (listingId: string) => {
+        if (!userId) return;
+        await supabase.from('favorites').delete()
+            .eq('user_id', userId)
+            .eq('listing_id', listingId);
+        setFavorites(favorites.filter(f => f.listing_id !== listingId));
     };
 
     const formatPrice = (pricing: any[]) => {
@@ -65,25 +72,25 @@ export default function FavoritesPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter flex items-center gap-3">
+                <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
                     <Heart className="w-8 h-8 text-primary fill-current" />
                     Favorilerim
                 </h1>
-                <p className="text-gray-500 mt-2 font-medium">
+                <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">
                     Beğendiğiniz profilleri buradan takip edebilirsiniz
                 </p>
             </div>
 
             {favorites.length === 0 ? (
-                <Card className="shadow-lg border border-gray-100 rounded-3xl overflow-hidden">
+                <Card className="shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/5 rounded-3xl overflow-hidden bg-white dark:bg-[#0a0a0a]">
                     <CardContent className="p-20 text-center">
-                        <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <Heart className="w-10 h-10 text-gray-300" />
+                        <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <Heart className="w-10 h-10 text-gray-300 dark:text-gray-700" />
                         </div>
-                        <h3 className="text-xl font-black text-gray-900 mb-2 uppercase tracking-tight">
+                        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">
                             Henüz favori eklemediniz
                         </h3>
-                        <p className="text-gray-400 font-medium mb-6">
+                        <p className="text-gray-400 dark:text-gray-500 font-medium mb-6">
                             Beğendiğiniz profilleri favorilere ekleyerek buradan kolayca ulaşabilirsiniz
                         </p>
                         <Link href="/">
@@ -96,10 +103,10 @@ export default function FavoritesPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {favorites.map((favorite) => (
-                        <Card key={favorite.id} className="shadow-lg border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all group">
+                        <Card key={favorite.listing_id} className="shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] rounded-2xl overflow-hidden hover:shadow-xl transition-all group">
                             <div className="relative aspect-[3/4] overflow-hidden">
                                 <img
-                                    src={favorite.listing.cover_image || '/placeholder.jpg'}
+                                    src={favorite.listing.cover_image || 'https://placehold.co/400x600/1a1a1a/D4AF37.png?text=No+Image'}
                                     alt={favorite.listing.title}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
@@ -112,7 +119,7 @@ export default function FavoritesPage() {
                                 )}
 
                                 <button
-                                    onClick={() => removeFavorite(favorite.id)}
+                                    onClick={() => removeFavorite(favorite.listing_id)}
                                     className="absolute top-4 right-4 p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all shadow-lg"
                                     title="Favorilerden Çıkar"
                                 >
@@ -133,7 +140,7 @@ export default function FavoritesPage() {
                             <CardContent className="p-4">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">
                                             Başlangıç
                                         </span>
                                         <p className="text-primary font-black text-lg tracking-tighter">

@@ -97,7 +97,7 @@ export function StoryBalloons({ modelId }: { modelId?: string }) {
                                 "rounded-full p-[2px] bg-gradient-to-tr from-primary via-primary/50 to-primary/80 animate-gradient-xy group-hover:scale-105 transition-transform",
                                 modelId ? "w-20 h-20" : "w-16 h-16" // Larger on profile page, smaller on homepage
                             )}>
-                                <div className="w-full h-full rounded-full border-[2px] border-white overflow-hidden bg-gray-100 flex items-center justify-center">
+                                <div className="w-full h-full rounded-full border-[2px] border-black overflow-hidden bg-gray-900 flex items-center justify-center">
                                     {item.photo ? (
                                         <img
                                             src={item.photo}
@@ -110,7 +110,7 @@ export function StoryBalloons({ modelId }: { modelId?: string }) {
                                 </div>
                             </div>
                             {!modelId && (
-                                <span className="text-[9px] font-black text-gray-700 uppercase tracking-tighter truncate w-16 text-center">
+                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter truncate w-16 text-center group-hover:text-primary transition-colors">
                                     {item.model.full_name || item.model.username}
                                 </span>
                             )}

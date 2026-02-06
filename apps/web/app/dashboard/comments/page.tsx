@@ -118,7 +118,7 @@ export default function CommentsPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div>
-                <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">
+                <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">
                     {userType === 'member' ? 'Yorum Geçmişim' : 'Değerlendirmeler'}
                 </h1>
                 <p className="text-gray-500 font-medium">
@@ -128,7 +128,7 @@ export default function CommentsPage() {
 
             <div className="space-y-6">
                 {comments.map((comment) => (
-                    <Card key={comment.id} className="shadow-2xl shadow-primary/5 border-gray-100 rounded-[2rem] overflow-hidden bg-white">
+                    <Card key={comment.id} className="shadow-2xl shadow-gray-200/50 dark:shadow-primary/5 border-gray-100 dark:border-white/5 rounded-[2rem] overflow-hidden bg-white dark:bg-[#0a0a0a]">
                         <CardContent className="p-8 space-y-8">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-4">
@@ -136,7 +136,7 @@ export default function CommentsPage() {
                                         <User className="w-7 h-7" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-gray-900 uppercase tracking-tighter text-lg">
+                                        <h4 className="font-black text-gray-900 dark:text-white uppercase tracking-tighter text-lg">
                                             {userType === 'member' ? comment.listings?.title : comment.username}
                                         </h4>
                                         <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export default function CommentsPage() {
                                                     <Star key={i} className={cn("w-3.5 h-3.5 fill-current", i < (comment.rating_stars || 5) ? "text-yellow-400" : "text-gray-150")} />
                                                 ))}
                                             </div>
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
+                                            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest bg-gray-50 dark:bg-white/5 px-2 py-0.5 rounded-full border border-gray-100 dark:border-white/5">
                                                 {new Date(comment.created_at).toLocaleDateString()}
                                             </span>
                                         </div>
@@ -180,7 +180,7 @@ export default function CommentsPage() {
                             )}
 
                             <div className="relative">
-                                <p className="text-gray-700 font-bold leading-relaxed bg-gray-50 p-6 rounded-[1.5rem] italic text-sm">
+                                <p className="text-gray-700 dark:text-gray-300 font-bold leading-relaxed bg-gray-50 dark:bg-white/5 p-6 rounded-[1.5rem] italic text-sm border border-gray-100 dark:border-white/5">
                                     "{comment.content}"
                                 </p>
                             </div>
@@ -193,7 +193,7 @@ export default function CommentsPage() {
                                             <CornerDownRight className="w-4 h-4 text-primary" />
                                             <span className="text-[10px] font-black text-primary uppercase tracking-widest">Yanıt</span>
                                         </div>
-                                        <p className="text-sm text-gray-600 font-bold bg-primary/5 p-5 rounded-2xl border border-primary/10">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 font-bold bg-primary/5 p-5 rounded-2xl border border-primary/10">
                                             {reply.content}
                                         </p>
                                     </div>
@@ -203,7 +203,7 @@ export default function CommentsPage() {
                                     <div className="pt-4 flex gap-3">
                                         <Input
                                             placeholder="Cevabınızı yazın..."
-                                            className="rounded-xl h-12 border-gray-200 bg-white font-bold"
+                                            className="rounded-xl h-12 border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 font-bold text-gray-900 dark:text-white"
                                             value={replyText[comment.id] || ''}
                                             onChange={(e) => setReplyText({ ...replyText, [comment.id]: e.target.value })}
                                         />
@@ -221,10 +221,10 @@ export default function CommentsPage() {
                 ))}
 
                 {comments.length === 0 && (
-                    <div className="text-center py-32 bg-white rounded-[3rem] border-4 border-dashed border-gray-50">
-                        <MessageSquare className="w-16 h-16 text-gray-100 mx-auto mb-6" />
-                        <h3 className="text-gray-400 font-black uppercase tracking-tighter text-xl">Henüz bir yorum yok</h3>
-                        <p className="text-gray-300 font-bold">İlk yorumunuzu yapmak için profilleri gezin.</p>
+                    <div className="text-center py-32 bg-white dark:bg-[#0a0a0a] rounded-[3rem] border-4 border-dashed border-gray-100 dark:border-white/5">
+                        <MessageSquare className="w-16 h-16 text-gray-200 dark:text-gray-800 mx-auto mb-6" />
+                        <h3 className="text-gray-400 dark:text-gray-500 font-black uppercase tracking-tighter text-xl">Henüz bir yorum yok</h3>
+                        <p className="text-gray-300 dark:text-gray-600 font-bold">İlk yorumunuzu yapmak için profilleri gezin.</p>
                     </div>
                 )}
             </div>

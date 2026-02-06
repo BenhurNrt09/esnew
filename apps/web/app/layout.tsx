@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './components/Providers';
 import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -40,11 +41,12 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="tr" className="overflow-x-hidden max-w-full">
+        <html lang="tr" className="overflow-x-hidden max-w-full" suppressHydrationWarning>
             <body className={`${inter.className} overflow-x-hidden max-w-full w-full`}>
                 <Providers>
                     <Header />
                     {children}
+                    <Footer />
                 </Providers>
             </body>
         </html>

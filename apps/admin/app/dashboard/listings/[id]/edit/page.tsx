@@ -348,12 +348,12 @@ export default function EditListingPage({ params }: { params: { id: string } }) 
                 </Button>
                 <button
                     onClick={handleDelete}
-                    className="ml-4 text-gray-300 hover:text-red-500 transition-colors text-[10px] font-black uppercase tracking-tighter"
+                    className="ml-4 text-gray-300 hover:text-amber-500 transition-colors text-[10px] font-black uppercase tracking-tighter"
                 >
                     Profili Sil
                 </button>
             </div>
-            {error && <p className="mt-4 text-center text-red-500 font-bold animate-bounce">{error}</p>}
+            {error && <p className="mt-4 text-center text-amber-500 font-bold animate-bounce">{error}</p>}
         </div>
     );
 }

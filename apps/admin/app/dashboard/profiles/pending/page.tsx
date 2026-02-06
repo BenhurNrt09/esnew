@@ -49,11 +49,11 @@ export default async function PendingProfilesPage() {
     return (
         <div className="container mx-auto px-4 py-8 animate-in fade-in duration-500">
             <div className="mb-8">
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3 italic">
-                    <Users className="h-8 w-8 text-amber-500" /> Onay Bekleyenler
+                <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3 uppercase">
+                    <Users className="h-8 w-8 text-primary" /> <span className="text-primary italic">Onay</span> Bekleyenler
                 </h1>
-                <p className="text-muted-foreground mt-1 text-lg">
-                    Şu anda onay bekleyen <span className="font-bold text-amber-600">{listings.length}</span> profil bulunuyor.
+                <p className="text-gray-300 mt-1 text-lg font-medium italic">
+                    Şu anda onay bekleyen <span className="font-black text-primary">{listings.length}</span> profil bulunuyor.
                 </p>
             </div>
 
