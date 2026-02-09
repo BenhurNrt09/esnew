@@ -13,6 +13,7 @@ interface Listing {
     created_at: string;
     is_premium: boolean;
     is_vip: boolean;
+    city?: { name: string };
 }
 
 interface TierListing {
