@@ -20,17 +20,17 @@ export function SubNavigation() {
         <div className="w-full bg-[#1A1A1A] border-b border-white/5 shadow-lg">
             {/* Main Categories Bar */}
             <div className="container mx-auto px-4">
-                <div className="flex flex-wrap items-center justify-center py-3 gap-x-2 md:gap-x-4">
+                <div className="flex flex-wrap items-center justify-center py-4 gap-x-4 gap-y-3 md:gap-x-4">
                     {mainCategories.map((cat, i) => (
                         <div key={cat.name} className="flex items-center">
                             <Link
                                 href={cat.href}
-                                className="text-[10px] md:text-xs font-black text-gray-300 hover:text-primary transition-colors uppercase tracking-widest whitespace-nowrap"
+                                className="text-[10px] md:text-xs font-black text-gray-300 hover:text-primary transition-colors uppercase tracking-[0.15em] whitespace-nowrap"
                             >
                                 {cat.name}
                             </Link>
                             {i < mainCategories.length - 1 && (
-                                <span className="mx-2 md:mx-4 h-4 w-px bg-white/10 hidden sm:block"></span>
+                                <span className="mx-3 md:mx-4 h-3 w-px bg-white/20"></span>
                             )}
                         </div>
                     ))}

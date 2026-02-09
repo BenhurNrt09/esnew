@@ -1,18 +1,246 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input } from '@repo/ui';
-import { LifeBuoy, Send, MessageSquare, Clock, AlertCircle, CheckCircle2, ChevronRight, Plus, Loader2 } from 'lucide-react';
+import { LifeBuoy, Send, MessageSquare, Clock, AlertCircle, CheckCircle2, ChevronRight, Plus, Loader2, X, User } from 'lucide-react';
 import { cn } from '@repo/ui/src/lib/utils';
 import Link from 'next/link';
 
+// ===== TICKET DETAIL MODAL =====
+function TicketModal({ ticket, user, onClose }: { ticket: any; user: any; onClose: () => void }) {
+    const supabase = createClient();
+    const [messages, setMessages] = useState<any[]>([]);
+    const [activeTicket, setActiveTicket] = useState(ticket); // Local state for realtime updates
+    const [newMessage, setNewMessage] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [sending, setSending] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setActiveTicket(ticket);
+    }, [ticket]);
+
+    useEffect(() => {
+        loadMessages();
+
+        // Subscribe to messages
+        const messageChannel = supabase
+            .channel(`user_ticket_messages_${ticket.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'support_messages',
+                    filter: `ticket_id=eq.${ticket.id}`,
+                },
+                (payload) => {
+                    setMessages((prev) => [...prev, payload.new]);
+                }
+            )
+            .subscribe();
+
+        // Subscribe to ticket status
+        const ticketChannel = supabase
+            .channel(`user_ticket_status_${ticket.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'support_tickets',
+                    filter: `id=eq.${ticket.id}`,
+                },
+                (payload) => {
+                    setActiveTicket((prev: any) => ({ ...prev, ...payload.new }));
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(messageChannel);
+            supabase.removeChannel(ticketChannel);
+        };
+    }, [ticket.id]);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    const loadMessages = async () => {
+        setLoading(true);
+        const { data } = await supabase
+            .from('support_messages')
+            .select('*')
+            .eq('ticket_id', ticket.id)
+            .order('created_at', { ascending: true });
+
+        if (data) setMessages(data);
+        setLoading(false);
+    };
+
+    const handleSendMessage = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newMessage.trim() || !user || sending) return;
+
+        setSending(true);
+        const { error } = await supabase
+            .from('support_messages')
+            .insert({
+                ticket_id: ticket.id,
+                sender_id: user.id,
+                message: newMessage.trim(),
+                is_admin: false,
+                type: 'text'
+            });
+
+        if (!error) {
+            // Update ticket status to 'open' if it was pending (user replied)
+            if (activeTicket.status === 'pending') {
+                await supabase
+                    .from('support_tickets')
+                    .update({ status: 'open', updated_at: new Date().toISOString() })
+                    .eq('id', ticket.id);
+            }
+            setNewMessage('');
+        }
+        setSending(false);
+    };
+
+    return (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+            <div className="relative w-full max-w-3xl h-[80vh] bg-white dark:bg-zinc-950 border border-gray-100 dark:border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+
+                {/* Modal Header */}
+                <header className="p-6 border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-black/40 shrink-0">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className={cn(
+                                "w-12 h-12 rounded-2xl flex items-center justify-center",
+                                activeTicket.status === 'open' ? "bg-green-500/10 text-green-500" :
+                                    activeTicket.status === 'pending' ? "bg-orange-500/10 text-orange-500" : "bg-gray-500/20 text-gray-500"
+                            )}>
+                                <MessageSquare className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">{activeTicket.subject}</h2>
+                                <div className="flex items-center gap-3 mt-1">
+                                    <span className={cn(
+                                        "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border",
+                                        activeTicket.status === 'open' ? "border-green-500/20 text-green-500 bg-green-500/5" :
+                                            activeTicket.status === 'pending' ? "border-orange-500/20 text-orange-500 bg-orange-500/5" : "border-gray-500/20 text-gray-500 bg-gray-500/5"
+                                    )}>
+                                        {activeTicket.status === 'open' ? 'Açık' : activeTicket.status === 'pending' ? 'Cevaplandı' : 'Kapatıldı'}
+                                    </span>
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                                        <Clock className="w-3 h-3" /> {new Date(activeTicket.created_at).toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors">
+                            <X className="w-6 h-6 text-gray-400" />
+                        </button>
+                    </div>
+                </header>
+
+                {/* Messages Area */}
+                <main className="flex-1 overflow-y-auto p-6 space-y-6" ref={scrollRef}>
+                    {loading ? (
+                        <div className="flex items-center justify-center h-full">
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        </div>
+                    ) : messages.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                            <MessageSquare className="w-12 h-12 opacity-20 mb-4" />
+                            <p className="text-xs font-black uppercase tracking-widest">Henüz mesaj yok</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-6 max-w-2xl mx-auto">
+                            {messages.map((msg) => {
+                                const isMe = msg.sender_id === user.id;
+                                const isAdmin = msg.is_admin;
+                                return (
+                                    <div key={msg.id} className={cn(
+                                        "flex flex-col max-w-[80%]",
+                                        isMe ? "ml-auto items-end" : "mr-auto items-start"
+                                    )}>
+                                        <div className="flex items-center gap-2 mb-1.5 px-1 text-[9px] font-black text-gray-500 dark:text-gray-600 uppercase tracking-widest">
+                                            {!isMe && (
+                                                <div className={cn("w-5 h-5 rounded-lg flex items-center justify-center", isAdmin ? "bg-primary text-black" : "bg-gray-200 dark:bg-white/10")}>
+                                                    {isAdmin ? <LifeBuoy className="w-2.5 h-2.5" /> : <User className="w-2.5 h-2.5" />}
+                                                </div>
+                                            )}
+                                            <span className={cn(isMe ? "text-primary" : (isAdmin ? "text-primary" : "text-gray-400"))}>
+                                                {isMe ? 'SİZ' : (isAdmin ? 'DESTEK EKİBİ' : 'SİZ')}
+                                            </span>
+                                        </div>
+                                        <div className={cn(
+                                            "p-5 rounded-[1.5rem] text-sm font-medium leading-relaxed shadow-lg",
+                                            isMe
+                                                ? "bg-primary text-black rounded-tr-sm"
+                                                : (isAdmin ? "bg-gradient-to-br from-primary to-primary/80 text-black rounded-tl-sm" : "bg-gray-100 dark:bg-black/60 text-gray-900 dark:text-white rounded-tl-sm border border-gray-200 dark:border-white/5")
+                                        )}>
+                                            {msg.message}
+                                        </div>
+                                        <span className="text-[9px] font-black text-gray-400 dark:text-gray-700 uppercase tracking-widest mt-1.5 px-1 flex items-center gap-1">
+                                            <Clock className="w-2.5 h-2.5" /> {new Date(msg.created_at).toLocaleTimeString()}
+                                        </span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
+                </main>
+
+                {/* Input Area */}
+                {activeTicket.status !== 'closed' ? (
+                    <div className="p-6 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-black/40 shrink-0">
+                        <form onSubmit={handleSendMessage} className="relative max-w-2xl mx-auto">
+                            <textarea
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                placeholder="Mesajınızı yazın..."
+                                className="w-full bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-2xl p-4 pr-28 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-700 resize-none h-20"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSendMessage(e);
+                                    }
+                                }}
+                            />
+                            <button
+                                type="submit"
+                                disabled={!newMessage.trim() || sending}
+                                className="absolute right-3 bottom-3 h-14 px-6 bg-gold-gradient text-black rounded-xl flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                            >
+                                <span className="text-[10px] font-black uppercase tracking-widest">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Gönder'}</span>
+                                {!sending && <Send className="w-4 h-4" />}
+                            </button>
+                        </form>
+                    </div>
+                ) : (
+                    <div className="p-6 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-black/40 shrink-0 text-center">
+                        <p className="text-xs font-black uppercase tracking-widest text-gray-500">Bu destek talebi kapatılmıştır.</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ===== MAIN SUPPORT PAGE =====
 export default function SupportPage() {
     const supabase = createClient();
     const [tickets, setTickets] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [selectedTicket, setSelectedTicket] = useState<any>(null);
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -153,7 +381,11 @@ export default function SupportPage() {
                         ) : (
                             <div className="space-y-4">
                                 {tickets.map(ticket => (
-                                    <Link key={ticket.id} href={`/destek/${ticket.id}`} className="block group">
+                                    <button
+                                        key={ticket.id}
+                                        onClick={() => setSelectedTicket(ticket)}
+                                        className="block group w-full text-left"
+                                    >
                                         <div className="bg-white dark:bg-black border border-gray-100 dark:border-white/5 rounded-3xl p-6 shadow-xl transition-all hover:border-primary/50 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center justify-between">
                                             <div className="flex items-center gap-6">
                                                 <div className={cn(
@@ -187,7 +419,7 @@ export default function SupportPage() {
                                                 <ChevronRight className="w-5 h-5 text-gray-300 group-hover:translate-x-1 transition-transform" />
                                             </div>
                                         </div>
-                                    </Link>
+                                    </button>
                                 ))}
                             </div>
                         )}
@@ -256,7 +488,7 @@ export default function SupportPage() {
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
                                         placeholder="Yaşadığınız sorunu detaylıca anlatın..."
-                                        className="w-full h-40 px-6 py-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl font-bold text-gray-900 dark:text-white transition-all focus:ring-4 focus:ring-primary/10 transition-all outline-none resize-none placeholder:text-gray-400"
+                                        className="w-full h-40 px-6 py-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl font-bold text-gray-900 dark:text-white transition-all focus:ring-4 focus:ring-primary/10 outline-none resize-none placeholder:text-gray-400"
                                     />
                                 </div>
                                 <Button
@@ -270,12 +502,15 @@ export default function SupportPage() {
                     </div>
                 </div>
             )}
+
+            {/* Ticket Detail Modal */}
+            {selectedTicket && (
+                <TicketModal
+                    ticket={selectedTicket}
+                    user={user}
+                    onClose={() => setSelectedTicket(null)}
+                />
+            )}
         </div>
     );
-}
-
-function X({ className }: { className?: string }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-    )
 }

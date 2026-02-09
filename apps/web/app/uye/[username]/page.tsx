@@ -80,7 +80,7 @@ export default async function MemberProfilePage({ params }: { params: { username
                             </div>
                             <div className="text-center md:text-left">
                                 <p className="text-2xl font-black text-gray-900">
-                                    {comments.length > 0 ? (comments.reduce((acc, c) => acc + (c.rating_stars || 5), 0) / comments.length).toFixed(1) : '5.0'}
+                                    {comments.length > 0 ? (comments.reduce((acc, c) => acc + (c.rating_stars || 5), 0) / comments.length).toFixed(1) : '0.0'}
                                 </p>
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b-2 border-primary/20 pb-1">Ort. Memnuniyet</p>
                             </div>

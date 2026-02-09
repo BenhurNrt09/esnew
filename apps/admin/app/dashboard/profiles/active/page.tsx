@@ -48,11 +48,11 @@ export default async function ActiveProfilesPage() {
 
     return (
         <div className="container mx-auto px-4 py-8 animate-in fade-in duration-500">
-            <div className="mb-8">
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                    <CheckCircle className="h-8 w-8 text-green-500" /> Onaylı Profiller
+            <div className="mb-6">
+                <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-500" /> Onaylı Profiller
                 </h1>
-                <p className="text-muted-foreground mt-1 text-lg">
+                <p className="text-muted-foreground mt-1 text-sm font-medium">
                     Sitede yayında olan <span className="font-bold text-green-600">{listings.length}</span> aktif profil bulunuyor.
                 </p>
             </div>

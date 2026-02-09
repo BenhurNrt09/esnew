@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@repo/ui';
-import { User, Mail, Lock, Phone, MapPin, Layers, Save, ArrowLeft, Info, Camera } from 'lucide-react';
+import { User, Mail, Lock, Phone, MapPin, Layers, Save, ArrowLeft, Info, Camera, Plus, Trash2 } from 'lucide-react';
 import { Combobox } from '../../../../components/Combobox';
 import { createModelProfile } from '../../actions';
 import { createClient } from '@repo/lib/supabase/client';
@@ -90,6 +90,57 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
         gender: 'female',
     });
 
+    // Media States
+    const [coverFile, setCoverFile] = useState<File | null>(null);
+    const [coverPreview, setCoverPreview] = useState<string>('');
+    const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+    const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+    const [storyFiles, setStoryFiles] = useState<File[]>([]);
+    const [storyPreviews, setStoryPreviews] = useState<string[]>([]);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [videoPreview, setVideoPreview] = useState<string>('');
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'cover' | 'gallery' | 'story' | 'video') => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        if (type === 'cover') {
+            const file = files[0];
+            setCoverFile(file);
+            setCoverPreview(URL.createObjectURL(file));
+        } else if (type === 'video') {
+            const file = files[0];
+            setVideoFile(file);
+            setVideoPreview(URL.createObjectURL(file));
+        } else if (type === 'gallery') {
+            const newFiles = Array.from(files);
+            setGalleryFiles(prev => [...prev, ...newFiles]);
+            const newPreviews = newFiles.map(f => URL.createObjectURL(f));
+            setGalleryPreviews(prev => [...prev, ...newPreviews]);
+        } else if (type === 'story') {
+            const newFiles = Array.from(files);
+            setStoryFiles(prev => [...prev, ...newFiles]);
+            const newPreviews = newFiles.map(f => URL.createObjectURL(f));
+            setStoryPreviews(prev => [...prev, ...newPreviews]);
+        }
+    };
+
+    const removeFile = (index: number, type: 'cover' | 'gallery' | 'story' | 'video') => {
+        if (type === 'cover') {
+            setCoverFile(null);
+            setCoverPreview('');
+        } else if (type === 'video') {
+            setVideoFile(null);
+            setVideoPreview('');
+        } else if (type === 'gallery') {
+            setGalleryFiles(prev => prev.filter((_, i) => i !== index));
+            setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
+        } else if (type === 'story') {
+            setStoryFiles(prev => prev.filter((_, i) => i !== index));
+            setStoryPreviews(prev => prev.filter((_, i) => i !== index));
+        }
+    };
+
     async function uploadFile(file: File, bucket: 'listings' | 'stories', path: string) {
         const supabase = createClient();
         const fileExt = file.name.split('.').pop();
@@ -115,14 +166,11 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
         setError('');
 
         const form = new FormData(e.currentTarget);
-        const coverFile = form.get('cover_image_file') as File;
-        const galleryFiles = form.getAll('gallery_files') as File[];
-        const videoFile = form.get('video_file') as File;
-        const storyFiles = form.getAll('story_files') as File[];
+        // We will ignore some FormData fields and use our state instead
 
         try {
             // Upload Cover
-            if (coverFile && coverFile.size > 0) {
+            if (coverFile) {
                 const url = await uploadFile(coverFile, 'listings', `covers/${formData.username}`);
                 form.set('cover_image', url);
             }
@@ -130,14 +178,10 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
             // Upload Gallery
             const galleryUrls: string[] = [];
             for (const file of galleryFiles) {
-                if (file.size > 0) {
-                    const url = await uploadFile(file, 'listings', `gallery/${formData.username}`);
-                    galleryUrls.push(url);
-                }
+                const url = await uploadFile(file, 'listings', `gallery/${formData.username}`);
+                galleryUrls.push(url);
             }
             if (galleryUrls.length > 0) {
-                // Pass as JSON string or individual fields? FormData getAll handles arrays if keys match
-                // But for actions, simpler to pass as JSON or separate appends
                 galleryUrls.forEach(url => form.append('gallery_images', url));
             }
 
@@ -149,14 +193,10 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
             }
 
             // Upload Stories
-            // Stories need separate handling on server, store URLs first
-            const storyUrls: { url: string, type: 'image' | 'video' }[] = [];
             for (const file of storyFiles) {
-                if (file.size > 0) {
-                    const type = file.type.startsWith('video') ? 'video' : 'image';
-                    const url = await uploadFile(file, 'stories', `${formData.username}`);
-                    form.append('story_urls', JSON.stringify({ url, type }));
-                }
+                const type = file.type.startsWith('video') ? 'video' : 'image';
+                const url = await uploadFile(file, 'stories', `${formData.username}`);
+                form.append('story_urls', JSON.stringify({ url, type }));
             }
 
             setUploading(false); // Validating server action
@@ -177,12 +217,12 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl animate-in fade-in duration-500">
+        <form onSubmit={handleSubmit} className="space-y-5 max-w-4xl animate-in fade-in duration-500 pb-20">
             {/* Account Info */}
             <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
                 <CardHeader className="bg-black/40 border-b border-white/5 py-4">
-                    <CardTitle className="flex items-center gap-2 text-primary text-xl font-bold">
-                        <User className="h-5 w-5" /> Hesap Bilgileri
+                    <CardTitle className="flex items-center gap-2 text-primary text-base font-bold">
+                        <User className="h-4 w-4" /> Hesap Bilgileri
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 grid md:grid-cols-2 gap-6">
@@ -194,7 +234,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                             onChange={e => setFormData({ ...formData, username: e.target.value })}
                             placeholder="Kullanıcı Adı"
                             required
-                            className="bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-11"
+                            className="bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-9 text-sm"
                         />
                     </div>
 
@@ -209,7 +249,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                                 onChange={e => setFormData({ ...formData, email: e.target.value })}
                                 placeholder="ornek@site.com"
                                 required
-                                className="pl-9 bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-11"
+                                className="pl-9 bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-9 text-sm"
                             />
                         </div>
                     </div>
@@ -226,7 +266,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                                 placeholder="******"
                                 required
                                 minLength={6}
-                                className="pl-9 bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-11"
+                                className="pl-9 bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-9 text-sm"
                             />
                         </div>
                     </div>
@@ -240,7 +280,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                                 value={formData.phone}
                                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                 placeholder="0555 555 55 55"
-                                className="pl-9 bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-11"
+                                className="pl-9 bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-9 text-sm"
                             />
                         </div>
                     </div>
@@ -250,8 +290,8 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
             {/* Profile Details */}
             <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
                 <CardHeader className="bg-black/40 border-b border-white/5 py-4">
-                    <CardTitle className="flex items-center gap-2 text-primary text-xl font-bold">
-                        <MapPin className="h-5 w-5" /> Profil Detayları
+                    <CardTitle className="flex items-center gap-2 text-primary text-base font-bold">
+                        <MapPin className="h-4 w-4" /> Profil Detayları
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 grid md:grid-cols-2 gap-6">
@@ -259,7 +299,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                         <label className="text-sm font-bold text-gray-300">Şehir</label>
                         <select
                             name="city_id"
-                            className="w-full h-11 rounded-lg border border-white/10 bg-black/40 text-white px-3 py-2 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium"
+                            className="w-full h-9 rounded-lg border border-white/10 bg-black/40 text-white px-3 py-1.5 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium"
                             value={formData.city_id}
                             onChange={e => setFormData({ ...formData, city_id: e.target.value })}
                         >
@@ -274,7 +314,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                         <label className="text-sm font-bold text-gray-300">Kategori</label>
                         <select
                             name="category_id"
-                            className="w-full h-11 rounded-lg border border-white/10 bg-black/40 text-white px-3 py-2 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium"
+                            className="w-full h-9 rounded-lg border border-white/10 bg-black/40 text-white px-3 py-1.5 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium"
                             required
                         >
                             <option value="" className="text-gray-500 bg-gray-900">Kategori Seçiniz</option>
@@ -288,7 +328,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                         <label className="text-sm font-bold text-gray-300">Cinsiyet</label>
                         <select
                             name="gender"
-                            className="w-full h-11 rounded-lg border border-white/10 bg-black/40 text-white px-3 py-2 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium"
+                            className="w-full h-9 rounded-lg border border-white/10 bg-black/40 text-white px-3 py-1.5 text-sm focus:outline-none focus:border-primary/50 transition-all font-medium"
                             value={formData.gender}
                             onChange={e => setFormData({ ...formData, gender: e.target.value })}
                         >
@@ -302,7 +342,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                         <label className="text-sm font-bold text-gray-300">Uyruk</label>
                         <select
                             name="nationality"
-                            className="w-full h-10 rounded-md border border-white/10 bg-black/50 text-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary/50"
+                            className="w-full h-9 rounded-md border border-white/10 bg-black/50 text-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:border-primary/50"
                             defaultValue=""
                         >
                             <option value="" className="text-gray-500 bg-gray-900">Seçiniz</option>
@@ -318,7 +358,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                         <label className="text-sm font-bold text-gray-300">Saç Rengi</label>
                         <select
                             name="hair_color"
-                            className="w-full h-10 rounded-md border border-white/10 bg-black/50 text-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary/50"
+                            className="w-full h-9 rounded-md border border-white/10 bg-black/50 text-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:border-primary/50"
                             defaultValue=""
                         >
                             <option value="" className="text-gray-500 bg-gray-900">Seçiniz</option>
@@ -335,54 +375,139 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
             {/* Media Uploads (New) */}
             <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
                 <CardHeader className="bg-black/40 border-b border-white/5 py-4">
-                    <CardTitle className="flex items-center gap-2 text-primary text-xl font-bold">
-                        <Camera className="h-5 w-5" /> Medya Yükleme
+                    <CardTitle className="flex items-center gap-2 text-primary text-base font-bold">
+                        <Camera className="h-4 w-4" /> Medya Yükleme
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 grid gap-6">
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                         <label className="text-sm font-bold text-gray-300">Kapak Fotoğrafı (Zorunlu)</label>
-                        <Input
-                            type="file"
-                            name="cover_image_file"
-                            accept="image/*"
-                            className="bg-black/50 border-white/10 text-white file:bg-primary file:text-black file:font-bold file:rounded-md file:border-0 hover:file:bg-primary/80"
-                        />
-                        <p className="text-[10px] text-gray-500">Profil kartlarında görünecek ana fotoğraf.</p>
+                        <div className="flex items-center gap-4">
+                            <div
+                                className="w-32 h-44 rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center bg-black/40 cursor-pointer overflow-hidden relative group"
+                                onClick={() => document.getElementById('cover_input')?.click()}
+                            >
+                                {coverPreview ? (
+                                    <>
+                                        <img src={coverPreview} className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                            <Trash2 className="w-6 h-6 text-red-500" onClick={(e: any) => { e.stopPropagation(); removeFile(0, 'cover'); }} />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="text-center text-gray-500">
+                                        <Plus className="h-8 w-8 mx-auto mb-1" />
+                                        <span className="text-[10px]">Seç</span>
+                                    </div>
+                                )}
+                            </div>
+                            <input
+                                id="cover_input"
+                                type="file"
+                                name="cover_image_file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => handleFileChange(e, 'cover')}
+                            />
+                            <div className="text-[11px] text-gray-500 max-w-[200px]">
+                                Profil kartlarında görünecek ana fotoğraf.
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                         <label className="text-sm font-bold text-gray-300">Galeri Fotoğrafları</label>
-                        <Input
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                            {galleryPreviews.map((p, i) => (
+                                <div key={i} className="aspect-[3/4] rounded-xl border border-white/5 overflow-hidden relative group">
+                                    <img src={p} className="w-full h-full object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeFile(i, 'gallery')}
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-md p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <Trash2 className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            ))}
+                            <div
+                                className="aspect-[3/4] rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center bg-black/20 cursor-pointer hover:border-primary/50 transition-all"
+                                onClick={() => document.getElementById('gallery_input')?.click()}
+                            >
+                                <Plus className="w-6 h-6 text-gray-500" />
+                            </div>
+                        </div>
+                        <input
+                            id="gallery_input"
                             type="file"
                             name="gallery_files"
                             accept="image/*"
                             multiple
-                            className="bg-black/50 border-white/10 text-white file:bg-primary file:text-black file:font-bold file:rounded-md file:border-0 hover:file:bg-primary/80"
+                            className="hidden"
+                            onChange={(e) => handleFileChange(e, 'gallery')}
                         />
-                        <p className="text-[10px] text-gray-500">Profil detayında slayt olarak gösterilecek fotoğraflar.</p>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                         <label className="text-sm font-bold text-gray-300">Tanıtım Videosu</label>
-                        <Input
-                            type="file"
-                            name="video_file"
-                            accept="video/*"
-                            className="bg-black/50 border-white/10 text-white file:bg-primary file:text-black file:font-bold file:rounded-md file:border-0 hover:file:bg-primary/80"
-                        />
+                        <div className="flex items-center gap-4">
+                            <div
+                                className="w-40 h-24 rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center bg-black/40 cursor-pointer overflow-hidden relative group"
+                                onClick={() => document.getElementById('video_input')?.click()}
+                            >
+                                {videoPreview ? (
+                                    <>
+                                        <video src={videoPreview} className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white font-bold text-xs">
+                                            DEĞİŞTİR
+                                        </div>
+                                    </>
+                                ) : (
+                                    <Plus className="h-6 w-6 text-gray-500" />
+                                )}
+                            </div>
+                            <input
+                                id="video_input"
+                                type="file"
+                                name="video_file"
+                                accept="video/*"
+                                className="hidden"
+                                onChange={(e) => handleFileChange(e, 'video')}
+                            />
+                        </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                         <label className="text-sm font-bold text-gray-300">Hikayeler (Story)</label>
-                        <Input
+                        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                            {storyPreviews.map((p, i) => (
+                                <div key={i} className="aspect-[9/16] rounded-xl border border-white/5 overflow-hidden relative group">
+                                    <img src={p} className="w-full h-full object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeFile(i, 'story')}
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-md p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <Trash2 className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            ))}
+                            <div
+                                className="aspect-[9/16] rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center bg-black/20 cursor-pointer hover:border-primary/50 transition-all"
+                                onClick={() => document.getElementById('story_input')?.click()}
+                            >
+                                <Plus className="w-5 h-5 text-gray-500" />
+                            </div>
+                        </div>
+                        <input
+                            id="story_input"
                             type="file"
                             name="story_files"
                             accept="image/*,video/*"
                             multiple
-                            className="bg-black/50 border-white/10 text-white file:bg-primary file:text-black file:font-bold file:rounded-md file:border-0 hover:file:bg-primary/80"
+                            className="hidden"
+                            onChange={(e) => handleFileChange(e, 'story')}
                         />
-                        <p className="text-[10px] text-gray-500">24 saat sonra kaybolacak hikaye medyaları.</p>
                     </div>
                 </CardContent>
             </Card>
@@ -390,31 +515,31 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
             {/* Listing Details */}
             <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
                 <CardHeader className="bg-black/40 border-b border-white/5 py-4">
-                    <CardTitle className="flex items-center gap-2 text-primary text-xl font-bold">
-                        <Layers className="h-5 w-5" /> İlan Detayları
+                    <CardTitle className="flex items-center gap-2 text-primary text-base font-bold">
+                        <Layers className="h-4 w-4" /> İlan Detayları
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6 grid gap-6">
-                    <div className="space-y-2">
+                <CardContent className="pt-4 grid gap-4">
+                    <div className="space-y-1.5">
                         <label className="text-sm font-bold text-gray-300">İlan Başlığı</label>
-                        <Input name="title" placeholder="Örn: Genç ve Enerjik Model" className="bg-black/40 border-white/10 text-white placeholder:text-gray-600 focus:border-primary/50 h-11" required />
+                        <Input name="title" placeholder="Örn: Genç ve Enerjik Model" className="bg-black/40 border-white/10 text-white placeholder:text-gray-600 focus:border-primary/50 h-9" required />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         <label className="text-sm font-bold text-gray-300">Açıklama</label>
                         <textarea
                             name="description"
-                            className="w-full h-32 rounded-xl border border-white/10 bg-black/40 text-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary/50 resize-none placeholder:text-gray-600"
+                            className="w-full h-24 rounded-xl border border-white/10 bg-black/40 text-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary/50 resize-none placeholder:text-gray-600"
                             placeholder="Kendinizi tanıtın..."
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-sm font-bold text-gray-300">Boy (cm)</label>
-                            <Input name="height" type="number" placeholder="175" className="bg-black/50 border-white/10 text-white placeholder:text-gray-600 focus:border-primary/50" />
+                            <Input name="height" type="number" placeholder="175" className="bg-black/50 border-white/10 text-white placeholder:text-gray-600 focus:border-primary/50 h-9" />
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-sm font-bold text-gray-300">Kilo (kg)</label>
-                            <Input name="weight" type="number" placeholder="60" className="bg-black/50 border-white/10 text-white placeholder:text-gray-600 focus:border-primary/50" />
+                            <Input name="weight" type="number" placeholder="60" className="bg-black/50 border-white/10 text-white placeholder:text-gray-600 focus:border-primary/50 h-9" />
                         </div>
                     </div>
                 </CardContent>
@@ -423,28 +548,28 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
             {/* Physical Attributes */}
             <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
                 <CardHeader className="bg-black/40 border-b border-white/5 py-4">
-                    <CardTitle className="flex items-center gap-2 text-primary text-xl font-bold">
-                        <Info className="h-5 w-5" /> Fiziksel Özellikler
+                    <CardTitle className="flex items-center gap-2 text-primary text-base font-bold">
+                        <Info className="h-4 w-4" /> Fiziksel Özellikler
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6 grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
+                <CardContent className="pt-4 grid md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
                         <label className="text-sm font-bold text-gray-300">Göğüs Ölçüsü</label>
-                        <select name="breast_size" className="w-full h-10 rounded-md border border-white/10 bg-black/50 text-white px-3 py-2 text-sm">
+                        <select name="breast_size" className="w-full h-9 rounded-md border border-white/10 bg-black/50 text-white px-3 py-1.5 text-sm">
                             <option value="">Seçiniz</option>
                             {breastOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                         </select>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         <label className="text-sm font-bold text-gray-300">Vücut Kılı</label>
-                        <select name="body_hair" className="w-full h-10 rounded-md border border-white/10 bg-black/50 text-white px-3 py-2 text-sm">
+                        <select name="body_hair" className="w-full h-9 rounded-md border border-white/10 bg-black/50 text-white px-3 py-1.5 text-sm">
                             <option value="">Seçiniz</option>
                             {bodyHairOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                         </select>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         <label className="text-sm font-bold text-gray-300">Etnik Köken</label>
-                        <select name="ethnicity" className="w-full h-10 rounded-md border border-white/10 bg-black/50 text-white px-3 py-2 text-sm">
+                        <select name="ethnicity" className="w-full h-9 rounded-md border border-white/10 bg-black/50 text-white px-3 py-1.5 text-sm">
                             <option value="">Seçiniz</option>
                             {ethnicityOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
@@ -455,8 +580,8 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
             {/* Services */}
             <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
                 <CardHeader className="bg-black/40 border-b border-white/5 py-4">
-                    <CardTitle className="flex items-center gap-2 text-primary text-xl font-bold">
-                        <Layers className="h-5 w-5" /> Hizmetler
+                    <CardTitle className="flex items-center gap-2 text-primary text-base font-bold">
+                        <Layers className="h-4 w-4" /> Hizmetler
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
@@ -486,11 +611,11 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                 </div>
             )}
 
-            <div className="flex justify-end gap-4 sticky bottom-4 z-10 bg-black/80 p-4 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-md">
-                <Button type="button" variant="outline" onClick={() => router.back()} className="h-12 px-6 border-white/10 text-gray-400 hover:bg-white/5 hover:text-white font-medium">
+            <div className="flex justify-end gap-3 sticky bottom-4 z-10 bg-black/80 p-3 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-md">
+                <Button type="button" variant="outline" onClick={() => router.back()} className="h-10 px-4 border-white/10 text-gray-400 hover:bg-white/5 hover:text-white font-medium text-sm">
                     İptal
                 </Button>
-                <Button type="submit" disabled={loading} className="bg-gold-gradient hover:opacity-90 text-black font-bold h-12 px-10 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]">
+                <Button type="submit" disabled={loading} className="bg-gold-gradient hover:opacity-90 text-black font-bold h-10 px-8 shadow-lg shadow-primary/20 transition-all active:scale-[0.98] text-sm">
                     {uploading ? 'Dosyalar Yükleniyor...' : (loading ? 'Kaydediliyor...' : 'Modeli Kaydet')}
                 </Button>
             </div>

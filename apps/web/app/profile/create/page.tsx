@@ -132,16 +132,20 @@ export default function CreateProfilePage() {
         description: '',
         breast_size: '',
         body_hair: '',
+        age_value: '',
+        height: '',
+        weight: '',
         orientation: [] as string[],
         tattoos: false,
         piercings: false,
         smoking: false,
         alcohol: false,
+        languages: [] as { lang: string, level: number }[],
         currency: 'TRY',
         services: {} as Record<string, boolean>,
         model_pricing: [
-            { duration: '1 Saat', incall: '', outcall: '' },
-            { duration: 'Gecelik', incall: '', outcall: '' },
+            { duration: '1 Saat', price: '', location: 'Kendi Yerim' },
+            { duration: 'Gecelik', price: '', location: 'Senin Yerin' },
         ]
     });
 
@@ -162,7 +166,7 @@ export default function CreateProfilePage() {
     const addPricingRow = () => {
         setFormData({
             ...formData,
-            model_pricing: [...formData.model_pricing, { duration: '1 Saat', incall: '', outcall: '' }]
+            model_pricing: [...formData.model_pricing, { duration: '1 Saat', price: '', location: 'Kendi Yerim' }]
         });
     };
 
@@ -170,6 +174,26 @@ export default function CreateProfilePage() {
         if (formData.model_pricing.length <= 1) return;
         const newPricing = formData.model_pricing.filter((_, i) => i !== index);
         setFormData({ ...formData, model_pricing: newPricing });
+    };
+
+    const addLanguage = () => {
+        setFormData({
+            ...formData,
+            languages: [...formData.languages, { lang: '', level: 5 }]
+        });
+    };
+
+    const removeLanguage = (idx: number) => {
+        setFormData({
+            ...formData,
+            languages: formData.languages.filter((_, i) => i !== idx)
+        });
+    };
+
+    const updateLanguage = (idx: number, field: string, value: any) => {
+        const newLangs = [...formData.languages];
+        (newLangs[idx] as any)[field] = value;
+        setFormData({ ...formData, languages: newLangs });
     };
 
     const toggleService = (id: string) => {
@@ -199,6 +223,12 @@ export default function CreateProfilePage() {
 
             const categoryId = catData?.id || 'd9e07248-8120-410e-a844-0a3075a34e8f';
 
+            // Calculate base price for listings table (shown in admin/search)
+            const validPricing = formData.model_pricing.filter(p => p.price);
+            const basePrice = validPricing.length > 0
+                ? Math.min(...validPricing.map(p => parseFloat(p.price)))
+                : null;
+
             // 1. Create Listings entry
             const listingPayload = {
                 user_id: user.id,
@@ -208,6 +238,7 @@ export default function CreateProfilePage() {
                 description: formData.description,
                 phone: formData.phone,
                 phone_country_code: formData.phone_country_code,
+                price: basePrice,
                 breast_size: formData.breast_size,
                 body_hair: formData.body_hair,
                 orientation: formData.orientation,
@@ -215,6 +246,10 @@ export default function CreateProfilePage() {
                 piercings: formData.piercings,
                 smoking: formData.smoking,
                 alcohol: formData.alcohol,
+                age_value: formData.age_value ? parseInt(formData.age_value) : null,
+                height: formData.height,
+                weight: formData.weight,
+                languages: formData.languages,
                 services: formData.services,
                 category_id: categoryId,
                 is_active: false,
@@ -232,14 +267,14 @@ export default function CreateProfilePage() {
                 throw listingError;
             }
 
-            // 2. Insert Pricing tiers
+            // 2. Insert Pricing tiers (Unifying with PricingPage format)
             const pricingData = formData.model_pricing
-                .filter(p => p.incall || p.outcall)
+                .filter(p => p.price)
                 .map(p => ({
                     listing_id: listing.id,
                     duration: p.duration,
-                    incall_price: p.incall ? parseFloat(p.incall) : null,
-                    outcall_price: p.outcall ? parseFloat(p.outcall) : null,
+                    price: parseFloat(p.price),
+                    location: p.location,
                     currency: formData.currency
                 }));
 
@@ -248,14 +283,22 @@ export default function CreateProfilePage() {
                 if (pricingError) throw pricingError;
             }
 
-            // 3. Update Model profile
-            await supabase.from('independent_models').update({
-                phone_number: formData.phone,
-                full_name: formData.title
-            }).eq('id', user.id);
+            // 3. Update Model profile (only for independent models)
+            const userType = (user as any).userType || 'member';
+            if (userType === 'independent_model') {
+                await supabase.from('independent_models').update({
+                    phone_number: formData.phone,
+                    full_name: formData.title
+                }).eq('id', user.id);
+            }
 
             toast.success('Profiliniz başarıyla oluşturuldu! Onay sürecinden sonra yayına alınacaktır.');
-            router.push('/dashboard');
+
+            if (userType === 'agency' || userType === 'agency_owner') {
+                router.push('/dashboard/listings');
+            } else {
+                router.push('/dashboard');
+            }
 
         } catch (err: any) {
             toast.error('Hata: ' + (err.message || 'Bir hata oluştu.'));
@@ -277,8 +320,8 @@ export default function CreateProfilePage() {
                 <form onSubmit={handleSubmit} className="space-y-10">
 
                     {/* 1. Personal & Basic Info */}
-                    <Card className="shadow-2xl border-t-8 border-t-primary rounded-[2.5rem] overflow-hidden">
-                        <CardHeader className="bg-gray-50/50 border-b border-gray-100 p-8">
+                    <Card className="shadow-2xl border-t-8 border-t-primary rounded-[2.5rem] overflow-hidden dark:border-white/10 dark:bg-[#0A0A0A]">
+                        <CardHeader className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10 p-8">
                             <CardTitle className="flex items-center gap-3 text-2xl font-black uppercase tracking-tighter">
                                 <User className="w-6 h-6 text-primary" /> Temel Bilgiler
                             </CardTitle>
@@ -292,7 +335,7 @@ export default function CreateProfilePage() {
                                         required
                                         value={formData.title}
                                         onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                        className="rounded-2xl h-14 border-2 font-bold text-lg focus:ring-4"
+                                        className="rounded-2xl h-14 border-2 dark:border-white/10 dark:bg-white/5 font-bold text-lg focus:ring-4 transition-all"
                                     />
                                 </div>
                                 <div className="space-y-3">
@@ -303,9 +346,9 @@ export default function CreateProfilePage() {
                                                 required
                                                 value={formData.phone_country_code}
                                                 onChange={e => setFormData({ ...formData, phone_country_code: e.target.value })}
-                                                className="w-full h-14 px-4 rounded-2xl border-2 border-gray-100 bg-white text-base font-black appearance-none outline-none focus:border-primary transition-all"
+                                                className="w-full h-14 px-4 rounded-2xl border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 text-base font-black appearance-none outline-none focus:border-primary transition-all text-gray-900 dark:text-white"
                                             >
-                                                {countryCodes.map(c => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
+                                                {countryCodes.map(c => <option key={c.code} value={c.code} className="bg-white dark:bg-[#111]">{c.flag} {c.code}</option>)}
                                             </select>
                                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none" />
                                         </div>
@@ -315,7 +358,7 @@ export default function CreateProfilePage() {
                                             required
                                             value={formData.phone}
                                             onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                            className="rounded-2xl h-14 border-2 font-bold text-lg flex-1 focus:ring-4"
+                                            className="rounded-2xl h-14 border-2 dark:border-white/10 dark:bg-white/5 font-bold text-lg flex-1 focus:ring-4 transition-all"
                                         />
                                     </div>
                                 </div>
@@ -323,13 +366,13 @@ export default function CreateProfilePage() {
                                     <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest ml-1">Şehir *</label>
                                     <div className="relative">
                                         <select
-                                            className="w-full h-14 px-5 rounded-2xl border-2 border-gray-100 bg-white text-base font-black appearance-none outline-none focus:border-primary transition-all"
+                                            className="w-full h-14 px-5 rounded-2xl border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 text-base font-black appearance-none outline-none focus:border-primary transition-all text-gray-900 dark:text-white"
                                             required
                                             value={formData.city_id}
                                             onChange={e => setFormData({ ...formData, city_id: e.target.value })}
                                         >
-                                            <option value="">Şehir Seçiniz</option>
-                                            {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            <option value="" className="bg-white dark:bg-[#111]">Şehir Seçiniz</option>
+                                            {cities.map(c => <option key={c.id} value={c.id} className="bg-white dark:bg-[#111]">{c.name}</option>)}
                                         </select>
                                         <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" />
                                     </div>
@@ -338,7 +381,7 @@ export default function CreateProfilePage() {
                             <div className="space-y-3">
                                 <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest ml-1">Hakkımda</label>
                                 <textarea
-                                    className="w-full min-h-[150px] p-6 rounded-3xl border-2 border-gray-100 bg-white text-base font-bold focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none"
+                                    className="w-full min-h-[150px] p-6 rounded-3xl border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 text-base font-bold focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none text-gray-900 dark:text-gray-100"
                                     placeholder="Kendinden bahset, müşterilerin seni neden seçmeli?"
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -348,16 +391,16 @@ export default function CreateProfilePage() {
                     </Card>
 
                     {/* 2. Pricing Section - Modernized */}
-                    <Card className="shadow-2xl border-t-8 border-t-primary rounded-[2.5rem] overflow-hidden">
-                        <CardHeader className="bg-gray-50/50 border-b border-gray-100 p-8">
+                    <Card className="shadow-2xl border-t-8 border-t-primary rounded-[2.5rem] overflow-hidden dark:border-white/10 dark:bg-[#0A0A0A]">
+                        <CardHeader className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10 p-8">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
                                     <CardTitle className="flex items-center gap-3 text-2xl font-black uppercase tracking-tighter">
                                         <DollarSign className="w-6 h-6 text-primary" /> Ücretlendirme
                                     </CardTitle>
-                                    <CardDescription className="font-bold">Hizmet fiyatlarınızı ve para birimini belirleyin.</CardDescription>
+                                    <CardDescription className="font-bold text-gray-500 dark:text-gray-400">Hizmet fiyatlarınızı ve para birimini belirleyin.</CardDescription>
                                 </div>
-                                <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border-2 border-gray-100">
+                                <div className="flex items-center gap-3 bg-white dark:bg-black/40 p-2 rounded-2xl border-2 border-gray-100 dark:border-white/10">
                                     {currencyOptions.map(opt => (
                                         <button
                                             key={opt.value}
@@ -377,40 +420,37 @@ export default function CreateProfilePage() {
                         <CardContent className="p-8 lg:p-12 space-y-6">
                             <div className="space-y-4">
                                 {formData.model_pricing.map((tier, idx) => (
-                                    <div key={idx} className="flex flex-col lg:flex-row items-start lg:items-center gap-4 p-6 rounded-[2rem] bg-gray-50/50 border-2 border-gray-100 transition-all hover:border-primary/20">
+                                    <div key={idx} className="flex flex-col lg:flex-row items-start lg:items-center gap-4 p-6 rounded-[2rem] bg-gray-50/50 dark:bg-white/5 border-2 border-gray-100 dark:border-white/10 transition-all hover:border-primary/20">
                                         <div className="w-full lg:w-48 relative">
                                             <select
-                                                className="w-full h-12 px-4 rounded-xl border-2 border-gray-100 bg-white text-sm font-black text-primary appearance-none outline-none"
+                                                className="w-full h-12 px-4 rounded-xl border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-[#111] text-sm font-black text-primary appearance-none outline-none"
                                                 value={tier.duration}
                                                 onChange={(e) => updatePricing(idx, 'duration', e.target.value)}
                                             >
-                                                {durationOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                                {durationOptions.map(opt => <option key={opt} value={opt} className="bg-white dark:bg-[#111]">{opt}</option>)}
                                             </select>
                                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none" />
                                         </div>
-                                        <div className="flex-1 w-full grid grid-cols-2 gap-4">
-                                            <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-lg">
-                                                    {currencyOptions.find(o => o.value === formData.currency)?.symbol}
-                                                </span>
+                                        <div className="flex-1 w-full flex items-center gap-4">
+                                            <div className="flex-1 relative">
+                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none" />
                                                 <Input
-                                                    className="pl-10 rounded-xl h-12 border-2 border-gray-100 font-black text-lg"
-                                                    placeholder="Kendi Yerim"
-                                                    type="number"
-                                                    value={tier.incall}
-                                                    onChange={(e) => updatePricing(idx, 'incall', e.target.value)}
+                                                    className="pl-11 rounded-xl h-12 border-2 border-gray-100 dark:border-white/10 dark:bg-white/5 font-bold"
+                                                    placeholder="Lokasyon (Örn: Kendi Yerim)"
+                                                    value={tier.location}
+                                                    onChange={(e) => updatePricing(idx, 'location', e.target.value)}
                                                 />
                                             </div>
-                                            <div className="relative">
+                                            <div className="w-32 relative">
                                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-black text-lg">
                                                     {currencyOptions.find(o => o.value === formData.currency)?.symbol}
                                                 </span>
                                                 <Input
-                                                    className="pl-10 rounded-xl h-12 border-2 border-gray-100 font-black text-lg"
-                                                    placeholder="Senin Yerin"
+                                                    className="pl-10 rounded-xl h-12 border-2 border-gray-100 dark:border-white/10 dark:bg-white/5 font-black text-lg"
+                                                    placeholder="0"
                                                     type="number"
-                                                    value={tier.outcall}
-                                                    onChange={(e) => updatePricing(idx, 'outcall', e.target.value)}
+                                                    value={tier.price}
+                                                    onChange={(e) => updatePricing(idx, 'price', e.target.value)}
                                                 />
                                             </div>
                                         </div>
@@ -437,13 +477,46 @@ export default function CreateProfilePage() {
                     </Card>
 
                     {/* 3. Physical Attributes & Orientation */}
-                    <Card className="shadow-2xl border-t-8 border-t-primary rounded-[2.5rem] overflow-hidden">
-                        <CardHeader className="bg-gray-50/50 border-b border-gray-100 p-8">
+                    <Card className="shadow-2xl border-t-8 border-t-primary rounded-[2.5rem] overflow-hidden dark:border-white/10 dark:bg-[#0A0A0A]">
+                        <CardHeader className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10 p-8">
                             <CardTitle className="flex items-center gap-3 text-2xl font-black uppercase tracking-tighter">
                                 <Sparkles className="w-6 h-6 text-primary" /> Kişisel Özellikler
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-8 lg:p-12 space-y-12">
+                            <div className="grid md:grid-cols-3 gap-8">
+                                <div className="space-y-3">
+                                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest ml-1">Yaş</label>
+                                    <Input
+                                        placeholder="Örn: 22"
+                                        type="number"
+                                        value={formData.age_value}
+                                        onChange={e => setFormData({ ...formData, age_value: e.target.value })}
+                                        className="rounded-2xl h-14 border-2 dark:border-white/10 dark:bg-white/5 font-bold text-lg focus:ring-4 transition-all"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest ml-1">Boy (cm)</label>
+                                    <Input
+                                        placeholder="Örn: 170"
+                                        type="number"
+                                        value={formData.height}
+                                        onChange={e => setFormData({ ...formData, height: e.target.value })}
+                                        className="rounded-2xl h-14 border-2 dark:border-white/10 dark:bg-white/5 font-bold text-lg focus:ring-4 transition-all"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest ml-1">Kilo (kg)</label>
+                                    <Input
+                                        placeholder="Örn: 55"
+                                        type="number"
+                                        value={formData.weight}
+                                        onChange={e => setFormData({ ...formData, weight: e.target.value })}
+                                        className="rounded-2xl h-14 border-2 dark:border-white/10 dark:bg-white/5 font-bold text-lg focus:ring-4 transition-all"
+                                    />
+                                </div>
+                            </div>
+
                             <ModernMultiSelection
                                 label="Cinsel Yönelim (Birden fazla seçilebilir)"
                                 values={formData.orientation}
@@ -464,6 +537,56 @@ export default function CreateProfilePage() {
                                     onChange={(val) => setFormData({ ...formData, body_hair: val })}
                                     options={bodyHairOptions}
                                 />
+                            </div>
+
+                            {/* Languages Section */}
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest ml-1">Bildiğim Diller & Seviyeleri</label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={addLanguage}
+                                        className="h-8 rounded-lg border-primary/20 text-primary font-bold text-[10px] uppercase"
+                                    >
+                                        <Plus className="w-3 h-3 mr-1" /> Dil Ekle
+                                    </Button>
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    {formData.languages.map((lang, idx) => (
+                                        <div key={idx} className="flex items-center gap-4 bg-gray-50 dark:bg-white/5 p-4 rounded-2xl border-2 border-gray-100 dark:border-white/10 transition-all hover:border-primary/20">
+                                            <Input
+                                                placeholder="Dil (Örn: Türkçe, İngilizce)"
+                                                value={lang.lang}
+                                                onChange={e => updateLanguage(idx, 'lang', e.target.value)}
+                                                className="h-10 border-none bg-transparent font-bold focus:shadow-none"
+                                            />
+                                            <div className="flex items-center gap-1">
+                                                {[1, 2, 3, 4, 5].map(star => (
+                                                    <Star
+                                                        key={star}
+                                                        className={cn(
+                                                            "w-4 h-4 cursor-pointer transition-colors",
+                                                            star <= lang.level ? "text-primary fill-primary" : "text-gray-300"
+                                                        )}
+                                                        onClick={() => updateLanguage(idx, 'level', star)}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeLanguage(idx)}
+                                                className="text-red-400 hover:text-red-500"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {formData.languages.length === 0 && (
+                                        <p className="text-xs text-gray-400 italic">Henüz dil eklenmedi.</p>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -500,8 +623,8 @@ export default function CreateProfilePage() {
                     </Card>
 
                     {/* 4. Services / Activities */}
-                    <Card className="shadow-2xl border-t-8 border-t-primary rounded-[2.5rem] overflow-hidden">
-                        <CardHeader className="bg-gray-50/50 border-b border-gray-100 p-8">
+                    <Card className="shadow-2xl border-t-8 border-t-primary rounded-[2.5rem] overflow-hidden dark:border-white/10 dark:bg-[#0A0A0A]">
+                        <CardHeader className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10 p-8">
                             <CardTitle className="flex items-center gap-3 text-2xl font-black uppercase tracking-tighter">
                                 <Heart className="w-6 h-6 text-primary" /> Hizmetler & İzinler
                             </CardTitle>
@@ -523,9 +646,9 @@ export default function CreateProfilePage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="shadow-2xl border-2 border-primary/20 bg-primary/5 rounded-[2.5rem]">
+                    <Card className="shadow-2xl border-2 border-primary/20 bg-primary/5 dark:bg-primary/10 rounded-[2.5rem]">
                         <CardContent className="p-12 text-center flex flex-col items-center gap-6">
-                            <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl text-primary animate-bounce">
+                            <div className="w-24 h-24 bg-white dark:bg-black rounded-[2rem] flex items-center justify-center shadow-2xl text-primary animate-bounce border border-primary/20">
                                 <Camera className="w-12 h-12" />
                             </div>
                             <div>

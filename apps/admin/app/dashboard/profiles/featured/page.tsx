@@ -50,7 +50,7 @@ export default async function FeaturedProfilesPage() {
         <div className="container mx-auto px-4 py-8 animate-in fade-in duration-500">
             <div className="mb-8 p-6 bg-gold-gradient rounded-3xl border-none shadow-xl shadow-amber-200/20">
                 <h1 className="text-3xl font-black text-black tracking-tight flex items-center gap-3">
-                    <Star className="h-8 w-8 fill-black" /> Vitrindeki Profiller
+                    <Star className="h-8 w-8 fill-black" /> VIP Profiller
                 </h1>
                 <p className="text-black/70 mt-1 text-lg font-medium">
                     Şu anda vitrinde öne çıkan <span className="font-bold text-black">{listings.length}</span> özel profil bulunuyor.

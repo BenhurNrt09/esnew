@@ -34,46 +34,52 @@ export default function DashboardPage() {
                 setUserType(type);
 
                 // Run primary queries in parallel: Notifications, Unread Count, and Profile/Stats
-                const [notificationsData, unreadRes, profileRes] = await Promise.all([
+                const [notificationsData, unreadRes, profileRes, ownerData] = await Promise.all([
                     supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
                     supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false),
-                    type === 'independent_model' || type === 'agency_owner'
+                    type === 'independent_model' || type === 'agency' || type === 'agency_owner'
                         ? supabase.from('listings').select(`
                             id,
                             listing_stats(view_count, contact_count),
-                            comments(rating_stars)
-                          `).eq('user_id', user.id).maybeSingle()
+                            rating_average,
+                            review_count
+                          `).eq('user_id', user.id)
                         : Promise.all([
                             supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
                             supabase.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', user.id).is('parent_id', null)
-                        ])
+                        ]),
+                    type === 'independent_model'
+                        ? supabase.from('independent_models').select('rating_average, review_count').eq('id', user.id).maybeSingle()
+                        : type === 'agency' || type === 'agency_owner'
+                            ? supabase.from('agencies').select('rating_average, review_count').eq('id', user.id).maybeSingle()
+                            : Promise.resolve({ data: null })
                 ]);
 
                 setActivities(notificationsData.data || []);
                 const unreadCount = unreadRes.count || 0;
 
-                if (type === 'independent_model' || type === 'agency_owner') {
-                    const listing = (profileRes as any).data;
-                    if (listing) {
+                if (type === 'independent_model' || type === 'agency' || type === 'agency_owner') {
+                    const listings = (profileRes as any).data || [];
+                    if (listings.length > 0) {
                         setHasProfile(true);
 
-                        const totalViews = listing.listing_stats?.reduce((acc: number, curr: any) => acc + (curr.view_count || 0), 0) || 0;
-                        const totalContacts = listing.listing_stats?.reduce((acc: number, curr: any) => acc + (curr.contact_count || 0), 0) || 0;
+                        const totalViews = listings.reduce((acc: number, l: any) =>
+                            acc + (l.listing_stats?.reduce((sAcc: number, s: any) => sAcc + (s.view_count || 0), 0) || 0), 0);
+                        const totalContacts = listings.reduce((acc: number, l: any) =>
+                            acc + (l.listing_stats?.reduce((sAcc: number, s: any) => sAcc + (s.contact_count || 0), 0) || 0), 0);
 
-                        const validRatings = listing.comments?.filter((c: any) => c.rating_stars !== null) || [];
-                        const avgRating = validRatings.length > 0
-                            ? validRatings.reduce((acc: number, curr: any) => acc + (curr.rating_stars || 0), 0) / validRatings.length
-                            : 0;
+                        // Use the aggregated rating from the owner record (which we updated via trigger)
+                        const ownerRating = (ownerData as any).data?.rating_average || 0;
 
                         setStats({
                             views: totalViews,
                             contacts: totalContacts,
                             notifications: unreadCount,
-                            rating: parseFloat(avgRating.toFixed(1))
+                            rating: parseFloat(ownerRating.toFixed(1))
                         });
                     } else {
                         setHasProfile(false);
-                        setStats(prev => ({ ...prev, notifications: unreadCount }));
+                        setStats(prev => ({ ...prev, notifications: unreadCount, rating: 0 }));
                     }
                 } else {
                     const [favRes, reviewRes] = profileRes as any;
@@ -81,7 +87,7 @@ export default function DashboardPage() {
                         views: favRes.count || 0,
                         contacts: reviewRes.count || 0,
                         notifications: unreadCount,
-                        rating: 5.0
+                        rating: 0.0
                     });
                     setHasProfile(null);
                 }
@@ -132,7 +138,7 @@ export default function DashboardPage() {
     );
 
     // If no profile, show Onboarding Call to Action
-    if (userType === 'independent_model' && hasProfile === false) {
+    if ((userType === 'independent_model' || userType === 'agency' || userType === 'agency_owner') && hasProfile === false) {
         return (
             <div className="max-w-4xl mx-auto py-12 px-4 animate-in zoom-in duration-700">
                 <Card className="border border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-[#0a0a0a] rounded-[3rem] overflow-hidden shadow-2xl shadow-gray-200/50 dark:shadow-primary/5">
@@ -167,7 +173,7 @@ export default function DashboardPage() {
                     { label: userType === 'member' ? 'Favorilerim' : 'Profil Görüntülenme', value: stats.views, icon: Users, color: 'text-gray-900 dark:text-white' },
                     { label: userType === 'member' ? 'Yorumlarım' : 'İletişim Tıklamaları', value: stats.contacts, icon: MousePointer2, color: 'text-gray-900 dark:text-white' },
                     { label: 'Bildirimler', value: stats.notifications, icon: Bell, color: 'text-gray-900 dark:text-white' },
-                    { label: 'Ortalama Puan', value: stats.rating || '5.0', icon: Star, color: 'text-gray-900 dark:text-white' },
+                    { label: 'Ortalama Puan', value: stats.rating || '0.0', icon: Star, color: 'text-gray-900 dark:text-white' },
                 ].map((stat, i) => (
                     <Card key={i} className="bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-white/5 shadow-2xl shadow-gray-200/50 dark:shadow-none rounded-[2rem] overflow-hidden hover:scale-[1.05] transition-all group">
                         <CardContent className="p-8">

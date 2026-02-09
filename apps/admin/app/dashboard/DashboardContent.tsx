@@ -1,10 +1,9 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui';
-import { Activity, FileText } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, cn } from '@repo/ui';
+import { Activity, UserPlus, Clock, LifeBuoy, ImageIcon, Star, Globe, MapPin, Layers } from 'lucide-react';
 import { useLanguage } from '@repo/lib/i18n';
+import Link from 'next/link';
 
 interface DashboardContentProps {
     stats: {
@@ -18,7 +17,7 @@ interface DashboardContentProps {
     recentActivity: any[];
 }
 
-export function DashboardContent({ stats, recentActivity }: DashboardContentProps) {
+export function DashboardContent({ stats }: DashboardContentProps) {
     const { t } = useLanguage();
 
     return (
@@ -28,9 +27,6 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
                 <div>
                     <h1 className="text-3xl font-black tracking-tight text-white">{t.dashboard.welcome}</h1>
                     <p className="text-gray-400 mt-1">{t.dashboard.quickStart}</p>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-primary font-medium">
-                    {/* Badge removed */}
                 </div>
             </div>
 
@@ -55,7 +51,7 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
                     value={stats.totalCategories}
                     description={t.categories.addNew}
                     trend="+2"
-                    color="amber" // Keep amber/primary as gold 
+                    color="amber"
                 />
                 <StatsCard
                     title={t.home.vitrinBadge}
@@ -66,56 +62,79 @@ export function DashboardContent({ stats, recentActivity }: DashboardContentProp
                 />
             </div>
 
-            {/* Main Content Area - Full Width Activity */}
-            <Card className="shadow-lg border-white/10 bg-card hover:border-primary/30 transition-all">
-                <CardHeader className="border-b border-white/5 bg-white/5">
-                    <CardTitle className="flex items-center gap-2 text-white">
-                        <Activity className="h-5 w-5 text-primary" />
-                        {t.dashboard.welcome}
-                    </CardTitle>
-                    <CardDescription className="text-gray-400">
-                        {t.dashboard.addFirstListing}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6">
-                    <div className="space-y-0">
-                        {recentActivity.length > 0 ? recentActivity.map((activity, i) => (
-                            <div key={i} className="flex gap-4 p-4 hover:bg-white/5 rounded-lg transition-colors border-b border-white/5 last:border-0 last:pb-0">
-                                <div className="mt-1">
-                                    <FileText className="h-4 w-4 text-primary" />
-                                </div>
-                                <div>
-                                    <p className="text-gray-200 font-medium text-sm">
-                                        Yeni Eklendi: <span className="font-bold text-white">{activity.title}</span>
-                                    </p>
-                                    <div className="flex items-center gap-3 mt-1">
-                                        <p className="text-xs text-gray-500">
-                                            {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: tr })}
-                                        </p>
-                                        {activity.is_active ? (
-                                            <span className="text-[10px] bg-green-900/30 text-green-400 px-1.5 py-0.5 rounded-full border border-green-900/50">{t.listings.active}</span>
-                                        ) : (
-                                            <span className="text-[10px] bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded-full border border-gray-700">{t.cities.inactive}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )) : (
-                            <div className="text-center py-8 text-gray-600 italic">
-                                {t.common.noResults}
-                            </div>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
+            {/* Quick Access Grid */}
+            <div className="space-y-4">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-primary" />
+                    Hızlı Erişim
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <QuickAccessCard
+                        title="Yeni Profil Ekle"
+                        description="Hızlıca yeni bir profil oluşturun"
+                        icon={UserPlus}
+                        href="/dashboard/profiles/models/new"
+                        color="primary"
+                    />
+                    <QuickAccessCard
+                        title="Onay Bekleyenler"
+                        description="Yeni kayıtları inceleyin"
+                        icon={Clock}
+                        href="/dashboard/profiles/pending"
+                        color="amber"
+                    />
+                    <QuickAccessCard
+                        title="Destek Talepleri"
+                        description="Kullanıcı mesajlarını yanıtlayın"
+                        icon={LifeBuoy}
+                        href="/dashboard/support"
+                        color="blue"
+                    />
+                    <QuickAccessCard
+                        title="Reklam Yönetimi"
+                        description="Sponsorlu alanları yönetin"
+                        icon={ImageIcon}
+                        href="/dashboard/ads"
+                        color="purple"
+                    />
+                    <QuickAccessCard
+                        title="Vitrin & Özellikler"
+                        description="Öne çıkanları düzenleyin"
+                        icon={Star}
+                        href="/dashboard/features"
+                        color="amber"
+                    />
+                    <QuickAccessCard
+                        title="Şehir Yönetimi"
+                        description="Hizmet verilen bölgeler"
+                        icon={MapPin}
+                        href="/dashboard/cities"
+                        color="green"
+                    />
+                    <QuickAccessCard
+                        title="Kategori Yönetimi"
+                        description="İlan kategorilerini düzenleyin"
+                        icon={Layers}
+                        href="/dashboard/categories"
+                        color="blue"
+                    />
+                    <QuickAccessCard
+                        title="Sitede Görüntüle"
+                        description="Ana sayfaya hızlı geçiş"
+                        icon={Globe}
+                        href={process.env.NEXT_PUBLIC_WEB_URL || "http://localhost:3000"}
+                        external
+                        color="primary"
+                    />
+                </div>
+            </div>
         </div>
     );
 }
 
-function StatsCard({ title, value, description, trend, color }: any) {
+function StatsCard({ title, value, description, trend }: any) {
     return (
         <Card className={`shadow-lg hover:shadow-primary/20 transition-all duration-300 border-white/10 bg-card overflow-hidden relative group`}>
-            {/* Decorative BG Blob */}
             <div className={`absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500 opacity-20`} />
 
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
@@ -137,5 +156,59 @@ function StatsCard({ title, value, description, trend, color }: any) {
                 </div>
             </CardContent>
         </Card>
-    )
+    );
+}
+
+function QuickAccessCard({ title, description, icon: Icon, href, color, external }: any) {
+    const CardWrapper = ({ children }: any) => external ? (
+        <a href={href} target="_blank" rel="noopener noreferrer" className="block outline-none">
+            {children}
+        </a>
+    ) : (
+        <Link href={href} className="block outline-none">
+            {children}
+        </Link>
+    );
+
+    const colorClasses: Record<string, string> = {
+        primary: "text-primary border-primary/20 hover:border-primary/50 bg-primary/5",
+        amber: "text-amber-500 border-amber-500/20 hover:border-amber-500/50 bg-amber-500/5",
+        blue: "text-blue-500 border-blue-500/20 hover:border-blue-500/50 bg-blue-500/5",
+        purple: "text-purple-500 border-purple-500/20 hover:border-purple-500/50 bg-purple-500/5",
+        green: "text-green-500 border-green-500/20 hover:border-green-500/50 bg-green-500/5",
+    };
+
+    const iconBgClasses: Record<string, string> = {
+        primary: "bg-primary/10",
+        amber: "bg-amber-500/10",
+        blue: "bg-blue-500/10",
+        purple: "bg-purple-500/10",
+        green: "bg-green-500/10",
+    };
+
+    return (
+        <CardWrapper>
+            <Card className={cn(
+                "h-full border-white/10 bg-card hover:bg-white/5 transition-all duration-300 group cursor-pointer overflow-hidden relative",
+                colorClasses[color] || colorClasses.primary
+            )}>
+                <CardContent className="p-5 flex items-start gap-4">
+                    <div className={cn(
+                        "p-3 rounded-xl transition-transform group-hover:scale-110 duration-300",
+                        iconBgClasses[color] || iconBgClasses.primary
+                    )}>
+                        <Icon className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-white text-base leading-tight group-hover:text-primary transition-colors">
+                            {title}
+                        </h3>
+                        <p className="text-gray-400 text-xs mt-1 line-clamp-1">
+                            {description}
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
+        </CardWrapper>
+    );
 }

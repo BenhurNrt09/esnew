@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, useToast } from '@repo/ui';
@@ -23,6 +24,8 @@ export default function PricingPage() {
     const toast = useToast();
     const supabase = createClient();
     const { user, loading: authLoading } = useAuth();
+    const searchParams = useSearchParams();
+    const urlListingId = searchParams.get('listingId');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [listingId, setListingId] = useState<string | null>(null);
@@ -32,7 +35,15 @@ export default function PricingPage() {
         const loadPricing = async () => {
             if (!user) return;
 
-            const { data: listing } = await supabase.from('listings').select('id').eq('user_id', user.id).single();
+            let query = supabase.from('listings').select('id');
+
+            if (urlListingId) {
+                query = query.eq('id', urlListingId);
+            } else {
+                query = query.eq('user_id', user.id);
+            }
+
+            const { data: listing } = await query.limit(1).maybeSingle();
 
             if (listing) {
                 setListingId(listing.id);
@@ -96,6 +107,13 @@ export default function PricingPage() {
             if (toSave.length > 0) {
                 const { error } = await supabase.from('model_pricing').insert(toSave);
                 if (error) throw error;
+
+                // Sync minimum price to listings table for admin/search visibility
+                const minPrice = Math.min(...toSave.map(t => t.price));
+                await supabase.from('listings').update({ price: minPrice }).eq('id', listingId);
+            } else {
+                // If no pricing tiers, clear the price in listings
+                await supabase.from('listings').update({ price: null }).eq('id', listingId);
             }
 
             toast.success('Fiyatlandırma başarıyla güncellendi!');
@@ -139,7 +157,7 @@ export default function PricingPage() {
                                         value={tier.duration}
                                         onChange={(e) => updateTier(idx, 'duration', e.target.value)}
                                     >
-                                        {durationOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                        {durationOptions.map(opt => <option key={opt} value={opt} className="bg-white dark:bg-[#111]">{opt}</option>)}
                                     </select>
                                 </div>
                             </div>
@@ -182,7 +200,7 @@ export default function PricingPage() {
                                         value={tier.currency}
                                         onChange={(e) => updateTier(idx, 'currency', e.target.value)}
                                     >
-                                        {currencies.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                                        {currencies.map(c => <option key={c.code} value={c.code} className="bg-white dark:bg-[#111]">{c.code}</option>)}
                                     </select>
                                 </div>
                             </div>

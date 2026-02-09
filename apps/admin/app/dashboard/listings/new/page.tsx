@@ -10,6 +10,7 @@ import {
     Star,
     CheckCircle2,
     UploadCloud,
+    Plus,
     X,
     Image as ImageIcon,
     User,
@@ -20,6 +21,7 @@ import {
     RefreshCw,
     Database
 } from 'lucide-react';
+import { cn } from '@repo/ui/src/lib/utils';
 
 export default function NewProfilePage() {
     const router = useRouter();
@@ -45,6 +47,7 @@ export default function NewProfilePage() {
         phone: '',
         cover_image: null as File | null,
         gallery_images: [] as File[],
+        languages: [] as { lang: string, level: number }[],
     });
 
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -262,7 +265,8 @@ export default function NewProfilePage() {
                     smoking: formData.details['smoking'] === 'true',
                     alcohol: formData.details['alcohol'] === 'true',
                     tattoos: formData.details['tattoos'] === 'true',
-                    services: formData.details['services'] || {}
+                    services: formData.details['services'] || {},
+                    languages: formData.languages
                 }])
                 .select()
                 .single();
@@ -513,6 +517,7 @@ export default function NewProfilePage() {
                             </div>
 
                             {/* Dinamik Combobox'lar */}
+                            {/* Dinamik Combobox'lar */}
                             {featureGroups.length > 0 ? featureGroups.map(group => {
                                 // Hizmetler ve Hizmet Kategorisi karışıklığını önlemek için 
                                 // eğer ana formda kategori seçtiysek ve bu grup o değilse göster.
@@ -535,6 +540,60 @@ export default function NewProfilePage() {
                                     <p className="text-sm mb-4">Eksik kategorileri yüklemek için yukarıdaki 'Eksik Özellikleri Yükle' butonunu kullanın.</p>
                                 </div>
                             )}
+
+                            <div className="col-span-full space-y-3 pt-4 border-t border-gray-100">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm font-bold text-gray-700">Diller & Seviyeleri</label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setFormData({ ...formData, languages: [...formData.languages, { lang: '', level: 5 }] })}
+                                        className="h-8 border-primary/20 text-primary font-bold transition-all hover:bg-primary/5"
+                                    >
+                                        <Plus className="w-3 h-3 mr-1" /> Dil Ekle
+                                    </Button>
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-3">
+                                    {formData.languages.map((lang, idx) => (
+                                        <div key={idx} className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100 group">
+                                            <Input
+                                                placeholder="Dil (Örn: Türkçe)"
+                                                value={lang.lang}
+                                                onChange={e => {
+                                                    const newLangs = [...formData.languages];
+                                                    newLangs[idx].lang = e.target.value;
+                                                    setFormData({ ...formData, languages: newLangs });
+                                                }}
+                                                className="h-9 border-none bg-transparent font-bold focus:shadow-none"
+                                            />
+                                            <div className="flex items-center gap-1">
+                                                {[1, 2, 3, 4, 5].map(star => (
+                                                    <Star
+                                                        key={star}
+                                                        className={cn(
+                                                            "w-4 h-4 cursor-pointer transition-colors",
+                                                            star <= lang.level ? "text-primary fill-primary" : "text-gray-300"
+                                                        )}
+                                                        onClick={() => {
+                                                            const newLangs = [...formData.languages];
+                                                            newLangs[idx].level = star;
+                                                            setFormData({ ...formData, languages: newLangs });
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, languages: formData.languages.filter((_, i) => i !== idx) })}
+                                                className="text-gray-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

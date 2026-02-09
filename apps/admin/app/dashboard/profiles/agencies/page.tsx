@@ -7,16 +7,38 @@ export const revalidate = 0;
 
 async function getAgencies() {
     const supabase = createAdminClient();
+
+    // Fetch agencies
     const { data: agencies, error } = await supabase
         .from('agencies')
-        .select('*, listings(count)')
+        .select('*')
         .order('created_at', { ascending: false });
 
     if (error) {
         console.error('Agencies error:', error);
         return [];
     }
-    return agencies || [];
+
+    if (!agencies || agencies.length === 0) return [];
+
+    // Fetch listing counts for these agencies
+    const agencyIds = agencies.map(a => a.id);
+    const { data: counts, error: countError } = await supabase
+        .from('listings')
+        .select('user_id')
+        .in('user_id', agencyIds);
+
+    if (countError) {
+        console.error('Counts error:', countError);
+    }
+
+    // Attach counts to agencies
+    return agencies.map(agency => ({
+        ...agency,
+        listings: [{
+            count: counts?.filter(c => c.user_id === agency.id).length || 0
+        }]
+    }));
 }
 
 export default async function AgenciesPage() {

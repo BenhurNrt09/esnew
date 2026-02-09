@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, useToast } from '@repo/ui';
 import { useRouter } from 'next/navigation';
-import { validatePassword, validatePasswordMatch } from '@repo/lib';
+import { validatePassword, validatePasswordMatch, getAuthErrorMessage } from '@repo/lib';
 
 export default function ResetPasswordPage() {
     const router = useRouter();
@@ -41,7 +41,7 @@ export default function ResetPasswordPage() {
                 router.push('/login');
             }, 1500);
         } catch (err: any) {
-            toast.error(err.message || 'Şifre güncellenemedi');
+            toast.error(getAuthErrorMessage(err.message) || 'Şifre güncellenemedi');
         } finally {
             setLoading(false);
         }

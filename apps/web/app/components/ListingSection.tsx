@@ -1,11 +1,80 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Filter, ChevronDown, MapPin, Search, Grid, Scale, Ruler, User } from 'lucide-react';
+import { Filter, ChevronDown, MapPin, Search, Grid, Scale, Ruler, User, Sparkles } from 'lucide-react';
 import { cn } from "@repo/ui/src/lib/utils";
 import { ProfileCard } from './ProfileCard';
 import { AdSidebar } from './AdSidebar';
+import { StoryBalloons } from './StoryBalloons';
+
+// Premium Custom Select Component
+function CustomSelect({ label, value, options, onChange, icon: Icon }: any) {
+    const [isOpen, setIsOpen] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const selectedOption = options.find((opt: any) => opt.value === value) || options[0];
+
+    return (
+        <div className={cn("space-y-2 group/field relative", isOpen ? "z-[60]" : "z-10")} ref={containerRef}>
+            {label && (
+                <label className="text-[9px] font-black uppercase text-gray-400 dark:text-gray-500 tracking-[0.2em] ml-1 group-focus-within/field:text-primary transition-colors flex items-center gap-1.5">
+                    {label}
+                </label>
+            )}
+            <div className="relative">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={cn(
+                        "w-full h-11 bg-white dark:bg-zinc-950/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 text-[11px] font-bold text-gray-700 dark:text-gray-200 flex items-center justify-between transition-all duration-300 hover:border-primary/50 group-hover/field:shadow-[0_0_15px_rgba(212,175,55,0.1)]",
+                        isOpen && "ring-2 ring-primary/20 border-primary shadow-lg"
+                    )}
+                >
+                    <span className="flex items-center gap-2">
+                        {Icon && <Icon className="w-3.5 h-3.5 text-primary/60" />}
+                        {selectedOption.label}
+                    </span>
+                    <ChevronDown className={cn("w-3.5 h-3.5 text-primary transition-transform duration-300", isOpen && "rotate-180")} />
+                </button>
+
+                {isOpen && (
+                    <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl py-1.5 z-[100] animate-in fade-in zoom-in-95 duration-200 backdrop-blur-xl">
+                        <div className="max-h-[200px] overflow-y-auto custom-scrollbar">
+                            {options.map((option: any) => (
+                                <button
+                                    key={option.value}
+                                    onClick={() => {
+                                        onChange(option.value);
+                                        setIsOpen(false);
+                                    }}
+                                    className={cn(
+                                        "w-full text-left px-4 py-2.5 text-[11px] font-bold transition-all flex items-center justify-between group/opt",
+                                        value === option.value
+                                            ? "text-primary bg-primary/10"
+                                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-primary"
+                                    )}
+                                >
+                                    {option.label}
+                                    {value === option.value && <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_10px_#D4AF37]" />}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
 
 interface ListingSectionProps {
     cities: any[];
@@ -112,35 +181,47 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
                 )}
 
                 {/* COLUMN 2: FILTERS (Sidebar) */}
-                <aside className="w-full lg:w-72 shrink-0">
-                    <div className="lg:sticky lg:top-24 space-y-6">
+                <aside className="w-full lg:w-72 shrink-0 relative z-30">
+                    <div className="lg:sticky lg:top-24 space-y-5">
 
                         {/* Search Box */}
-                        <div className="bg-white dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl p-5 shadow-xl relative group overflow-hidden transition-colors">
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                        {/* Ultra-Premium Search Box */}
+                        <div className="bg-white/90 dark:bg-zinc-950/40 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group transition-all duration-500 z-50">
+                            {/* Animated Background Glow */}
+                            <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-[80px] group-hover:bg-primary/30 transition-all duration-700 pointer-events-none" />
+                            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-zinc-400/10 dark:bg-zinc-800/10 rounded-full blur-[80px] pointer-events-none" />
+
                             <div className="relative z-10">
-                                <h3 className="font-black text-xs mb-4 flex items-center gap-2 uppercase tracking-[0.15em] text-gray-900 dark:text-gray-200">
-                                    <Search className="w-4 h-4 text-primary" /> Hızlı Profil Ara
+                                <h3 className="font-black text-[10px] mb-5 flex items-center gap-2.5 uppercase tracking-[0.3em] text-gray-500 dark:text-zinc-400 group-hover:text-primary transition-colors">
+                                    <Search className="w-3.5 h-3.5 text-primary" />
+                                    <span>Hızlı Profil Ara</span>
+                                    <Sparkles className="w-3 h-3 text-primary/40 animate-pulse ml-auto" />
                                 </h3>
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                                <div className="relative group/search">
+                                    <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl opacity-0 group-focus-within/search:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-zinc-500 group-focus-within/search:text-primary transition-all duration-300" />
                                     <input
                                         type="text"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder="İsim veya özellik..."
-                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-9 pr-4 py-3 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-gray-400 placeholder:italic placeholder:dark:text-gray-600"
+                                        placeholder="İsim, yaş..."
+                                        className="w-full h-12 bg-gray-50/50 dark:bg-zinc-900/50 border border-gray-200 dark:border-white/5 rounded-2xl pl-11 pr-5 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-gray-400 dark:placeholder:text-zinc-600 placeholder:italic"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* Advanced Filters */}
-                        <div className="bg-white dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl p-5 shadow-xl relative group transition-colors">
-                            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                            <div className="relative z-10 flex items-center justify-between mb-6 border-b border-gray-100 dark:border-white/10 pb-4">
-                                <h3 className="font-black text-xs flex items-center gap-2 uppercase tracking-[0.15em] text-gray-900 dark:text-gray-200">
-                                    <Filter className="w-4 h-4 text-primary" /> Detaylı Filtreleme
+                        {/* Advanced Filters Container */}
+                        <div className="bg-white/90 dark:bg-zinc-950/40 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group transition-all duration-500 z-40">
+                            <div className="absolute inset-0 bg-gradient-to-t from-primary/[0.02] to-transparent pointer-events-none" />
+
+                            <div className="relative z-10 flex items-center justify-between mb-8 border-b border-gray-100 dark:border-white/5 pb-5">
+                                <h3 className="font-black text-[10px] flex items-center gap-2.5 uppercase tracking-[0.3em] text-gray-500 dark:text-zinc-400">
+                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                        <Filter className="w-4 h-4 text-primary" />
+                                    </div>
+                                    <span>Detaylı Filtreleme</span>
                                 </h3>
                                 <button
                                     onClick={() => {
@@ -148,121 +229,100 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
                                         setSelectedCity(null);
                                         setSearchQuery('');
                                     }}
-                                    className="text-[9px] font-black text-primary hover:text-primary/70 uppercase tracking-widest transition-colors"
+                                    className="px-6 py-2.5 bg-zinc-900 dark:bg-primary border border-primary/20 dark:border-transparent rounded-xl text-[10px] font-black text-primary dark:text-black hover:bg-primary hover:text-black dark:hover:bg-white transition-all duration-500 uppercase tracking-[0.2em] active:scale-95 shadow-xl shadow-primary/10"
                                 >
                                     Temizle
                                 </button>
                             </div>
 
-                            <div className="relative z-10 space-y-5">
-                                {/* Race/Ethnicity */}
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase text-gray-400 dark:text-gray-500 tracking-widest ml-1">Etnik Köken</label>
-                                    <div className="relative">
-                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary pointer-events-none" />
-                                        <select
-                                            className="w-full h-11 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 text-xs font-bold text-gray-700 dark:text-gray-200 focus:ring-4 focus:ring-primary/5 focus:border-primary/40 transition-all outline-none appearance-none cursor-pointer hover:border-gray-300 dark:hover:border-gray-300"
-                                            value={filters.race}
-                                            onChange={(e) => handleFilterChange('race', e.target.value)}
-                                        >
-                                            <option value="all">Tüm Kökenler</option>
-                                            <option value="turk">Türk</option>
-                                            <option value="rus">Rus / Slav</option>
-                                            <option value="latin">Latin</option>
-                                            <option value="asian">Asyalı</option>
-                                            <option value="black">Siyahi</option>
-                                        </select>
-                                    </div>
-                                </div>
+                            <div className="relative z-10 space-y-6">
+                                <CustomSelect
+                                    label="Etnik Köken"
+                                    value={filters.race}
+                                    options={[
+                                        { value: 'all', label: 'Tüm Kökenler' },
+                                        { value: 'turk', label: 'Türk' },
+                                        { value: 'rus', label: 'Rus / Slav' },
+                                        { value: 'latin', label: 'Latin' },
+                                        { value: 'asian', label: 'Asyalı' },
+                                        { value: 'black', label: 'Siyahi' }
+                                    ]}
+                                    onChange={(val: string) => handleFilterChange('race', val)}
+                                />
 
-                                {/* Hair Color */}
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase text-gray-400 dark:text-gray-500 tracking-widest ml-1">Saç Rengi</label>
-                                    <div className="relative">
-                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary pointer-events-none" />
-                                        <select
-                                            className="w-full h-11 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 text-xs font-bold text-gray-700 dark:text-gray-200 focus:ring-4 focus:ring-primary/5 focus:border-primary/40 transition-all outline-none appearance-none cursor-pointer hover:border-gray-300 dark:hover:border-gray-300"
-                                            value={filters.hair}
-                                            onChange={(e) => handleFilterChange('hair', e.target.value)}
-                                        >
-                                            <option value="all">Tüm Renkler</option>
-                                            <option value="sarışın">Sarışın</option>
-                                            <option value="esmer">Esmer</option>
-                                            <option value="kumral">Kumral</option>
-                                            <option value="kızıl">Kızıl</option>
-                                            <option value="siyah">Siyah</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                <CustomSelect
+                                    label="Saç Rengi"
+                                    value={filters.hair}
+                                    options={[
+                                        { value: 'all', label: 'Tüm Renkler' },
+                                        { value: 'sarışın', label: 'Sarışın' },
+                                        { value: 'esmer', label: 'Esmer' },
+                                        { value: 'kumral', label: 'Kumral' },
+                                        { value: 'kızıl', label: 'Kızıl' },
+                                        { value: 'siyah', label: 'Siyah' }
+                                    ]}
+                                    onChange={(val: string) => handleFilterChange('hair', val)}
+                                />
 
-                                {/* Age Filter */}
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase text-gray-400 dark:text-gray-500 tracking-widest ml-1">Yaş Aralığı</label>
-                                    <div className="relative">
-                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary pointer-events-none" />
-                                        <select
-                                            className="w-full h-11 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 text-xs font-bold text-gray-700 dark:text-gray-200 focus:ring-4 focus:ring-primary/5 focus:border-primary/40 transition-all outline-none appearance-none cursor-pointer hover:border-gray-300 dark:hover:border-gray-300"
-                                            value={filters.age}
-                                            onChange={(e) => handleFilterChange('age', e.target.value)}
-                                        >
-                                            <option value="all">Tüm Yaşlar</option>
-                                            <option value="18-25">18 - 25 Yaş</option>
-                                            <option value="25-30">25 - 30 Yaş</option>
-                                            <option value="30-35">30 - 35 Yaş</option>
-                                            <option value="35-plus">35 Üstü</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                <CustomSelect
+                                    label="Yaş Aralığı"
+                                    value={filters.age}
+                                    options={[
+                                        { value: 'all', label: 'Tüm Yaşlar' },
+                                        { value: '18-25', label: '18 - 25 Yaş' },
+                                        { value: '25-30', label: '25 - 30 Yaş' },
+                                        { value: '30-35', label: '30 - 35 Yaş' },
+                                        { value: '35-plus', label: '35 Üstü' }
+                                    ]}
+                                    onChange={(val: string) => handleFilterChange('age', val)}
+                                />
 
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase text-gray-400 dark:text-gray-500 tracking-widest ml-1">Boy</label>
-                                        <select
-                                            className="w-full h-11 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-primary/40 appearance-none cursor-pointer"
-                                            value={filters.height}
-                                            onChange={(e) => handleFilterChange('height', e.target.value)}
-                                        >
-                                            <option value="all">Tümü</option>
-                                            <option value="short">Minyon</option>
-                                            <option value="medium">Orta</option>
-                                            <option value="tall">Uzun</option>
-                                        </select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase text-gray-400 dark:text-gray-500 tracking-widest ml-1">Kilo</label>
-                                        <select
-                                            className="w-full h-11 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 text-xs font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-primary/40 appearance-none cursor-pointer"
-                                            value={filters.weight}
-                                            onChange={(e) => handleFilterChange('weight', e.target.value)}
-                                        >
-                                            <option value="all">Tümü</option>
-                                            <option value="skinny">Zayıf</option>
-                                            <option value="normal">Fit</option>
-                                            <option value="curvy">Kıvrımlı</option>
-                                        </select>
-                                    </div>
+                                    <CustomSelect
+                                        label="Boy"
+                                        value={filters.height}
+                                        options={[
+                                            { value: 'all', label: 'Tümü' },
+                                            { value: 'short', label: 'Minyon' },
+                                            { value: 'medium', label: 'Orta' },
+                                            { value: 'tall', label: 'Uzun' }
+                                        ]}
+                                        onChange={(val: string) => handleFilterChange('height', val)}
+                                    />
+                                    <CustomSelect
+                                        label="Kilo"
+                                        value={filters.weight}
+                                        options={[
+                                            { value: 'all', label: 'Tümü' },
+                                            { value: 'skinny', label: 'Zayıf' },
+                                            { value: 'normal', label: 'Fit' },
+                                            { value: 'curvy', label: 'Kıvrımlı' }
+                                        ]}
+                                        onChange={(val: string) => handleFilterChange('weight', val)}
+                                    />
                                 </div>
                             </div>
                         </div>
 
-                        {/* City Filter */}
-                        <div className="bg-white dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl p-5 shadow-xl transition-colors">
-                            <h3 className="font-black text-xs mb-4 flex items-center gap-2 uppercase tracking-[0.15em] text-gray-900 dark:text-gray-200">
-                                <MapPin className="w-4 h-4 text-primary" /> Popüler Şehirler
+                        {/* Ultra-Premium City Selector */}
+                        <div className="bg-white/90 dark:bg-zinc-950/40 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group transition-all duration-500 z-30">
+                            <h3 className="font-black text-[10px] mb-6 flex items-center gap-2.5 uppercase tracking-[0.3em] text-gray-500 dark:text-zinc-400 group-hover:text-primary transition-colors">
+                                <MapPin className="w-3.5 h-3.5 text-primary" />
+                                <span>Popüler Şehirler</span>
                             </h3>
-                            <div className="space-y-1.5 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
+                            <div className="space-y-2.5 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                                 <button
                                     onClick={() => setSelectedCity(null)}
                                     className={cn(
-                                        "w-full text-left px-4 py-3 rounded-xl text-[11px] font-black transition-all flex justify-between items-center group/btn border border-transparent",
+                                        "w-full text-left px-5 py-4 rounded-2xl text-[10px] font-black transition-all duration-500 flex justify-between items-center group/btn border",
                                         selectedCity === null
-                                            ? "bg-gold-gradient text-black shadow-lg shadow-primary/20"
-                                            : "text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white border-transparent hover:border-gray-200 dark:hover:border-white/10"
+                                            ? "bg-gold-gradient text-black shadow-[0_10px_20px_rgba(212,175,55,0.2)] border-transparent"
+                                            : "text-gray-500 dark:text-zinc-400 bg-gray-50/50 dark:bg-zinc-900/50 border-gray-100 dark:border-white/5 hover:border-primary/40 hover:text-gray-900 dark:hover:text-white"
                                     )}
                                 >
-                                    <span className="uppercase tracking-widest">Tüm Şehirler</span>
-                                    <span className={cn("text-[9px] font-black bg-black/20 px-2 py-0.5 rounded-full",
-                                        selectedCity === null ? "text-black" : "text-gray-500 group-hover/btn:text-gray-300"
+                                    <span className="uppercase tracking-[0.2em]">Tüm Şehirler</span>
+                                    <span className={cn("text-[9px] font-black px-2.5 py-1 rounded-full transition-all duration-500",
+                                        selectedCity === null ? "bg-black/20 text-black" : "bg-primary/10 text-primary group-hover/btn:bg-primary group-hover/btn:text-black"
                                     )}>{listings.length}</span>
                                 </button>
                                 {cities.map(city => (
@@ -270,33 +330,34 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
                                         key={city.id}
                                         onClick={() => setSelectedCity(city.slug)}
                                         className={cn(
-                                            "w-full text-left px-4 py-3 rounded-xl text-[11px] font-black transition-all flex justify-between items-center group/btn border border-transparent",
+                                            "w-full text-left px-5 py-4 rounded-2xl text-[10px] font-black transition-all duration-500 flex justify-between items-center group/btn border",
                                             selectedCity === city.slug
-                                                ? "bg-gold-gradient text-black shadow-lg shadow-primary/20"
-                                                : "text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-100 hover:text-black hover:border-gray-200"
+                                                ? "bg-gold-gradient text-black shadow-[0_10px_20px_rgba(212,175,55,0.2)] border-transparent"
+                                                : "text-gray-500 dark:text-zinc-400 bg-gray-50/50 dark:bg-zinc-900/50 border-gray-100 dark:border-white/5 hover:border-primary/40 hover:text-gray-900 dark:hover:text-white"
                                         )}
                                     >
-                                        <span className="uppercase tracking-widest">{city.name}</span>
-                                        <ChevronDown className={cn("w-3 h-3 -rotate-90 opacity-0 group-hover/btn:opacity-100 transition-all",
-                                            selectedCity === city.slug ? "text-black opacity-100" : "text-primary"
+                                        <span className="uppercase tracking-[0.2em]">{city.name}</span>
+                                        <ChevronDown className={cn("w-3.5 h-3.5 -rotate-90 transition-all duration-500",
+                                            selectedCity === city.slug ? "text-black translate-x-1" : "text-primary/40 group-hover/btn:text-primary group-hover/btn:translate-x-1"
                                         )} />
                                     </button>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Categories */}
+                        {/* Ultra-Premium Categories Container */}
                         {!hideCategories && (
-                            <div className="bg-white dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl p-5 shadow-xl transition-colors">
-                                <h3 className="font-black text-xs mb-4 flex items-center gap-2 uppercase tracking-[0.15em] text-gray-900 dark:text-gray-200">
-                                    <Grid className="w-4 h-4 text-primary" /> Kategoriler
+                            <div className="bg-white/90 dark:bg-zinc-950/40 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-3xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-all duration-500">
+                                <h3 className="font-black text-[10px] mb-6 flex items-center gap-2.5 uppercase tracking-[0.3em] text-gray-500 dark:text-zinc-400">
+                                    <Grid className="w-3.5 h-3.5 text-primary" />
+                                    <span>Kategoriler</span>
                                 </h3>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2.5">
                                     {categories.map(cat => (
                                         <Link
                                             key={cat.id}
                                             href={`/ilanlar?category=${cat.slug}`}
-                                            className="px-3 py-1.5 bg-gray-50 dark:bg-gray-100 border border-gray-200 dark:border-gray-200 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-500 hover:bg-primary hover:text-black hover:border-primary transition-all active:scale-95 duration-300"
+                                            className="px-4 py-2.5 bg-gray-100 dark:bg-zinc-900 border border-gray-200 dark:border-white/5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-zinc-400 hover:bg-gold-gradient hover:text-black hover:border-transparent transition-all duration-500 active:scale-90 shadow-lg"
                                         >
                                             {cat.name}
                                         </Link>
@@ -309,6 +370,8 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
 
                 {/* COLUMN 3: MAIN GRID */}
                 <main className="flex-1">
+                    <StoryBalloons />
+
                     <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between bg-white dark:bg-black p-5 rounded-2xl border border-gray-100 dark:border-white/5 shadow-2xl gap-4">
                         <h2 className="text-lg md:text-xl font-black uppercase tracking-tighter flex items-center gap-3">
                             <span className="w-1.5 h-8 bg-gold-gradient rounded-full inline-block" />

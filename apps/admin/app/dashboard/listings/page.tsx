@@ -1,4 +1,4 @@
-import { createServerClient } from '@repo/lib/server';
+import { createAdminClient } from '@repo/lib/server';
 import type { Listing, City, Category } from '@repo/types';
 import { Button } from '@repo/ui';
 import Link from 'next/link';
@@ -8,7 +8,7 @@ import { UserPlus, Users } from 'lucide-react';
 export const revalidate = 0;
 
 async function getListings(): Promise<(Listing & { city?: City; category?: Category })[]> {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
 
     const { data: listings, error } = await supabase
         .from('listings')
@@ -32,7 +32,7 @@ async function getListings(): Promise<(Listing & { city?: City; category?: Categ
 }
 
 async function getCitiesAndCategories() {
-    const supabase = createServerClient();
+    const supabase = createAdminClient();
     const [citiesRes, catsRes] = await Promise.all([
         supabase.from('cities').select('*').order('name'),
         supabase.from('categories').select('*').order('name')

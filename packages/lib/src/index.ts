@@ -14,6 +14,7 @@ export {
     checkUsernameAvailability,
     isEmail,
     rememberMe,
+    getAuthErrorMessage,
 } from './supabase/auth-helpers';
 export type { ValidationResult } from './supabase/auth-helpers';
 

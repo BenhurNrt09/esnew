@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@repo/lib/supabase/client';
 import { cn } from '@repo/ui/src/lib/utils';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Input, useToast } from '@repo/ui';
+import { getAuthErrorMessage } from '@repo/lib';
 import { Lock, Trash2, Bell, Shield, Key, AlertTriangle } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -27,7 +28,7 @@ export default function SettingsPage() {
         setLoading(true);
         const { error } = await supabase.auth.updateUser({ password });
         if (error) {
-            toast.error('Hata: ' + error.message);
+            toast.error('Hata: ' + getAuthErrorMessage(error.message));
         } else {
             toast.success('Şifreniz başarıyla güncellendi.');
             setPassword('');

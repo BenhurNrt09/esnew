@@ -41,10 +41,13 @@ interface ExtendedListing extends Listing {
     age_value?: number;
     height?: string;
     weight?: string;
+    languages?: any;
     services?: any;
     badges?: string[];
     listing_stats?: any[];
     is_verified?: boolean;
+    rating_average?: number;
+    review_count?: number;
 }
 
 async function getListing(slug: string): Promise<ExtendedListing | null> {
@@ -245,7 +248,6 @@ export default async function ListingPage({ params }: { params: { slug: string }
                                         />
                                     </div>
 
-                                    {/* Sub-Cover Rating display */}
                                     <div className="mt-4 flex flex-col items-center gap-1">
                                         <div className="flex items-center gap-1">
                                             {[1, 2, 3, 4, 5].map((s) => (
@@ -253,16 +255,22 @@ export default async function ListingPage({ params }: { params: { slug: string }
                                                     key={s}
                                                     className={cn(
                                                         "w-4 h-4",
-                                                        s <= 5
+                                                        s <= Math.round(listing.rating_average || 0)
                                                             ? "text-yellow-400 fill-yellow-400"
-                                                            : "text-gray-800"
+                                                            : "text-gray-300 dark:text-gray-800"
                                                     )}
                                                 />
                                             ))}
                                         </div>
-                                        <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-tighter">
-                                            Ortalama: 5.0 / 5.0
-                                        </span>
+                                        {listing.rating_average && listing.rating_average > 0 ? (
+                                            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-tighter">
+                                                Ortalama: {Number(listing.rating_average).toFixed(1)} / 5.0 ({listing.review_count} Yorum)
+                                            </span>
+                                        ) : (
+                                            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-tighter">
+                                                Henüz Puanlanmamış
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -392,7 +400,34 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             </div>
                         </div>
 
-                        {/* 2. FİYATLANDIRMA TABLE */}
+                        {/* 2. DİLLER TABLE */}
+                        {listing.languages && (listing.languages as any[]).length > 0 && (
+                            <div className="bg-white dark:bg-[#0A0A0A] border border-gray-100 dark:border-white/10 rounded-2xl p-6 shadow-xl dark:shadow-2xl relative overflow-hidden group">
+                                <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2 uppercase tracking-tighter relative z-10">
+                                    <Languages className="h-5 w-5 text-primary" /> DİLLER
+                                </h3>
+                                <div className="space-y-3 relative z-10">
+                                    {(listing.languages as any[]).map((lang, i) => (
+                                        <div key={i} className="flex justify-between items-center py-2 border-b border-gray-50 dark:border-white/5 last:border-0">
+                                            <span className="text-gray-900 dark:text-white font-black text-xs uppercase tracking-widest">{lang.lang}</span>
+                                            <div className="flex items-center gap-0.5">
+                                                {[1, 2, 3, 4, 5].map(star => (
+                                                    <Star
+                                                        key={star}
+                                                        className={cn(
+                                                            "w-3 h-3",
+                                                            star <= lang.level ? "text-yellow-400 fill-yellow-400" : "text-gray-200 dark:text-gray-800"
+                                                        )}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 3. FİYATLANDIRMA TABLE */}
                         <div className="bg-white dark:bg-[#0A0A0A] border border-primary/20 dark:border-primary/30 rounded-2xl p-6 shadow-xl dark:shadow-2xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
                                 <DollarSign className="w-24 h-24 text-primary" />

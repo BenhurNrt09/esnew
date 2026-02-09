@@ -127,7 +127,7 @@ export default function NewAdPage() {
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
                                     <ImageIcon className="h-3 w-3 text-primary" />
-                                    Reklam Görseli
+                                    Reklam Görseli (Önerilen: 178x267)
                                 </label>
 
                                 <input
@@ -199,6 +199,8 @@ export default function NewAdPage() {
                                             <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Görsel Seçmek İçin Tıklayın</h3>
                                             <p className="text-gray-400 font-medium max-w-sm mx-auto italic">
                                                 Reklam görselini buraya sürükleyebilir veya dosyalarınız arasından seçebilirsiniz.
+                                                <br />
+                                                <span className="text-primary not-italic mt-1 inline-block">Önerilen ölçek: 178x267 piksel</span>
                                             </p>
                                         </div>
                                         <div className="mt-8 px-8 py-4 bg-gold-gradient text-black rounded-xl font-black shadow-lg shadow-primary/20 group-hover:opacity-90 transition-all uppercase tracking-widest text-xs">

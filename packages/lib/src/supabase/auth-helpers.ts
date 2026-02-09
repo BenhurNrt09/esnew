@@ -162,3 +162,29 @@ export const rememberMe = {
         }
     }
 };
+
+/**
+ * Translates Supabase Auth error messages to Turkish
+ */
+export function getAuthErrorMessage(message: string): string {
+    const errorMap: Record<string, string> = {
+        'New password should be different from the old password': 'Yeni şifre, eski şifrenizden farklı olmalıdır.',
+        'Password should be at least 6 characters': 'Şifre en az 6 karakter olmalıdır.',
+        'Invalid login credentials': 'Geçersiz giriş bilgileri.',
+        'Email not confirmed': 'E-posta adresi doğrulanmamış.',
+        'User already registered': 'Bu e-posta adresi zaten kayıtlı.',
+        'Invalid refresh token': 'Oturum süresi dolmuş, lütfen tekrar giriş yapın.',
+        'Captcha verification failed': 'Güvenlik doğrulaması başarısız oldu.',
+        'Signup is currently disabled': 'Kayıt işlemleri şu an kapalıdır.',
+    };
+
+    // Check for exact matches
+    if (errorMap[message]) return errorMap[message];
+
+    // Check for partial matches or patterns
+    if (message.includes('New password should be different')) {
+        return 'Yeni şifre, eski şifrenizden farklı olmalıdır.';
+    }
+
+    return message;
+}

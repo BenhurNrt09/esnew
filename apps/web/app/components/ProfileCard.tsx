@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MapPin, Heart, Star, ShieldCheck } from 'lucide-react';
+import { MapPin, Heart, Star, ShieldCheck, Crown, Sparkles } from 'lucide-react';
 import { createClient } from '@repo/lib/supabase/client';
 import { cn } from "@repo/ui/src/lib/utils";
 
@@ -80,6 +80,17 @@ export function ProfileCard({ listing, isFeatured }: ProfileCardProps) {
         }
     };
 
+    const isVideo = (url: string) => url.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || url.includes('video');
+
+    const displayImage = useMemo(() => {
+        if (listing.cover_image && !isVideo(listing.cover_image)) return listing.cover_image;
+        if (listing.images && Array.isArray(listing.images)) {
+            const firstImage = listing.images.find((img: string) => !isVideo(img));
+            if (firstImage) return firstImage;
+        }
+        return 'https://placehold.co/400x600/1a1a1a/D4AF37.png?text=No+Image';
+    }, [listing.cover_image, listing.images]);
+
     return (
         <Link
             href={`/ilan/${listing.slug}`}
@@ -91,7 +102,7 @@ export function ProfileCard({ listing, isFeatured }: ProfileCardProps) {
             {/* Image Container - Strictly Portrait */}
             <div className="aspect-[4/5] relative overflow-hidden bg-muted">
                 <img
-                    src={listing.cover_image || listing.images?.[0] || 'https://placehold.co/400x600/1a1a1a/D4AF37.png?text=No+Image'}
+                    src={displayImage}
                     alt={listing.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     onError={(e) => {
@@ -104,6 +115,16 @@ export function ProfileCard({ listing, isFeatured }: ProfileCardProps) {
 
                 {/* Top Badges */}
                 <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
+                    {listing.is_premium && (
+                        <div className="bg-gold-gradient text-black text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-lg flex items-center gap-1 border border-black/10">
+                            <Crown className="w-2.5 h-2.5 fill-black" /> PREMIUM
+                        </div>
+                    )}
+                    {listing.is_vip && (
+                        <div className="bg-zinc-800 text-primary text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-lg flex items-center gap-1 border border-primary/20">
+                            <Sparkles className="w-2.5 h-2.5 fill-primary" /> VIP+
+                        </div>
+                    )}
                     {isFeatured && (
                         <div className="bg-primary text-black text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-lg flex items-center gap-1">
                             <Star className="w-2.5 h-2.5 fill-black" /> VIP
@@ -140,11 +161,20 @@ export function ProfileCard({ listing, isFeatured }: ProfileCardProps) {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-2 text-[10px] font-medium text-gray-300">
-                        <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-primary" />
-                            <span className="uppercase tracking-wider">{listing.city?.name}</span>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-[10px] font-medium text-gray-300">
+                            <div className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-primary" />
+                                <span className="uppercase tracking-wider">{listing.city?.name}</span>
+                            </div>
                         </div>
+                        {listing.rating_average > 0 && (
+                            <div className="flex items-center gap-1 bg-black/40 px-1.5 py-0.5 rounded backdrop-blur-md">
+                                <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                <span className="text-[10px] font-bold text-white">{Number(listing.rating_average).toFixed(1)}</span>
+                                <span className="text-[9px] text-gray-400">({listing.review_count})</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

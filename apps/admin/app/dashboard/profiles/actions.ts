@@ -75,7 +75,7 @@ export async function createModelProfile(formData: FormData) {
         // 3. Create Listing
         const slug = (title || username).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 1000);
 
-        const { error: listingError } = await supabase
+        const { data: listingData, error: listingError } = await supabase
             .from('listings')
             .insert({
                 user_id: userId,
@@ -102,15 +102,19 @@ export async function createModelProfile(formData: FormData) {
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
                 phone: phone || null
-            });
+            })
+            .select()
+            .single();
 
         if (listingError) throw listingError;
+        if (!listingData) throw new Error("İlan oluşturulamadı.");
 
         // 4. Create Stories
         if (story_urls_json.length > 0) {
             const storiesToInsert = story_urls_json.map(jsonstr => {
                 const { url, type } = JSON.parse(jsonstr);
                 return {
+                    listing_id: listingData.id,
                     model_id: userId,
                     media_url: url,
                     media_type: type,

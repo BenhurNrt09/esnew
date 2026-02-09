@@ -19,12 +19,17 @@ export async function getCurrentUser(): Promise<User | null> {
 
     // If user doesn't exist in database, create them
     if (!data) {
+        // Double check auth metadata for admin role
+        const isAdmin = user.app_metadata?.role === 'admin' ||
+            user.user_metadata?.role === 'admin' ||
+            user.user_metadata?.user_type === 'admin';
+
         const { data: newUser } = await supabase
             .from('users')
             .insert({
                 id: user.id,
                 email: user.email,
-                role: 'user'
+                role: isAdmin ? 'admin' : 'user'
             })
             .select()
             .single();

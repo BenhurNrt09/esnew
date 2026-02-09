@@ -101,56 +101,53 @@ export default function FavoritesPage() {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {favorites.map((favorite) => (
-                        <Card key={favorite.listing_id} className="shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] rounded-2xl overflow-hidden hover:shadow-xl transition-all group">
-                            <div className="relative aspect-[3/4] overflow-hidden">
+                        <Card key={favorite.listing_id} className="shadow-lg shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] rounded-xl overflow-hidden hover:shadow-xl transition-all group">
+                            <div className="relative aspect-[4/5] overflow-hidden">
                                 <img
                                     src={favorite.listing.cover_image || 'https://placehold.co/400x600/1a1a1a/D4AF37.png?text=No+Image'}
                                     alt={favorite.listing.title}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
 
                                 {favorite.listing.is_featured && (
-                                    <span className="absolute top-4 left-4 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg flex items-center gap-1">
-                                        <Sparkles className="w-3 h-3" /> VİTRİN
+                                    <span className="absolute top-2 left-2 bg-primary text-black text-[8px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-tighter shadow-lg flex items-center gap-0.5">
+                                        <Sparkles className="w-2 h-2" /> VİTRİN
                                     </span>
                                 )}
 
                                 <button
                                     onClick={() => removeFavorite(favorite.listing_id)}
-                                    className="absolute top-4 right-4 p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all shadow-lg"
+                                    className="absolute top-2 right-2 p-1.5 rounded-full bg-black/40 text-white hover:bg-red-600 transition-all backdrop-blur-sm z-20"
                                     title="Favorilerden Çıkar"
                                 >
-                                    <Trash2 className="w-4 h-4" />
+                                    <Trash2 className="w-3 h-3" />
                                 </button>
 
-                                <div className="absolute bottom-4 left-4 right-4">
-                                    <h3 className="text-white text-base font-black leading-tight uppercase tracking-tighter truncate">
+                                <div className="absolute bottom-2 left-2 right-2">
+                                    <h3 className="text-white text-xs font-black leading-tight uppercase tracking-tighter truncate">
                                         {favorite.listing.title}
                                     </h3>
-                                    <p className="text-white/70 text-[11px] font-bold mt-1 uppercase flex items-center gap-1.5">
-                                        <MapPin className="w-3 h-3" />
-                                        {favorite.listing.city?.name} • {favorite.listing.category?.name}
-                                    </p>
+                                    <div className="flex items-center gap-1 mt-0.5">
+                                        <MapPin className="w-2 h-2 text-primary" />
+                                        <p className="text-white/70 text-[8px] font-bold uppercase truncate">
+                                            {favorite.listing.city?.name}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <CardContent className="p-4">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest">
-                                            Başlangıç
-                                        </span>
-                                        <p className="text-primary font-black text-lg tracking-tighter">
-                                            {formatPrice(favorite.listing.model_pricing)}
-                                        </p>
-                                    </div>
+                            <CardContent className="p-2 bg-gray-50/50 dark:bg-white/5">
+                                <div className="flex items-center justify-between gap-2">
+                                    <p className="text-primary font-black text-xs tracking-tighter truncate">
+                                        {formatPrice(favorite.listing.model_pricing)}
+                                    </p>
                                     <Link href={`/ilan/${favorite.listing.slug}`}>
-                                        <button className="h-10 px-4 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wide hover:bg-primary/90 transition-all flex items-center gap-2">
-                                            Görüntüle
-                                            <ExternalLink className="w-3 h-3" />
+                                        <button className="h-7 px-2 rounded-lg bg-primary/10 hover:bg-primary text-primary hover:text-white font-black text-[9px] uppercase tracking-widest transition-all border border-primary/20 flex items-center gap-1 shrink-0">
+                                            GİT
+                                            <ExternalLink className="w-2 w-2" />
                                         </button>
                                     </Link>
                                 </div>

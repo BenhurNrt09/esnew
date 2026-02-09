@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, useToast } from '@repo/ui';
 import { cn } from '@repo/ui/src/lib/utils';
@@ -107,6 +108,8 @@ import { useAuth } from '../../components/AuthProvider';
 export default function ProfileEditPage() {
     const supabase = createClient();
     const { user, loading: authLoading } = useAuth();
+    const searchParams = useSearchParams();
+    const urlListingId = searchParams.get('listingId');
     const toast = useToast();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -115,16 +118,10 @@ export default function ProfileEditPage() {
     const [cities, setCities] = useState<City[]>([]);
 
     const [formData, setFormData] = useState<any>({
-        title: '',
-        phone: '',
-        phone_country_code: '+90',
-        city_id: '',
-        description: '',
-        breast_size: '',
-        body_hair: 'trasli',
-        smoking: false,
-        alcohol: false,
-        gender: 'Kadın',
+        age_value: '',
+        height: '',
+        weight: '',
+        languages: [] as { lang: string, level: number }[],
         orientation: [] as string[],
         ethnicity: 'Avrupalı',
         nationality: '',
@@ -152,11 +149,18 @@ export default function ProfileEditPage() {
                 const type = (user as any).userType || 'member';
                 setUserType(type);
 
-                if (type === 'independent_model') {
-                    const { data: listing } = await supabase
+                if (type === 'independent_model' || (type === 'agency' && urlListingId)) {
+                    let query = supabase
                         .from('listings')
-                        .select('*')
-                        .eq('user_id', user.id)
+                        .select('*');
+
+                    if (urlListingId) {
+                        query = query.eq('id', urlListingId);
+                    } else {
+                        query = query.eq('user_id', user.id);
+                    }
+
+                    const { data: listing } = await query
                         .limit(1)
                         .maybeSingle();
 
@@ -170,9 +174,10 @@ export default function ProfileEditPage() {
                             description: listing.description || '',
                             breast_size: listing.breast_size || '',
                             body_hair: listing.body_hair || 'trasli',
-                            smoking: listing.smoking || false,
-                            alcohol: listing.alcohol || false,
-                            gender: listing.gender || 'Kadın',
+                            age_value: listing.age_value || '',
+                            height: listing.height || '',
+                            weight: listing.weight || '',
+                            languages: Array.isArray(listing.languages) ? listing.languages : [],
                             orientation: Array.isArray(listing.orientation) ? listing.orientation : [],
                             ethnicity: listing.ethnicity || 'Avrupalı',
                             nationality: listing.nationality || '',
@@ -198,10 +203,10 @@ export default function ProfileEditPage() {
                             city_id: '',
                             description: '',
                             breast_size: '',
-                            body_hair: 'trasli',
-                            smoking: false,
-                            alcohol: false,
-                            gender: 'Kadın',
+                            age_value: '',
+                            height: '',
+                            weight: '',
+                            languages: [],
                             orientation: [],
                             ethnicity: 'Avrupalı',
                             nationality: '',
@@ -241,7 +246,7 @@ export default function ProfileEditPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            if (userType === 'independent_model') {
+            if (userType === 'independent_model' || (userType === 'agency' && listingId)) {
                 if (listingId) {
                     const { error } = await supabase.from('listings').update({
                         title: formData.title,
@@ -255,11 +260,14 @@ export default function ProfileEditPage() {
                         race: formData.ethnicity,
                         nationality: formData.nationality,
                         tattoos: formData.tattoos,
-                        piercings: formData.piercings,
                         breast_size: formData.breast_size,
                         body_hair: formData.body_hair,
                         smoking: formData.smoking,
                         alcohol: formData.alcohol,
+                        age_value: formData.age_value ? parseInt(formData.age_value) : null,
+                        height: formData.height,
+                        weight: formData.weight,
+                        languages: formData.languages,
                         services: formData.services,
                         updated_at: new Date().toISOString()
                     }).eq('id', listingId);
@@ -315,15 +323,15 @@ export default function ProfileEditPage() {
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Kullanıcı Adı</label>
-                                <Input value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white" />
+                                <Input value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white transition-all" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Adınız</label>
-                                <Input value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white" />
+                                <Input value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white transition-all" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Soyadınız</label>
-                                <Input value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white" />
+                                <Input value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white transition-all" />
                             </div>
                         </div>
 
@@ -386,7 +394,7 @@ export default function ProfileEditPage() {
                         <CardContent className="p-10 space-y-8">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">İlan Başlığı</label>
-                                <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white focus:ring-4 focus:ring-primary/5 shadow-sm" />
+                                <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-bold text-gray-900 dark:text-white focus:ring-4 focus:ring-primary/5 shadow-sm transition-all" />
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-8">
@@ -399,19 +407,19 @@ export default function ProfileEditPage() {
                                                 onChange={(e) => setFormData({ ...formData, phone_country_code: e.target.value })}
                                                 className="w-full h-14 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-black text-sm text-gray-900 dark:text-white px-4 appearance-none outline-none focus:border-primary transition-all"
                                             >
-                                                {countryCodes.map(c => <option key={c.code} value={c.code} className="bg-white dark:bg-[#0a0a0a]">{c.flag} {c.code}</option>)}
+                                                {countryCodes.map(c => <option key={c.code} value={c.code} className="bg-white dark:bg-[#111]">{c.flag} {c.code}</option>)}
                                             </select>
                                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none" />
                                         </div>
-                                        <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-black text-gray-900 dark:text-white flex-1 focus:ring-4 focus:ring-primary/5 shadow-sm" />
+                                        <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 font-black text-gray-900 dark:text-white flex-1 focus:ring-4 focus:ring-primary/5 shadow-sm transition-all" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest ml-1">Bulunduğunuz Şehir</label>
                                     <div className="relative">
                                         <select value={formData.city_id} onChange={(e) => setFormData({ ...formData, city_id: e.target.value })} className="w-full h-14 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 px-6 font-bold text-gray-900 dark:text-white outline-none appearance-none focus:border-primary transition-all shadow-sm">
-                                            <option value="" className="bg-white dark:bg-[#0a0a0a]">Şehir Seçin</option>
-                                            {cities.map(c => <option key={c.id} value={c.id} className="bg-white dark:bg-[#0a0a0a]">{c.name}</option>)}
+                                            <option value="" className="bg-white dark:bg-[#111]">Şehir Seçin</option>
+                                            {cities.map(c => <option key={c.id} value={c.id} className="bg-white dark:bg-[#111]">{c.name}</option>)}
                                         </select>
                                         <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-primary pointer-events-none" />
                                     </div>
@@ -527,6 +535,95 @@ export default function ProfileEditPage() {
                                 options={bodyHairOptions}
                             />
 
+                            <div className="grid md:grid-cols-3 gap-6">
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Yaş</label>
+                                    <Input
+                                        placeholder="Örn: 22"
+                                        type="number"
+                                        value={formData.age_value}
+                                        onChange={e => setFormData({ ...formData, age_value: e.target.value })}
+                                        className="rounded-2xl h-14 border-2 dark:border-white/10 bg-white/5 dark:bg-white/5 font-bold text-lg focus:ring-4 transition-all"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Boy (cm)</label>
+                                    <Input
+                                        placeholder="Örn: 170"
+                                        type="number"
+                                        value={formData.height}
+                                        onChange={e => setFormData({ ...formData, height: e.target.value })}
+                                        className="rounded-2xl h-14 border-2 dark:border-white/10 bg-white/5 dark:bg-white/5 font-bold text-lg focus:ring-4 transition-all"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Kilo (kg)</label>
+                                    <Input
+                                        placeholder="Örn: 55"
+                                        type="number"
+                                        value={formData.weight}
+                                        onChange={e => setFormData({ ...formData, weight: e.target.value })}
+                                        className="rounded-2xl h-14 border-2 dark:border-white/10 bg-white/5 dark:bg-white/5 font-bold text-lg focus:ring-4 transition-all"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Languages Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Bildiğim Diller</label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setFormData({ ...formData, languages: [...(formData.languages || []), { lang: '', level: 5 }] })}
+                                        className="h-8 rounded-lg border-primary/20 text-primary font-bold text-[10px] uppercase"
+                                    >
+                                        Dil Ekle
+                                    </Button>
+                                </div>
+                                <div className="grid gap-3">
+                                    {(formData.languages || []).map((lang: any, idx: number) => (
+                                        <div key={idx} className="flex items-center gap-4 bg-gray-50 dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/10">
+                                            <Input
+                                                placeholder="Dil"
+                                                value={lang.lang}
+                                                onChange={e => {
+                                                    const newLangs = [...formData.languages];
+                                                    newLangs[idx].lang = e.target.value;
+                                                    setFormData({ ...formData, languages: newLangs });
+                                                }}
+                                                className="h-10 border-none bg-transparent font-bold focus:shadow-none"
+                                            />
+                                            <div className="flex items-center gap-1">
+                                                {[1, 2, 3, 4, 5].map(star => (
+                                                    <Star
+                                                        key={star}
+                                                        className={cn(
+                                                            "w-4 h-4 cursor-pointer transition-colors",
+                                                            star <= lang.level ? "text-primary fill-primary" : "text-gray-300"
+                                                        )}
+                                                        onClick={() => {
+                                                            const newLangs = [...formData.languages];
+                                                            newLangs[idx].level = star;
+                                                            setFormData({ ...formData, languages: newLangs });
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => setFormData({ ...formData, languages: formData.languages.filter((_: any, i: number) => i !== idx) })}
+                                                className="text-red-400 hover:text-red-500 hover:bg-red-50"
+                                            >
+                                                Sil
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <ModernToggle label="Sigara" checked={formData.smoking} onChange={(v) => setFormData({ ...formData, smoking: v })} icon={<Cigarette className="w-5 h-5 text-gray-400" />} className="h-20" />
                                 <ModernToggle label="Alkol" checked={formData.alcohol} onChange={(v) => setFormData({ ...formData, alcohol: v })} icon={<Beer className="w-5 h-5 text-gray-400" />} className="h-20" />
@@ -534,10 +631,10 @@ export default function ProfileEditPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="shadow-2xl shadow-gray-200/50 border-gray-100 rounded-[3rem] overflow-hidden bg-gray-900 text-white relative group">
+                    <Card className="shadow-2xl shadow-gray-200/50 dark:shadow-none border-gray-100 dark:border-white/10 rounded-[3rem] overflow-hidden bg-gray-900 text-white relative group">
                         <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         <CardContent className="p-10 space-y-4 relative z-10">
-                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
+                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 border border-white/10">
                                 <Sparkles className="w-6 h-6 text-primary" />
                             </div>
                             <h3 className="text-2xl font-black uppercase tracking-tighter">Profil Gücü</h3>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@repo/lib/i18n';
-import { LayoutDashboard, MapPin, Layers, Users, Star, Image as ImageIcon, BarChart3, ChevronRight, AlertTriangle, LogOut, LifeBuoy } from 'lucide-react';
+import { LayoutDashboard, MapPin, Layers, Users, Star, Image as ImageIcon, BarChart3, ChevronRight, AlertTriangle, LogOut, LifeBuoy, Sparkles } from 'lucide-react';
 import { cn } from '@repo/ui';
 
 export function Sidebar({ isServiceRoleKeyMissing }: { isServiceRoleKeyMissing?: boolean }) {
@@ -26,7 +26,8 @@ export function Sidebar({ isServiceRoleKeyMissing }: { isServiceRoleKeyMissing?:
     const contentItems = [
         { href: '/dashboard/categories', label: t.nav.categories, icon: Layers },
         { href: '/dashboard/cities', label: t.nav.cities, icon: MapPin },
-        { href: '/dashboard/features', label: t.nav.features, icon: Star },
+        { href: '/dashboard/features', label: 'VIP & Özellikler', icon: Star },
+        { href: '/dashboard/premium-vip', label: 'Premium & VIP Yönetimi', icon: Sparkles },
         { href: '/dashboard/ads', label: 'Reklamlar', icon: ImageIcon },
     ];
 
@@ -34,7 +35,9 @@ export function Sidebar({ isServiceRoleKeyMissing }: { isServiceRoleKeyMissing?:
         { href: '/dashboard/profiles/models/new', label: '+ Yeni Profil Ekle' },
         { href: '/dashboard/profiles/pending', label: 'Onay Bekleyenler' },
         { href: '/dashboard/profiles/active', label: 'Onaylanan Profiller' },
-        { href: '/dashboard/profiles/featured', label: 'Vitrindeki Profiller' },
+        { href: '/dashboard/profiles/featured', label: 'VIP (Vitrin) Profiller' },
+        { href: '/dashboard/profiles/premium', label: 'Premium Profiller' },
+        { href: '/dashboard/profiles/vip', label: 'VIP Profiller' },
         { href: '/dashboard/profiles/models', label: 'Bireysel Modeller' },
         { href: '/dashboard/profiles/members', label: 'Üye Profilleri' },
         { href: '/dashboard/profiles/agencies', label: 'Ajans/Şirket Profilleri' },
