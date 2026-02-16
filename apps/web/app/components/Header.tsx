@@ -20,13 +20,12 @@ export function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-md border-b border-border shadow-sm transition-all duration-300">
+        <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-md border-b border-border/50 shadow-lg transition-all duration-300">
             <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between relative">
 
                 {/* Left Section: Language */}
                 <div className="flex-1 flex justify-start items-center">
-                    <LanguageSwitcher showText={false} />
-                    {/* PC View: Login/Register if not logged in (Optional, but user said specific things for mobile. Let's keep desktop clean) */}
+                    <LanguageSwitcher showText={true} />
                 </div>
 
                 {/* Center Section: Logo */}
@@ -44,16 +43,18 @@ export function Header() {
 
                 {/* Right Section: Actions */}
                 <div className="flex-1 flex justify-end items-center gap-3">
-                    <ThemeToggle />
+                    <div className="flex items-center">
+                        <ThemeToggle />
+                    </div>
 
-                    <div className="h-6 w-px bg-border hidden sm:block mx-1"></div>
+                    <div className="h-6 w-px bg-white/10 hidden sm:block mx-1"></div>
 
                     {/* Desktop Auth */}
                     <div className="hidden sm:flex items-center gap-3">
                         {user ? (
                             <div className="flex items-center gap-3">
                                 <Link href="/dashboard">
-                                    <Button variant="ghost" size="sm" className="font-bold text-xs uppercase tracking-wide">
+                                    <Button variant="ghost" size="sm" className="font-bold text-xs uppercase tracking-wide text-zinc-400 hover:text-primary">
                                         {user.email?.split('@')[0]}
                                     </Button>
                                 </Link>
@@ -62,7 +63,7 @@ export function Header() {
                                         await supabase.auth.signOut();
                                         window.location.href = '/';
                                     }}
-                                    className="p-2 text-muted-foreground hover:text-red-500 transition-colors"
+                                    className="p-2 text-zinc-500 hover:text-red-500 transition-colors"
                                     title="Çıkış"
                                 >
                                     <LogOut className="w-4 h-4" />
@@ -71,7 +72,7 @@ export function Header() {
                         ) : (
                             <div className="flex items-center gap-2">
                                 <Link href="/login">
-                                    <Button variant="ghost" size="sm" className="font-bold uppercase tracking-wide text-xs">
+                                    <Button variant="ghost" size="sm" className="font-bold uppercase tracking-wide text-xs text-zinc-400 hover:text-primary">
                                         {t.auth.login}
                                     </Button>
                                 </Link>

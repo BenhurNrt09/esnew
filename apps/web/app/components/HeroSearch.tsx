@@ -25,8 +25,8 @@ export function HeroSearch({ cities }: { cities: { id: string; name: string; slu
     return (
         <div className="w-full max-w-[280px] sm:max-w-xs mx-auto relative group">
             <div className={`
-                flex items-center bg-white dark:bg-gray-800/80 backdrop-blur-xl rounded-full transition-all duration-300 border-2
-                border-gray-100 dark:border-white/20 shadow-xl hover:border-primary/30
+                flex items-center bg-card backdrop-blur-xl rounded-full transition-all duration-300 border-2
+                border-border/50 shadow-xl hover:border-primary/30
                 p-1 overflow-hidden
             `}>
                 <div className="pl-2.5 pr-1 text-primary">
@@ -39,7 +39,7 @@ export function HeroSearch({ cities }: { cities: { id: string; name: string; slu
                     onChange={(e) => setQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="Şehir ara (İstanbul, İzmir...)"
-                    className="flex-1 h-7 sm:h-8 bg-transparent border-none outline-none text-black dark:text-white font-bold text-[10px] sm:text-xs placeholder:text-gray-400 placeholder:font-medium"
+                    className="flex-1 h-7 sm:h-8 bg-transparent border-none outline-none text-foreground font-bold text-[10px] sm:text-xs placeholder:text-muted-foreground/60 placeholder:font-medium"
                 />
 
                 {query && (

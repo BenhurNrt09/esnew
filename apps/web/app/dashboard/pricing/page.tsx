@@ -57,7 +57,7 @@ export default function PricingPage() {
                     setPricing(pricingData.map(p => ({
                         id: p.id,
                         duration: p.duration,
-                        price: p.price || '',
+                        price: p.price ?? p.incall_price ?? p.outcall_price ?? '',
                         location: p.location || '',
                         currency: p.currency || 'TRY'
                     })));

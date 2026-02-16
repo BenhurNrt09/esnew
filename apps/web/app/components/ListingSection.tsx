@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { Filter, ChevronDown, MapPin, Search, Grid, Scale, Ruler, User, Sparkles } from 'lucide-react';
 import { cn } from "@repo/ui/src/lib/utils";
 import { ProfileCard } from './ProfileCard';
+import { StackedListingCard } from './StackedListingCard';
 import { AdSidebar } from './AdSidebar';
-import { StoryBalloons } from './StoryBalloons';
 
 // Premium Custom Select Component
 function CustomSelect({ label, value, options, onChange, icon: Icon }: any) {
@@ -162,17 +162,22 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
         });
     }, [listings, selectedCity, searchQuery, filters]);
 
+    // Split into tiers
+    const premiumListings = useMemo(() => filteredListings.filter(l => l.is_premium), [filteredListings]);
+    const vipListings = useMemo(() => filteredListings.filter(l => l.is_vip && !l.is_premium), [filteredListings]);
+    const normalListings = useMemo(() => filteredListings.filter(l => !l.is_premium && !l.is_vip), [filteredListings]);
+
     const handleFilterChange = (key: string, value: string) => {
         setFilters(prev => ({ ...prev, [key]: value }));
     };
 
     return (
-        <div className="w-full max-w-[2200px] mx-auto px-4 md:px-8 py-8">
-            <div className="flex flex-col lg:flex-row gap-8 xl:gap-16">
+        <div className="w-full max-w-[1500px] mx-auto px-4 md:px-8 py-8">
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 xl:gap-20">
 
                 {/* COLUMN 1: LEFT ADS (Skinny) - Desktop Only */}
                 {leftAds.length > 0 && (
-                    <aside className="hidden xl:block w-40 shrink-0">
+                    <aside className="hidden lg:block w-28 xl:w-32 shrink-0">
                         <div className="sticky top-24 space-y-4">
                             <div className="text-[10px] font-black text-primary/50 uppercase tracking-[0.2em] text-center mb-4">Sponsorlu</div>
                             <AdSidebar ads={leftAds} />
@@ -186,7 +191,7 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
 
                         {/* Search Box */}
                         {/* Ultra-Premium Search Box */}
-                        <div className="bg-white/90 dark:bg-zinc-950/40 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group transition-all duration-500 z-50">
+                        <div className="bg-card backdrop-blur-2xl border border-border rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group transition-all duration-500 z-50">
                             {/* Animated Background Glow */}
                             <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-[80px] group-hover:bg-primary/30 transition-all duration-700 pointer-events-none" />
                             <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-zinc-400/10 dark:bg-zinc-800/10 rounded-full blur-[80px] pointer-events-none" />
@@ -213,10 +218,10 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
 
                         {/* Advanced Filters */}
                         {/* Advanced Filters Container */}
-                        <div className="bg-white/90 dark:bg-zinc-950/40 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group transition-all duration-500 z-40">
+                        <div className="bg-card backdrop-blur-2xl border border-border rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group transition-all duration-500 z-40">
                             <div className="absolute inset-0 bg-gradient-to-t from-primary/[0.02] to-transparent pointer-events-none" />
 
-                            <div className="relative z-10 flex items-center justify-between mb-8 border-b border-gray-100 dark:border-white/5 pb-5">
+                            <div className="relative z-10 flex items-center justify-between mb-8 border-b border-border pb-5">
                                 <h3 className="font-black text-[10px] flex items-center gap-2.5 uppercase tracking-[0.3em] text-gray-500 dark:text-zinc-400">
                                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                                         <Filter className="w-4 h-4 text-primary" />
@@ -305,7 +310,7 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
                         </div>
 
                         {/* Ultra-Premium City Selector */}
-                        <div className="bg-white/90 dark:bg-zinc-950/40 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group transition-all duration-500 z-30">
+                        <div className="bg-card backdrop-blur-2xl border border-border rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative group transition-all duration-500 z-30">
                             <h3 className="font-black text-[10px] mb-6 flex items-center gap-2.5 uppercase tracking-[0.3em] text-gray-500 dark:text-zinc-400 group-hover:text-primary transition-colors">
                                 <MapPin className="w-3.5 h-3.5 text-primary" />
                                 <span>Popüler Şehirler</span>
@@ -347,8 +352,8 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
 
                         {/* Ultra-Premium Categories Container */}
                         {!hideCategories && (
-                            <div className="bg-white/90 dark:bg-zinc-950/40 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-3xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-all duration-500">
-                                <h3 className="font-black text-[10px] mb-6 flex items-center gap-2.5 uppercase tracking-[0.3em] text-gray-500 dark:text-zinc-400">
+                            <div className="bg-card backdrop-blur-2xl border border-border rounded-3xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-all duration-500">
+                                <h3 className="font-black text-[10px] mb-6 flex items-center gap-2.5 uppercase tracking-[0.3em] text-zinc-400">
                                     <Grid className="w-3.5 h-3.5 text-primary" />
                                     <span>Kategoriler</span>
                                 </h3>
@@ -369,13 +374,11 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
                 </aside>
 
                 {/* COLUMN 3: MAIN GRID */}
-                <main className="flex-1">
-                    <StoryBalloons />
-
-                    <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between bg-white dark:bg-black p-5 rounded-2xl border border-gray-100 dark:border-white/5 shadow-2xl gap-4">
+                <main className="flex-1 min-w-0">
+                    <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between bg-card p-5 rounded-2xl border border-border shadow-2xl gap-4">
                         <h2 className="text-lg md:text-xl font-black uppercase tracking-tighter flex items-center gap-3">
                             <span className="w-1.5 h-8 bg-gold-gradient rounded-full inline-block" />
-                            <span className="text-gray-900 dark:text-white">
+                            <span className="text-foreground">
                                 {selectedCity
                                     ? <>{cities.find(c => c.slug === selectedCity)?.name} <span className="text-primary italic">Profilleri</span></>
                                     : <>Tüm <span className="text-primary italic">İlanlar</span></>
@@ -390,17 +393,62 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
                     </div>
 
                     {filteredListings.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5 gap-4 animate-in fade-in slide-in-from-bottom-5 duration-700">
-                            {filteredListings.map(listing => (
-                                <ProfileCard key={listing.id} listing={listing} isFeatured={listing.is_featured} />
-                            ))}
+                        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-5 duration-700">
+                            {/* PREMIUM SECTION */}
+                            {premiumListings.length > 0 && (
+                                <section className="space-y-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-1.5 h-7 bg-gold-gradient rounded-full shadow-[0_0_20px_rgba(234,179,8,0.4)]" />
+                                        <h2 className="text-xl md:text-2xl font-black text-foreground uppercase tracking-tighter">
+                                            Premium <span className="text-primary italic">İlanlar</span>
+                                        </h2>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {premiumListings.map((listing, i) => (
+                                            <StackedListingCard key={listing.id} listing={listing} index={i} />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* VIP SECTION */}
+                            {vipListings.length > 0 && (
+                                <section className="space-y-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-1.5 h-6 bg-zinc-700/50 rounded-full" />
+                                        <h2 className="text-lg md:text-xl font-black text-foreground uppercase tracking-tight">
+                                            VIP <span className="text-zinc-500 italic">Üyeler</span>
+                                        </h2>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {vipListings.map((listing, i) => (
+                                            <StackedListingCard key={listing.id} listing={listing} index={i} />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* NORMAL SECTION (Larger Grid) */}
+                            <section className="space-y-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-1 h-6 bg-zinc-800/30 rounded-full" />
+                                    <h2 className="text-base md:text-lg font-black text-foreground uppercase tracking-tight opacity-50">
+                                        Tüm <span className="italic">Profiller</span>
+                                    </h2>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+                                    {normalListings.map((listing) => (
+                                        <ProfileCard key={listing.id} listing={listing} isFeatured={listing.is_featured} />
+                                    ))}
+                                </div>
+                            </section>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600 bg-white dark:bg-black rounded-3xl border border-dashed border-gray-100 dark:border-white/5 shadow-inner">
+                        <div className="flex flex-col items-center justify-center py-24 text-muted-foreground bg-card rounded-3xl border border-dashed border-border shadow-inner">
                             <div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mb-6 border border-primary/10">
                                 <Search className="w-10 h-10 opacity-20 text-primary" />
                             </div>
-                            <p className="font-black uppercase tracking-[0.2em] text-gray-900 dark:text-white">Sonuç bulunamadı</p>
+                            <p className="font-black uppercase tracking-[0.2em] text-foreground">Sonuç bulunamadı</p>
                             <p className="text-xs mt-2 italic">Arama kriterlerinizi değiştirerek tekrar deneyin.</p>
                             <button
                                 onClick={() => { setFilters({ age: 'all', height: 'all', weight: 'all', breast: 'all', hair: 'all', race: 'all' }); setSelectedCity(null); setSearchQuery(''); }}
@@ -413,18 +461,15 @@ export function ListingSection({ cities, listings, categories, leftAds = [], rig
                 </main>
 
                 {/* COLUMN 4: RIGHT ADS (Skinny) - Desktop Only */}
-                {
-                    rightAds.length > 0 && (
-                        <aside className="hidden xl:block w-40 shrink-0">
-                            <div className="sticky top-24 space-y-4">
-                                <div className="text-[10px] font-black text-primary/50 uppercase tracking-[0.2em] text-center mb-4">Sponsorlu</div>
-                                <AdSidebar ads={rightAds} />
-                            </div>
-                        </aside>
-                    )
-                }
-
-            </div >
-        </div >
+                {rightAds.length > 0 && (
+                    <aside className="hidden lg:block w-28 xl:w-32 shrink-0">
+                        <div className="sticky top-24 space-y-4">
+                            <div className="text-[10px] font-black text-primary/50 uppercase tracking-[0.2em] text-center mb-4">Sponsorlu</div>
+                            <AdSidebar ads={rightAds} />
+                        </div>
+                    </aside>
+                )}
+            </div>
+        </div>
     );
 }

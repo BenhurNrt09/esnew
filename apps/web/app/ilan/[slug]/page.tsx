@@ -65,9 +65,17 @@ async function getListing(slug: string): Promise<ExtendedListing | null> {
         .from('model_pricing')
         .select('*')
         .eq('listing_id', listing.id)
-        .order('price', { ascending: true });
+        .order('created_at', { ascending: true });
 
-    return { ...listing, pricing: pricing || [] };
+    // Normalize pricing: merge incall_price/outcall_price/price into a single effective_price
+    const normalizedPricing = (pricing || []).map(p => ({
+        ...p,
+        price: p.price ?? p.incall_price ?? p.outcall_price ?? null,
+        incall_price: p.incall_price ?? p.price ?? null,
+        outcall_price: p.outcall_price ?? null,
+    }));
+
+    return { ...listing, pricing: normalizedPricing };
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
@@ -448,7 +456,7 @@ export default async function ListingPage({ params }: { params: { slug: string }
                                                 </div>
                                             </div>
                                             <div className="text-xl font-black text-gray-900 dark:text-white bg-white/60 dark:bg-black/60 px-4 py-2 rounded-xl border border-gray-100 dark:border-white/5 shadow-inner min-w-[100px] text-center group-hover/item:text-primary transition-colors">
-                                                {currencySymbols[p.currency || 'TRY']} {p.price ? p.price : '-'}
+                                                {currencySymbols[p.currency || 'TRY']} {p.price !== null && p.price !== undefined ? p.price : '-'}
                                             </div>
                                         </div>
                                     ))
