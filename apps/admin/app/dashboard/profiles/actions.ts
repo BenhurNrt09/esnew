@@ -98,7 +98,8 @@ export async function createModelProfile(formData: FormData) {
                     video_url: video_url || null
                 },
                 slug,
-                is_active: true,
+                is_active: false,
+                approval_status: 'pending',
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
                 phone: phone || null

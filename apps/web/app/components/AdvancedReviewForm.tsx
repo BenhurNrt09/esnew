@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@repo/lib/supabase/client';
 import { Button, Input, useToast, Card, CardContent } from '@repo/ui';
-import { Star, ShieldCheck, Heart, Info, Camera, Sparkles, Send, Calendar, Clock, MapPin, Smile, Zap, MessageCircle, LogIn } from 'lucide-react';
+import { Star, ShieldCheck, Heart, Info, Camera, Sparkles, Send, Calendar, Clock, MapPin, Smile, Zap, MessageCircle, LogIn, User } from 'lucide-react';
 import Link from 'next/link';
 
 interface AdvancedReviewFormProps {
@@ -16,10 +16,9 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
     const toast = useToast();
     const [submitting, setSubmitting] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-    // Core
     const [rating, setRating] = useState(0);
     const [content, setContent] = useState('');
+    const [authorName, setAuthorName] = useState('');
 
     // Meeting Info
     const [meetingDate, setMeetingDate] = useState('');
@@ -47,6 +46,9 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
         const checkAuth = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             setIsAuthenticated(!!user);
+            if (user) {
+                setAuthorName(user.user_metadata?.username || user.email?.split('@')[0] || '');
+            }
         };
         checkAuth();
     }, []);
@@ -58,14 +60,19 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
             return;
         }
 
+        if (!authorName.trim()) {
+            toast.error('Lütfen isminizi belirtiniz.');
+            return;
+        }
+
         setSubmitting(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('Değerlendirme yapmak için giriş yapmalısınız.');
 
             const { error } = await supabase.from('comments').insert({
                 listing_id: listingId,
-                user_id: user.id,
+                user_id: user?.id || null,
+                author_name: authorName,
                 content,
                 rating_stars: rating,
                 meeting_date: meetingDate || null,
@@ -83,12 +90,12 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
                 multiple_sessions: sessions || null,
                 ejaculation: ejaculation || null,
                 photo_accuracy: photoAccuracy || null,
-                is_approved: true
+                is_approved: false // Always needs manual approval now
             });
 
             if (error) throw error;
 
-            toast.success('Değerlendirmeniz başarıyla gönderildi!');
+            toast.success('Değerlendirmeleriniz gönderildi! Admin onayından sonra yayınlanacaktır.');
             resetForm();
             if (onSuccess) onSuccess();
         } catch (err: any) {
@@ -101,6 +108,7 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
     const resetForm = () => {
         setRating(0);
         setContent('');
+        // Keep authorName if logged in
         setMeetingDate('');
         setDuration('');
         setCity('');
@@ -164,52 +172,6 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
         </div>
     );
 
-    // Loading state
-    if (isAuthenticated === null) {
-        return (
-            <Card className="shadow-2xl border-gray-100 dark:border-white/10 rounded-[3rem] overflow-hidden bg-white dark:bg-[#0A0A0A] mt-12">
-                <CardContent className="p-20 text-center">
-                    <div className="animate-pulse space-y-4">
-                        <div className="h-4 bg-gray-100 dark:bg-white/5 rounded-lg w-1/3 mx-auto"></div>
-                        <div className="h-8 bg-gray-200 dark:bg-white/10 rounded-lg w-1/2 mx-auto"></div>
-                    </div>
-                </CardContent>
-            </Card>
-        );
-    }
-
-    // Not authenticated - show login prompt
-    if (!isAuthenticated) {
-        return (
-            <Card className="shadow-2xl border-gray-100 dark:border-white/10 rounded-3xl overflow-hidden bg-white dark:bg-[#0A0A0A] mt-8 relative group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-50" />
-                <CardContent className="p-12 text-center space-y-6 relative z-10">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full border border-primary/20 mb-2">
-                        <LogIn className="w-8 h-8 text-primary" />
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Değerlendirme İçin Giriş Gerekli</h3>
-                        <p className="text-gray-500 font-medium text-sm max-w-md mx-auto">
-                            Güvenliğimiz için sadece kayıtlı üyelerimiz profesyonel değerlendirme yapabilmektedir.
-                        </p>
-                    </div>
-                    <div className="flex items-center justify-center gap-4 pt-4">
-                        <Link href="/login">
-                            <Button className="h-12 px-8 bg-gold-gradient text-black font-black uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20 hover:scale-105 transition-all text-[10px]">
-                                Giriş Yap
-                            </Button>
-                        </Link>
-                        <Link href="/register">
-                            <Button variant="outline" className="h-12 px-8 font-black uppercase tracking-widest rounded-xl border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/30 text-gray-900 dark:text-white text-[10px]">
-                                Kayıt Ol
-                            </Button>
-                        </Link>
-                    </div>
-                </CardContent>
-            </Card>
-        );
-    }
-
     // Authenticated - show review form
     return (
         <Card className="shadow-2xl border-gray-100 dark:border-white/10 rounded-3xl overflow-hidden bg-white dark:bg-[#0A0A0A] mt-8 relative group">
@@ -236,8 +198,20 @@ export function AdvancedReviewForm({ listingId, onSuccess }: AdvancedReviewFormP
                     </div>
                 </div>
 
-                {/* Meeting Context */}
-                <div className="grid md:grid-cols-3 gap-6">
+                {/* Name & Meeting Context */}
+                <div className="grid md:grid-cols-4 gap-6">
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                            <User className="w-4 h-4 text-primary" /> İsim / Rumuz
+                        </label>
+                        <Input
+                            placeholder="İsminiz"
+                            value={authorName}
+                            onChange={(e) => setAuthorName(e.target.value)}
+                            className="h-14 rounded-2xl border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-black/40 text-gray-900 dark:text-white font-black"
+                            disabled={isAuthenticated === true}
+                        />
+                    </div>
                     <div className="space-y-3">
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-primary" /> Buluşma Tarihi

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@repo/lib/i18n';
-import { LayoutDashboard, MapPin, Layers, Users, Star, Image as ImageIcon, BarChart3, ChevronRight, AlertTriangle, LogOut, LifeBuoy, Sparkles } from 'lucide-react';
+import { LayoutDashboard, MapPin, Layers, Users, Star, Image as ImageIcon, BarChart3, ChevronRight, AlertTriangle, LogOut, LifeBuoy, Sparkles, MessageSquare } from 'lucide-react';
 import { cn } from '@repo/ui';
 
 export function Sidebar({ isServiceRoleKeyMissing }: { isServiceRoleKeyMissing?: boolean }) {
@@ -19,6 +19,7 @@ export function Sidebar({ isServiceRoleKeyMissing }: { isServiceRoleKeyMissing?:
 
     const managementItems = [
         { href: '/dashboard', label: t.nav.dashboard, icon: LayoutDashboard },
+        { href: '/dashboard/comments', label: 'Yorum Moderasyonu', icon: MessageSquare },
         { href: '/dashboard/stats', label: 'İstatistikler', icon: BarChart3 },
         { href: '/dashboard/support', label: 'Destek Talepleri', icon: LifeBuoy },
     ];
@@ -37,10 +38,6 @@ export function Sidebar({ isServiceRoleKeyMissing }: { isServiceRoleKeyMissing?:
         { href: '/dashboard/profiles/active', label: 'Onaylanan Profiller' },
         { href: '/dashboard/profiles/featured', label: 'VIP (Vitrin) Profiller' },
         { href: '/dashboard/profiles/premium', label: 'Premium Profiller' },
-        { href: '/dashboard/profiles/vip', label: 'VIP Profiller' },
-        { href: '/dashboard/profiles/models', label: 'Bireysel Modeller' },
-        { href: '/dashboard/profiles/members', label: 'Üye Profilleri' },
-        { href: '/dashboard/profiles/agencies', label: 'Ajans/Şirket Profilleri' },
     ];
 
     useEffect(() => {

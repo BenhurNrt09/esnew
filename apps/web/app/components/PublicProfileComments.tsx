@@ -42,7 +42,7 @@ export function PublicProfileComments({ listingId }: PublicProfileCommentsProps)
                     .eq('id', comment.user_id)
                     .single();
 
-                return { ...comment, replies: replies || [], username: member?.username || 'Anonim' };
+                return { ...comment, replies: replies || [], username: comment.author_name || member?.username || 'Anonim' };
             }));
             setComments(enriched);
         }
