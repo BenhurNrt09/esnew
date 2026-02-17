@@ -6,15 +6,19 @@ import { revalidatePath } from 'next/cache';
 export async function createModelProfile(formData: FormData) {
     const supabase = createAdminClient();
 
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
     const username = formData.get('username') as string;
+    const email = (formData.get('email') as string) || `${username.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Math.random().toString(36).substring(7)}@temp.esnew.com`;
+    const password = (formData.get('password') as string) || Math.random().toString(36).substring(2, 12);
     const gender = formData.get('gender') as string;
     const city_id = formData.get('city_id') as string;
     const category_id = formData.get('category_id') as string;
     const nationality = formData.get('nationality') as string;
     const hair_color = formData.get('hair_color') as string;
     const phone = formData.get('phone') as string;
+
+    // Pricing Data (JSON)
+    const pricingJson = formData.get('pricing_data') as string;
+    const pricingRows = pricingJson ? JSON.parse(pricingJson) : [];
 
     // New Fields
     const title = formData.get('title') as string;
@@ -64,7 +68,7 @@ export async function createModelProfile(formData: FormData) {
                 username,
                 gender: gender || 'female',
                 full_name: username,
-                city_id: city_id || null,
+                city_id: city_id || null, // Fixed: This will now work after 037 migration
                 phone: phone || null,
                 is_active: true,
                 created_at: new Date().toISOString(),
@@ -110,7 +114,28 @@ export async function createModelProfile(formData: FormData) {
         if (listingError) throw listingError;
         if (!listingData) throw new Error("İlan oluşturulamadı.");
 
-        // 4. Create Stories
+        // 4. Save Pricing
+        if (pricingRows.length > 0) {
+            const pricingToInsert = pricingRows
+                .filter((r: any) => r.duration && (r.incall || r.outcall))
+                .map((r: any) => ({
+                    listing_id: listingData.id,
+                    duration: r.duration,
+                    incall_price: r.incall ? parseFloat(r.incall) : null,
+                    outcall_price: r.outcall ? parseFloat(r.outcall) : null,
+                    currency: r.currency || 'TL'
+                }));
+
+            if (pricingToInsert.length > 0) {
+                const { error: pricingError } = await supabase
+                    .from('model_pricing')
+                    .insert(pricingToInsert);
+
+                if (pricingError) console.error('Pricing insert error:', pricingError);
+            }
+        }
+
+        // 5. Create Stories
         if (story_urls_json.length > 0) {
             const storiesToInsert = story_urls_json.map(jsonstr => {
                 const { url, type } = JSON.parse(jsonstr);

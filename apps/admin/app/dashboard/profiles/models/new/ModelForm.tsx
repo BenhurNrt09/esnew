@@ -83,12 +83,30 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
 
     const [formData, setFormData] = useState({
         username: '',
-        email: '',
-        password: '',
         phone: '',
         city_id: '',
         gender: 'female',
     });
+
+    const [pricing, setPricing] = useState([
+        { duration: '1 Saat', incall: '', outcall: '', currency: 'TL' },
+        { duration: '2 Saat', incall: '', outcall: '', currency: 'TL' },
+        { duration: '3 Saat', incall: '', outcall: '', currency: 'TL' },
+    ]);
+
+    const addPricingRow = () => {
+        setPricing([...pricing, { duration: '', incall: '', outcall: '', currency: 'TL' }]);
+    };
+
+    const updatePricingRow = (index: number, field: string, value: string) => {
+        const newPricing = [...pricing];
+        (newPricing[index] as any)[field] = value;
+        setPricing(newPricing);
+    };
+
+    const removePricingRow = (index: number) => {
+        setPricing(pricing.filter((_, i) => i !== index));
+    };
 
     // Media States
     const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -166,7 +184,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
         setError('');
 
         const form = new FormData(e.currentTarget);
-        // We will ignore some FormData fields and use our state instead
+        form.set('pricing_data', JSON.stringify(pricing));
 
         try {
             // Upload Cover
@@ -187,7 +205,6 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
 
             // Upload Video
             if (videoFile && videoFile.size > 0) {
-                // Ensure bucket allows video
                 const url = await uploadFile(videoFile, 'listings', `videos/${formData.username}`);
                 form.set('video_url', url);
             }
@@ -239,39 +256,6 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-300">E-Posta *</label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
-                            <Input
-                                name="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                placeholder="ornek@site.com"
-                                required
-                                className="pl-9 bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-9 text-sm"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-300">Şifre *</label>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
-                            <Input
-                                name="password"
-                                type="password"
-                                value={formData.password}
-                                onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                placeholder="******"
-                                required
-                                minLength={6}
-                                className="pl-9 bg-black/40 border-white/10 text-white placeholder:text-gray-500 focus:border-primary/50 h-9 text-sm"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-300">Telefon</label>
                         <div className="relative">
                             <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
@@ -284,6 +268,77 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                             />
                         </div>
                     </div>
+                </CardContent>
+            </Card>
+
+            {/* Pricing Section (New) */}
+            <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
+                <CardHeader className="bg-black/40 border-b border-white/5 py-4 flex flex-row items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-primary text-base font-bold">
+                        <Save className="h-4 w-4" /> Fiyatlandırma
+                    </CardTitle>
+                    <Button type="button" size="sm" variant="outline" onClick={addPricingRow} className="h-7 text-[10px] border-primary/20 text-primary hover:bg-primary/10">
+                        <Plus className="h-3 w-3 mr-1" /> Bar Ekle
+                    </Button>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-4">
+                    <div className="hidden md:grid grid-cols-5 gap-4 px-2 text-[10px] font-bold text-gray-500 uppercase">
+                        <div>Süre</div>
+                        <div>Kendi Yerim</div>
+                        <div>Senin Yerin</div>
+                        <div>Para Birimi</div>
+                        <div></div>
+                    </div>
+                    {pricing.map((row, index) => (
+                        <div key={index} className="grid grid-cols-2 md:grid-cols-5 gap-3 p-3 rounded-lg bg-black/20 border border-white/5 items-center">
+                            <div className="space-y-1.5 md:space-y-0">
+                                <label className="md:hidden text-[10px] font-bold text-gray-500">SÜRE</label>
+                                <Input
+                                    value={row.duration}
+                                    onChange={e => updatePricingRow(index, 'duration', e.target.value)}
+                                    placeholder="1 Saat"
+                                    className="bg-black/40 border-white/10 h-8 text-xs"
+                                />
+                            </div>
+                            <div className="space-y-1.5 md:space-y-0">
+                                <label className="md:hidden text-[10px] font-bold text-gray-500">KENDİ YERİM</label>
+                                <Input
+                                    type="number"
+                                    value={row.incall}
+                                    onChange={e => updatePricingRow(index, 'incall', e.target.value)}
+                                    placeholder="0"
+                                    className="bg-black/40 border-white/10 h-8 text-xs"
+                                />
+                            </div>
+                            <div className="space-y-1.5 md:space-y-0">
+                                <label className="md:hidden text-[10px] font-bold text-gray-500">SENİN YERİN</label>
+                                <Input
+                                    type="number"
+                                    value={row.outcall}
+                                    onChange={e => updatePricingRow(index, 'outcall', e.target.value)}
+                                    placeholder="0"
+                                    className="bg-black/40 border-white/10 h-8 text-xs"
+                                />
+                            </div>
+                            <div className="space-y-1.5 md:space-y-0">
+                                <label className="md:hidden text-[10px] font-bold text-gray-500">PARA BİRİMİ</label>
+                                <select
+                                    value={row.currency}
+                                    onChange={e => updatePricingRow(index, 'currency', e.target.value)}
+                                    className="w-full h-8 rounded-md border border-white/10 bg-black/40 text-white px-2 py-1 text-xs focus:outline-none focus:border-primary/50"
+                                >
+                                    <option value="TL">TL</option>
+                                    <option value="EUR">€ (Euro)</option>
+                                    <option value="USD">$ (Dolar)</option>
+                                </select>
+                            </div>
+                            <div className="col-span-2 md:col-span-1 flex justify-end">
+                                <Button type="button" variant="ghost" size="sm" onClick={() => removePricingRow(index)} className="h-8 w-8 p-0 text-red-500/50 hover:text-red-500 hover:bg-red-500/10">
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
                 </CardContent>
             </Card>
 
@@ -372,7 +427,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                 </CardContent>
             </Card>
 
-            {/* Media Uploads (New) */}
+            {/* Media Uploads */}
             <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
                 <CardHeader className="bg-black/40 border-b border-white/5 py-4">
                     <CardTitle className="flex items-center gap-2 text-primary text-base font-bold">
