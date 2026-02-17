@@ -75,6 +75,22 @@ const bodyHairOptions = [
 
 const ethnicityOptions = ['Avrupalı', 'Asyalı', 'Latin', 'Siyahi', 'Arap'];
 
+const sexualOrientationOptions = [
+    { value: 'heteroseksuel', label: 'Heteroseksüel' },
+    { value: 'biseksuel', label: 'Biseksüel' },
+    { value: 'homoseksuel', label: 'Homoseksüel' },
+];
+
+const yesNoOptions = [
+    { value: 'evet', label: 'Evet' },
+    { value: 'hayir', label: 'Hayır' },
+];
+
+const varYokOptions = [
+    { value: 'var', label: 'Var' },
+    { value: 'yok', label: 'Yok' },
+];
+
 export function ModelForm({ categories, cities }: { categories: Category[]; cities: City[] }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -85,7 +101,11 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
         username: '',
         phone: '',
         city_id: '',
-        gender: 'female',
+        gender: 'woman',
+        smoking: 'hayir',
+        alcohol: 'hayir',
+        tattoo: 'yok',
+        piercing: 'yok',
     });
 
     const [pricing, setPricing] = useState([
@@ -387,9 +407,9 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                             value={formData.gender}
                             onChange={e => setFormData({ ...formData, gender: e.target.value })}
                         >
-                            <option value="female" className="bg-gray-900">Kadın</option>
-                            <option value="male" className="bg-gray-900">Erkek</option>
-                            <option value="trans" className="bg-gray-900">Trans</option>
+                            <option value="woman" className="bg-gray-900">Kadın</option>
+                            <option value="man" className="bg-gray-900">Erkek</option>
+                            <option value="transsexual" className="bg-gray-900">Trans</option>
                         </select>
                     </div>
 
@@ -628,6 +648,75 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                             <option value="">Seçiniz</option>
                             {ethnicityOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Lifestyle & Preferences */}
+            <Card className="border-white/10 shadow-lg overflow-visible bg-white/5 backdrop-blur-sm">
+                <CardHeader className="bg-black/40 border-b border-white/5 py-4">
+                    <CardTitle className="flex items-center gap-2 text-primary text-base font-bold">
+                        <Info className="h-4 w-4" /> Yaşam Tarzı
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 grid gap-6">
+                    {/* Sexual Orientation - Multi-select */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-300">Cinsel Yönelim</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {sexualOrientationOptions.map(opt => (
+                                <label key={opt.value} className="flex items-center gap-2 p-3 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer transition-colors">
+                                    <input type="checkbox" name="sexual_orientation" value={opt.value} className="w-4 h-4 rounded border-gray-500 text-primary focus:ring-primary" />
+                                    <span className="text-sm text-gray-300 font-medium">{opt.label}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-bold text-gray-300">Sigara Kullanımı</label>
+                            <select
+                                name="smoking"
+                                value={formData.smoking}
+                                onChange={e => setFormData({ ...formData, smoking: e.target.value })}
+                                className="w-full h-9 rounded-md border border-white/10 bg-black/50 text-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:border-primary/50"
+                            >
+                                {yesNoOptions.map(opt => <option key={opt.value} value={opt.value} className="bg-gray-900">{opt.label}</option>)}
+                            </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-bold text-gray-300">Alkol Kullanımı</label>
+                            <select
+                                name="alcohol"
+                                value={formData.alcohol}
+                                onChange={e => setFormData({ ...formData, alcohol: e.target.value })}
+                                className="w-full h-9 rounded-md border border-white/10 bg-black/50 text-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:border-primary/50"
+                            >
+                                {yesNoOptions.map(opt => <option key={opt.value} value={opt.value} className="bg-gray-900">{opt.label}</option>)}
+                            </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-bold text-gray-300">Dövme</label>
+                            <select
+                                name="tattoo"
+                                value={formData.tattoo}
+                                onChange={e => setFormData({ ...formData, tattoo: e.target.value })}
+                                className="w-full h-9 rounded-md border border-white/10 bg-black/50 text-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:border-primary/50"
+                            >
+                                {varYokOptions.map(opt => <option key={opt.value} value={opt.value} className="bg-gray-900">{opt.label}</option>)}
+                            </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-bold text-gray-300">Piercing</label>
+                            <select
+                                name="piercing"
+                                value={formData.piercing}
+                                onChange={e => setFormData({ ...formData, piercing: e.target.value })}
+                                className="w-full h-9 rounded-md border border-white/10 bg-black/50 text-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:border-primary/50"
+                            >
+                                {varYokOptions.map(opt => <option key={opt.value} value={opt.value} className="bg-gray-900">{opt.label}</option>)}
+                            </select>
+                        </div>
                     </div>
                 </CardContent>
             </Card>

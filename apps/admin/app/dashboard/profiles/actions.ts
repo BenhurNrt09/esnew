@@ -29,6 +29,13 @@ export async function createModelProfile(formData: FormData) {
     const body_hair = formData.get('body_hair') as string;
     const ethnicity = formData.get('ethnicity') as string;
 
+    // Lifestyle Fields
+    const sexual_orientation = formData.getAll('sexual_orientation') as string[];
+    const smoking = formData.get('smoking') as string;
+    const alcohol = formData.get('alcohol') as string;
+    const tattoo = formData.get('tattoo') as string;
+    const piercing = formData.get('piercing') as string;
+
     // Media
     const cover_image = formData.get('cover_image') as string;
     const video_url = formData.get('video_url') as string;
@@ -66,11 +73,16 @@ export async function createModelProfile(formData: FormData) {
                 id: userId,
                 email,
                 username,
-                gender: gender || 'female',
+                gender: gender || 'woman',
                 full_name: username,
-                city_id: city_id || null, // Fixed: This will now work after 037 migration
+                city_id: city_id || null,
                 phone: phone || null,
                 is_active: true,
+                sexual_orientation: sexual_orientation.length > 0 ? sexual_orientation : [],
+                smoking: smoking || 'hayir',
+                alcohol: alcohol || 'hayir',
+                tattoo: tattoo || 'yok',
+                piercing: piercing || 'yok',
                 created_at: new Date().toISOString(),
             });
 
@@ -106,7 +118,12 @@ export async function createModelProfile(formData: FormData) {
                 approval_status: 'pending',
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
-                phone: phone || null
+                phone: phone || null,
+                sexual_orientation: sexual_orientation.length > 0 ? sexual_orientation : [],
+                smoking: smoking || 'hayir',
+                alcohol: alcohol || 'hayir',
+                tattoo: tattoo || 'yok',
+                piercing: piercing || 'yok',
             })
             .select()
             .single();
