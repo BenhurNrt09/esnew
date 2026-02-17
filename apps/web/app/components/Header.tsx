@@ -69,20 +69,7 @@ export function Header() {
                                     <LogOut className="w-4 h-4" />
                                 </button>
                             </div>
-                        ) : (
-                            <div className="flex items-center gap-2">
-                                <Link href="/login">
-                                    <Button variant="ghost" size="sm" className="font-bold uppercase tracking-wide text-xs text-zinc-400 hover:text-primary">
-                                        {t.auth.login}
-                                    </Button>
-                                </Link>
-                                <Link href="/register">
-                                    <Button size="sm" className="bg-primary text-black hover:bg-white hover:text-black font-black uppercase tracking-wide text-xs border-none shadow-lg shadow-primary/20 transition-all">
-                                        {t.auth.register}
-                                    </Button>
-                                </Link>
-                            </div>
-                        )}
+                        ) : null}
                     </div>
 
                     {/* Mobile User Icon Toggle */}
@@ -117,20 +104,7 @@ export function Header() {
                                             <LogOut className="w-4 h-4 mr-2" /> Çıkış Yap
                                         </button>
                                     </>
-                                ) : (
-                                    <>
-                                        <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                            <Button variant="ghost" size="sm" className="w-full justify-start text-xs font-bold uppercase">
-                                                Giriş Yap
-                                            </Button>
-                                        </Link>
-                                        <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                                            <Button size="sm" className="w-full bg-primary text-black hover:bg-white text-xs font-black uppercase">
-                                                Kayıt Ol
-                                            </Button>
-                                        </Link>
-                                    </>
-                                )}
+                                ) : null}
                             </div>
                         )}
                     </div>

@@ -16,7 +16,7 @@ import { ProfileGallery } from '../../components/ProfileGallery';
 import { AdvancedReviewForm } from '../../components/AdvancedReviewForm';
 import { PublicProfileComments } from '../../components/PublicProfileComments';
 import { StoryBalloons } from '../../components/StoryBalloons';
-import { ListingChatActions } from '../../components/ListingChatActions';
+// import { ListingChatActions } from '../../components/ListingChatActions';
 
 export const revalidate = 0;
 
@@ -218,10 +218,10 @@ export default async function ListingPage({ params }: { params: { slug: string }
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <ListingChatActions
+                                {/* <ListingChatActions
                                     receiverId={listing.user_id}
                                     receiverName={listing.title}
-                                />
+                                /> */}
                                 <Button
                                     size="sm"
                                     className="bg-green-600 hover:bg-green-700 text-white gap-2 rounded-full h-10 sm:h-11 px-4 sm:px-6 shadow-xl shadow-green-900/40 text-xs sm:text-sm font-black uppercase tracking-wide transition-all hover:scale-105 active:scale-95 group"
