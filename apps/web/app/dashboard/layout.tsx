@@ -95,6 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['member', 'independent_model', 'agency'] },
         { name: 'Profilim', href: '/dashboard/profile', icon: User, roles: ['member', 'independent_model'] },
         { name: 'Modellerim', href: '/dashboard/listings', icon: Users, roles: ['agency'] },
+        { name: 'Mesajlar', href: '/dashboard/messages', icon: MessageSquare, roles: ['member', 'independent_model', 'agency'] },
         { name: 'Favoriler', href: '/dashboard/favorites', icon: Star, roles: ['member'] },
         { name: 'Medya & Hikayeler', href: '/dashboard/media', icon: Camera, roles: ['independent_model', 'agency'] },
         { name: 'Fiyatlandırma', href: '/dashboard/pricing', icon: DollarSign, roles: ['independent_model', 'agency'] },
