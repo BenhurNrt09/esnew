@@ -39,4 +39,4 @@ CREATE POLICY "Users can manage stories for their own listings"
 -- Index ekle
 CREATE INDEX IF NOT EXISTS idx_stories_listing_id ON public.stories(listing_id);
 
-RAISE NOTICE '028_segregate_agency_listing_data migration completed.';
+DO $$ BEGIN RAISE NOTICE '028_segregate_agency_listing_data migration completed.'; END $$;

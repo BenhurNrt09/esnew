@@ -59,4 +59,4 @@ END $$;
 -- Ancak user_id hem model hem ajans olabildiği için "foreign key" auth.users kalmalı.
 -- PostgREST join hatası genellikle her iki tarafta da FK tanımlanmadığında olur.
 
-RAISE NOTICE '904_fix_admin_visibility_complete migration completed.';
+DO $$ BEGIN RAISE NOTICE '904_fix_admin_visibility_complete migration completed.'; END $$;
