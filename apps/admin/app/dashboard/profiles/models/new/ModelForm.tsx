@@ -106,6 +106,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
         alcohol: 'hayir',
         tattoo: 'yok',
         piercing: 'yok',
+        age: '',
     });
 
     const [pricing, setPricing] = useState([
@@ -240,7 +241,7 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
 
             const result = await createModelProfile(form);
             if (result.success) {
-                router.push('/dashboard/profiles/models');
+                router.push('/dashboard/profiles/pending');
             } else {
                 setError(result.error || 'Bir hata oluştu');
             }
@@ -443,6 +444,18 @@ export function ModelForm({ categories, cities }: { categories: Category[]; citi
                             <option value="siyah" className="bg-gray-900">Siyah</option>
                             <option value="kizil" className="bg-gray-900">Kızıl</option>
                         </select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-300">Yaş</label>
+                        <Input
+                            name="age"
+                            type="number"
+                            value={formData.age}
+                            onChange={e => setFormData({ ...formData, age: e.target.value })}
+                            placeholder="Örn: 22"
+                            className="bg-black/50 border-white/10 text-white placeholder:text-gray-600 focus:border-primary/50 h-9"
+                        />
                     </div>
                 </CardContent>
             </Card>

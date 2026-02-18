@@ -227,7 +227,11 @@ export default async function ListingPage({ params }: { params: { slug: string }
                                     className="bg-green-600 hover:bg-green-700 text-white gap-2 rounded-full h-10 sm:h-11 px-4 sm:px-6 shadow-xl shadow-green-900/40 text-xs sm:text-sm font-black uppercase tracking-wide transition-all hover:scale-105 active:scale-95 group"
                                     asChild
                                 >
-                                    <a href={`https://wa.me/${listing.phone?.replace(/\\D/g, '')}`} target="_blank" rel="noopener noreferrer">
+                                    <a
+                                        href={`https://wa.me/${listing.phone?.replace(/\D/g, '')}?text=${encodeURIComponent(`Merhabalar ${listing.title} VeloraEscortWorld sitesinden ulaşıyorum fiyat bilgisi alabilir miyim?`)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
                                         <MessageCircle className="h-4 w-4 group-hover:rotate-12 transition-transform" /> WHATSAPP
                                     </a>
                                 </Button>
@@ -293,8 +297,8 @@ export default async function ListingPage({ params }: { params: { slug: string }
                                         <User className="h-5 w-5 md:h-7 md:w-7 text-primary" /> <span className="hidden sm:inline">PROFİL</span> ÖZETİ
                                     </h2>
                                     <div className="w-12 h-1 bg-gold-gradient rounded-full mb-6 relative z-10" />
-                                    <div className="max-h-[300px] md:max-h-[450px] overflow-y-auto pr-4 custom-scrollbar relative z-10">
-                                        <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm lg:text-lg font-medium leading-loose whitespace-pre-line italic">
+                                    <div className="max-h-[300px] md:max-h-[450px] overflow-y-auto overflow-x-hidden pr-4 custom-scrollbar relative z-10">
+                                        <p className="text-gray-600 dark:text-gray-400 text-xs md:text-sm lg:text-lg font-medium leading-loose whitespace-pre-line italic break-words">
                                             "{listing.description}"
                                         </p>
                                     </div>

@@ -35,6 +35,7 @@ export async function createModelProfile(formData: FormData) {
     const alcohol = formData.get('alcohol') as string;
     const tattoo = formData.get('tattoo') as string;
     const piercing = formData.get('piercing') as string;
+    const age = formData.get('age') as string;
 
     // Media
     const cover_image = formData.get('cover_image') as string;
@@ -49,14 +50,33 @@ export async function createModelProfile(formData: FormData) {
         return acc;
     }, {});
 
+    // Check if username exists and auto-generate unique one if needed
+    let finalUsername = username;
+    const { data: existingUser } = await supabase
+        .from('independent_models')
+        .select('id')
+        .eq('username', finalUsername)
+        .maybeSingle();
+
+    if (existingUser) {
+        // Append a random 3-digit suffix if the username is already taken
+        finalUsername = `${username}-${Math.floor(Math.random() * 900) + 100}`;
+    }
+
+    // Update email if it was auto-generated from the original username to match finalUsername
+    let finalEmail = email;
+    if (!formData.get('email')) {
+        finalEmail = `${finalUsername.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Math.random().toString(36).substring(7)}@temp.esnew.com`;
+    }
+
     try {
         // 1. Create Auth User
         const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-            email,
+            email: finalEmail,
             password,
             email_confirm: true,
             user_metadata: {
-                username,
+                username: finalUsername,
                 user_type: 'independent_model'
             }
         });
@@ -71,10 +91,10 @@ export async function createModelProfile(formData: FormData) {
             .from('independent_models')
             .upsert({
                 id: userId,
-                email,
-                username,
+                email: finalEmail,
+                username: finalUsername,
                 gender: gender || 'woman',
-                full_name: username,
+                full_name: username, // Keep the original name as full_name
                 city_id: city_id || null,
                 phone: phone || null,
                 is_active: true,
@@ -89,7 +109,7 @@ export async function createModelProfile(formData: FormData) {
         if (profileError) throw profileError;
 
         // 3. Create Listing
-        const slug = (title || username).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 1000);
+        const slug = (title || finalUsername).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 1000);
 
         const { data: listingData, error: listingError } = await supabase
             .from('listings')
@@ -107,6 +127,7 @@ export async function createModelProfile(formData: FormData) {
                 ethnicity: ethnicity || null,
                 height: height ? parseInt(height) : null,
                 weight: weight ? parseInt(weight) : null,
+                age_value: age ? parseInt(age) : null,
                 services: servicesMap,
                 cover_image: cover_image || null,
                 images: gallery_images || [],
@@ -207,14 +228,14 @@ export async function deleteProfile(id: string, table: 'members' | 'independent_
 
         if (storiesError) console.error('Stories delete error (non-fatal):', storiesError);
 
-        // Delete Listing Favorites (if table exists)
+        // Delete Favorites
         try {
-            await supabase.from('listing_favorites').delete().eq('user_id', id);
+            await supabase.from('favorites').delete().eq('user_id', id);
         } catch (e) {
-            // Table might not exist or user_id column differs
+            console.error('Favorites delete error (non-fatal):', e);
         }
 
-        // Delete Listings
+        // Delete Listings (this will trigger CASCADE for pricing, features, tags, stats, comments)
         const { error: listingsError } = await supabase
             .from('listings')
             .delete()
@@ -252,6 +273,30 @@ export async function deleteProfile(id: string, table: 'members' | 'independent_
 export async function deleteListingOnly(listingId: string) {
     const supabase = createAdminClient();
     try {
+        // 1. Get the listing to check if it's an independent model profile
+        const { data: listing, error: getError } = await supabase
+            .from('listings')
+            .select('user_id')
+            .eq('id', listingId)
+            .single();
+
+        if (getError) throw getError;
+
+        if (listing?.user_id) {
+            // Check if this user is in independent_models
+            const { data: model } = await supabase
+                .from('independent_models')
+                .select('id')
+                .eq('id', listing.user_id)
+                .single();
+
+            if (model) {
+                // It's a model account, delete the whole profile to free up the username
+                return await deleteProfile(listing.user_id, 'independent_models');
+            }
+        }
+
+        // 2. Otherwise just delete the listing
         const { error } = await supabase
             .from('listings')
             .delete()
@@ -260,8 +305,10 @@ export async function deleteListingOnly(listingId: string) {
         if (error) throw error;
 
         revalidatePath('/dashboard/listings');
+        revalidatePath('/dashboard/profiles/pending');
         return { success: true };
     } catch (error: any) {
+        console.error('Delete listing error:', error);
         return { success: false, error: error.message };
     }
 }
